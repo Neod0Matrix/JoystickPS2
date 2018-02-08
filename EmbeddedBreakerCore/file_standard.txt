@@ -1,0 +1,29 @@
+C文件标准：
+
+#include "stdafx.h"
+//code by </MATRIX>@Neod Anderjon
+//author: Neod Anderjon
+//====================================================================================================
+
+
+//====================================================================================================
+//code by </MATRIX>@Neod Anderjon
+
+
+H文件标准：
+
+#pragma once
+#include "stdafx.h"
+//code by </MATRIX>@Neod Anderjon
+//author: Neod Anderjon
+//====================================================================================================
+
+
+
+//====================================================================================================
+//code by </MATRIX>@Neod Anderjon
+
+向EmbeddedBreakerCore框架中插入外部链接：
+/*
+	@EmbeddedBreakerCore Extern API Insert
+*/

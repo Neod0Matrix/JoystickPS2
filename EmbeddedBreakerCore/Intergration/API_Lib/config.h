@@ -1,0 +1,95 @@
+#pragma once
+#include "stdafx.h"
+//code by </MATRIX>@Neod Anderjon
+//author: Neod Anderjon
+//====================================================================================================
+//对系统内设/外设资源进行开关配置
+
+/*------------------------------宏编译配置(使能配置则保留，不用则注释)---------------------------------*/
+#define Frame_PreConfig					//使用框架预配置
+#define MATRIX_fraExc_Lock 				//框架执行锁
+#define StewLowLevelTrigger				//急停低电平触发
+#define use_ULN2003A					//定义是否使用ULN2003A
+//#define USART1_Remap_Enable				//是否开启USART1重映射
+//#define USART2_Remap_Enable				//是否开启USART2重映射
+#define USART1_RX_EN 					//USART1接收中断使能
+#define USART2_RX_EN 					//USART2接收中断使能
+//#define useRTOSinProject				//在项目中使用RTOS
+//#define VECT_TAB_RAM						//是否使用RAM加载向量表
+//#define use_cpp_algo						//在N皇后问题中采取C++的算法
+
+/*------------------------------------------enum型选值配置-----------------------------------------------*/
+//是否启用错误报警机制
+typedef enum {EW_Enable = 1, EW_Disable = !EW_Enable} 					Error_Warning_Switch;
+extern Error_Warning_Switch 		EW_Switch;
+//是否启用打印调试
+typedef enum {PD_Enable = 1, PD_Disable = !PD_Enable} 					Print_Debug_Switch;
+extern Print_Debug_Switch 			PD_Switch;
+//是否启用OLED显示屏
+typedef enum {OLED_Enable = 1, OLED_Disable = !OLED_Enable} 			OLED_Use_Switch;
+extern OLED_Use_Switch 				OLED_Switch;
+//是否开启PVD电源监测
+typedef enum {PVD_Enable = 1, PVD_Disable = !PVD_Enable} 				PVD_Check_Switch;
+extern PVD_Check_Switch 			PVD_Switch;
+//是否启用温度报警监测
+typedef enum {Temp_Enable = 1, Temp_Disable = !Temp_Enable} 			Temperature_Warning_Switch;
+extern Temperature_Warning_Switch 	Temp_Switch;
+//是否启用协议通信机制
+typedef enum {PC_Enable = 1, PC_Disable = !PC_Enable} 					Protocol_Com_Switch;
+extern Protocol_Com_Switch 			PC_Switch;
+//选择任务管理模式
+typedef enum {RTOS = 0, Streak = 1}										TaskManage_Mode_Select;
+extern TaskManage_Mode_Select 		TMMS;
+//是否开启24V输入电压欠压报警
+typedef enum {LVD_Enable = 1, LVD_Disable = !LVD_Enable}				Low_Voltage_Detect_Warning;
+extern Low_Voltage_Detect_Warning	LVD_Switch;
+//是否启用睡眠模式
+typedef enum {SM_Enable = 1, SM_Disable = !SM_Enable}					SleepMode_Switch;
+extern SleepMode_Switch				SM_Switch;
+//是否开机进入待机状态
+typedef enum {Stby_Enable = 1, Stby_Disable = !Stby_Enable}				Boot_Standby_Switch;
+extern Boot_Standby_Switch			Stby_Switch;
+//是否启用16进制报警
+typedef enum {hexEW_Enable = 1, hexEW_Disable = !hexEW_Enable}			hex_ErrorWarning_Switch;
+extern hex_ErrorWarning_Switch		hexEW_Switch;
+//是否启用PID算法调速
+typedef enum {pidDS_Enable = 1, pidDS_Disable = !pidDS_Enable}			pidDebugSpeed_Switch;
+extern pidDebugSpeed_Switch			pidDS_Switch;
+//是否开启任务资源切换查看
+typedef enum {psaux_Enable = 1, psaux_Disable = !psaux_Enable}			psaux_CheckTaskRound;
+extern psaux_CheckTaskRound			psaux_Switch;
+//是否允许使用DataScope查看数据
+typedef enum {DSD_Enable = 1, DSD_Disable = !DSD_Enable}				DataScope_DetectData;
+extern DataScope_DetectData			DSD_Switch;		
+
+//总体开关编号
+typedef enum
+{
+	urc_map		= 0,					//打印URC配置的映射表
+	urc_ew 		= 1,
+	urc_pd 		= 2,
+	urc_oled 	= 3,
+	urc_pvd 	= 4,
+	urc_temp 	= 5,
+	urc_pc		= 6,
+	urc_task	= 7,
+	urc_lvd		= 8,
+	urc_sm		= 9,
+	urc_stby	= 10,
+	urc_hex		= 11,
+	urc_pid		= 12,
+	urc_psaux	= 13,
+	urc_dsd		= 14,
+}
+Global_Switch_Nbr;
+
+//设置选项的最大值，可以注释掉在库中更新
+//#define Max_Option_Value	14u			
+
+//统一资源配置器
+extern void Universal_Resource_Config (void);
+void urcMapTable_Print (void);
+extern void pclURC_DebugHandler (void);
+
+//====================================================================================================
+//code by </MATRIX>@Neod Anderjon
