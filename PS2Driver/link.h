@@ -16,7 +16,7 @@
 #define _Project_Type_			"Joystick"				//工程类型
 #define _Frame_Name_			"EmbeddedBreakerCore"	//架构名称
 #define _Project_Name_			"GlobalPositioningSystem"//工程名称
-#define _Code_Version_ 			"OS_v0p0_LTE"			//长期演进版
+#define _Code_Version_ 			"OS_v0p1_LTE"			//长期演进版
 #define _Laboratory_			"T.WKVER"				//实验室
 #define _Logo_					"Absolute Liberal"		//logo
 #define _Developer_				"Neod Anderjon"			//开发者
@@ -31,15 +31,18 @@
 //是否开启急停外部中断
 typedef enum {StewEXTI_Enable = 1, StewEXTI_Disable = !StewEXTI_Enable}	Stew_EXTI_Setting;
 extern Stew_EXTI_Setting			StewEXTI_Switch;
+typedef enum {PS2P_Enable = 1, PS2P_Disable = !PS2P_Enable} PS2_PrintKeyValue;
+extern PS2_PrintKeyValue 			PS2P_Switch;
 
 //urc开源链接编号
 typedef enum
 {
     urc_stew 	= 15,
+	urc_ps2p	= 16,
 } PS2_SwitchNbr;
 
 //裁去protocol.h中的定义放到这里来重新定义urc协议长度
-#define Max_Option_Value		15u
+#define Max_Option_Value		16u
 
 //裁去ui.h中定义的总切屏数到这里来重新定义
 #define ScreenPageCount			5u

@@ -8,7 +8,7 @@ Copyright
 Update
 ===============
 	
-	最后更新时间: 2018/02/08am1026
+	最后更新时间: 2018/02/08pm2309
 	详细更新内容见softlog.txt
 
 Project Manual
@@ -29,7 +29,7 @@ Project Manual
 	Laboratory: 	T.WKVER
 	OS_Version: 	μC/OS-III v3.03
 	FWLib_Verson: 	v3.5
-	Project_Verson: OS_v0p0_LTE 长期演进版(什么时候TMD才能跑出个stable来啊)_(:з」∠)_ _(┐「ε:)_
+	Project_Verson: OS_v0p1_LTE 长期演进版(什么时候TMD才能跑出个stable来啊)_(:з」∠)_ _(┐「ε:)_
 	
 Use Manual
 ===============
@@ -51,11 +51,11 @@ Inner IO Map
 	引脚	用途		I/O		备注
 
 	PA0 ---- WKUPIO		I		
-	PA1 ---- 					*
+	PA1 ---- PS2-DO 			*
 	PA2/PB0  					*
 	PA3/PB1  					*
-	PA4 ----					*
-	PA5 ---- 					*
+	PA4 ---- PS2-CS				*
+	PA5 ---- PS2-CLK			*
 	PA6 ---- 					*
 	PA7 ---- 					*
 	PA8 ---- LED0
@@ -68,7 +68,7 @@ Inner IO Map
 	PA15 --- KEY1		I	
 	
 	PB0/PA2  					*
-	PB1/PA3  PS2-DO 			*
+	PB1/PA3  					*
 	PB2 ----
 	PB3 ---- 			
 	PB4 ---- 			
@@ -79,9 +79,9 @@ Inner IO Map
 	PB9 ----
 	PB10 --- 
 	PB11 --- 
-	PB12 --- PS2-DI		I
+	PB12 --- 
 	PB13 --- OLED_SCL
-	PB14 --- 			
+	PB14 --- PS2-DI		I			
 	PB15 --- OLED_SDA	I
 	
 	PC0 ---- 			I
@@ -90,8 +90,8 @@ Inner IO Map
 	PC3 ---- 			I
 	PC4 ---- BEEP
 	PC5 ---- KEY0		I
-	PC6 ---- PS2-CS				*
-	PC7 ---- PS2-CLK			*
+	PC6 ---- 					*
+	PC7 ---- 					*
 	PC8 ---- 					*
 	PC9 ---- 					*
 	PC10 --- LVDIO		I

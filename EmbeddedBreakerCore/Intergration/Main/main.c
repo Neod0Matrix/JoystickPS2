@@ -50,7 +50,7 @@ void bspPeriSysCalls (void)
 	/*
 		@EmbeddedBreakerCore Extern API Insert
 	*/
-	PS2_Init();											//初始化PS2手柄
+	PS2_InterfaceInit();								//初始化PS2手柄API
 }
 
 /*$PAGE*/

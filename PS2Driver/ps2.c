@@ -4,302 +4,268 @@
 //====================================================================================================
 //PS2手柄驱动
 
-u16 Handkey;
-u8 Comd[2] = {0x01, 0x42};									//开始命令，请求数据
-u8 Data[9] = {0}; 				//数据存储数组
+//全局键值缓存
+u8 KeyValueCache[9] = {0}; 			
+StickKeyValueMap globalPS2keyValue = ps2none;
 
-//键值数组
-StickKeyValueMap kvm[16] = {
-	ps2select 	,
-	ps2l3		,
-	ps2r3		,
-	ps2start	,
-	ps2padup	,
-	ps2padright ,
-	ps2paddown  ,
-	ps2padleft  ,
-	ps2l2		,
-	ps2r2		,
-	ps2l1		,
-	ps2r1		,
-	ps2green	,
-	ps2red		,
-	ps2blue		,
-	ps2pink		,	
-};
-
-//手柄初始化  
-void PS2_Init (void)
-{
-	//DI->PB12
-	ucGPIO_Config_Init (RCC_APB2Periph_GPIOB,			
-						GPIO_Mode_IPD,			//默认下拉
-						GPIO_Speed_50MHz,						
-						GPIORemapSettingNULL,			
-						GPIO_Pin_12,					
-						GPIOB,					
-						NI,				
-						EBO_Enable);
-
-	//DO->PB1 
-	ucGPIO_Config_Init (RCC_APB2Periph_GPIOB,			
-						GPIO_Mode_Out_PP,					
-						GPIO_Speed_50MHz,						
-						GPIORemapSettingNULL,			
-						GPIO_Pin_1,					
-						GPIOB,					
-						IHL,				
-						EBO_Enable);
-	
-	//CS->PC6 CLK->PC7
-	ucGPIO_Config_Init (RCC_APB2Periph_GPIOC,			
-						GPIO_Mode_Out_PP,					
-						GPIO_Speed_50MHz,						
-						GPIORemapSettingNULL,			
-						GPIO_Pin_6 | GPIO_Pin_7,					
-						GPIOC,					
-						IHL,				
-						EBO_Enable);
-	
-	PS2_SetInit();					//配置初始化
-}
-
-//向手柄发送命令
-void PS2_Cmd (u8 CMD)
+//发送命令
+void PS2_SendCommand (u8 cmd)
 {
     volatile u16 ref = 0x01;
 	
-    Data[1] = 0;
-    for(ref=0x01; ref<0x0100; ref<<=1)
+    KeyValueCache[1] = 0;
+    for (ref = 0x01; ref < 0x0100; ref <<= 1)
     {
-        if(ref&CMD)
-        {
-            DO_H;                   //输出以为控制位
-        }
-        else DO_L;
-
-        CLK_H;                        //时钟拉高
-        delay_us(50);
-        CLK_L;
-        delay_us(50);
-        CLK_H;
-        if(DI)
-            Data[1] = ref|Data[1];
+		//输出以为控制位
+        if (ref & cmd)	IO_Cmd_H;                   
+        else 			IO_Cmd_L;
+        IO_Clk_H, delay_us(10);
+        IO_Clk_L, delay_us(10);
+        IO_Clk_H;
+        if (IO_DataIn) 
+			KeyValueCache[1] |= ref;
     }
+	delay_us(16);
 }
 
 //判断是否为红灯模式
-//返回值；0，红灯模式
-//		  其他，其他模式
-u8 PS2_RedLight(void)
+Bool_ClassType PS2_RedLightMode (void)
 {
-    CS_L;
-    PS2_Cmd(Comd[0]);  //开始命令
-    PS2_Cmd(Comd[1]);  //请求数据
-    CS_H;
-    if( Data[1] == 0X73)   return 0 ;
-    else return 1;
+    IO_CS_L;
+    PS2_SendCommand(0x01);  				//开始命令
+    PS2_SendCommand(0x42);  				//请求数据
+    IO_CS_H;
 
+	return (KeyValueCache[1] == 0x73)? False : True;
 }
 
 //读取手柄数据
-void PS2_ReadData(void)
+void PS2_ReadStickData (void)
 {
-    volatile u8 byte=0;
-    volatile u16 ref=0x01;
+    volatile u8 byte = 0;
+    volatile u16 ref = 0x01;
 
-    CS_L;
+    IO_CS_L;
+    PS2_SendCommand(0x01);  				//开始命令
+    PS2_SendCommand(0x42);  				//请求数据
 
-    PS2_Cmd(Comd[0]);  //开始命令
-    PS2_Cmd(Comd[1]);  //请求数据
-
-    for(byte=2; byte<9; byte++)        //开始接受数据
+    for (byte = 2; byte < 9; byte++)        //开始接受数据
     {
-        for(ref=0x01; ref<0x100; ref<<=1)
+        for (ref = 0x01; ref < 0x100; ref <<= 1)
         {
-            CLK_H;
-            CLK_L;
-            delay_us(50);
-            CLK_H;
-            if(DI)
-                Data[byte] = ref|Data[byte];
+            IO_Clk_H, delay_us(10);
+            IO_Clk_L, delay_us(10);
+            IO_Clk_H;
+            if (IO_DataIn) 
+				KeyValueCache[byte] |= ref;
         }
-        delay_us(50);
+        delay_us(16);
     }
-    CS_H;
+    IO_CS_H;
 }
 
-//对读出来的PS2的数据进行处理      只处理了按键部分         默认数据是红灯模式  只有一个按键按下时
-//按下为0， 未按下为1
-u8 PS2_DataKey()
+/*
+	对读出来的PS2的数据进行处理
+	只处理了按键部分，默认数据是红灯模式
+*/
+StickKeyValueMap PS2_MatchStickKeyValue (void)
 {
     u8 index;
+	u16 handkey;
+	//键值列表
+	static StickKeyValueMap kvm[16] = {
+		ps2select, ps2l3, ps2r3, ps2start, ps2padup,
+		ps2padright, ps2paddown, ps2padleft, ps2l2,
+		ps2r2, ps2l1, ps2r1, ps2green, ps2red,
+		ps2blue, ps2pink		
+	};
 
-    PS2_ClearData();
-    PS2_ReadData();
+    for (index = 0; index < 9; index++)
+        KeyValueCache[index] = 0x00;
+    PS2_ReadStickData();
 
-    Handkey=(Data[4]<<8)|Data[3];     //这是16个按键  按下为0， 未按下为1
-    for(index=0; index<16; index++)
+	//这是16个按键，按下为0，未按下为1
+    handkey = (KeyValueCache[4] << 8) | KeyValueCache[3];    
+    for (index = 0; index < 16; index++)
     {
-        if((Handkey&(1<<(kvm[index]-1)))==0)
-            return index+1;
+        if (!(handkey & (1 << (kvm[index] - 1))))
+            return (StickKeyValueMap)(index + 1);
     }
-    return 0;          //没有任何按键按下
-}
-
-//得到一个摇杆的模拟量	 范围0~256
-u8 PS2_AnologData (StickKeyValueMap button)
-{
-    return Data[button];
-}
-
-//清除数据缓冲区
-void PS2_ClearData()
-{
-    u8 a;
-    for(a=0; a<9; a++)
-        Data[a]=0x00;
-}
-
-void PS2_Task (void)
-{
-	u8 key;
-	key=PS2_DataKey();
-		if(key!=0)                   //有按键按下
-    	{
-			printf("  \r\n   %d  is  pressed  \r\n",key);
-			if (key == 11)
-			{
-				PS2_Vibration(0xff, 0x00);
-				delay_ms(1500);
-				
-			}
-			else if (key == 12)
-			{
-				PS2_Vibration(0x00, 0x41);
-				delay_ms(1500);
-			}
-			else
-				PS2_Vibration(0x00, 0x00);
-    	}
-		printf(" %5d %5d %5d %5d\r\n",PS2_AnologData(ps2lx),PS2_AnologData(ps2ly),
-		                              PS2_AnologData(ps2rx),PS2_AnologData(ps2ry));
-		delay_ms(50);
+	
+    return ps2none;         
 }
 
 //short ppll
 void PS2_ShortPoll (void)
 {
-	CS_L;
+	IO_CS_L;
 	delay_us(16);
-	PS2_Cmd(0x01);
-	PS2_Cmd(0x42);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	CS_H;
+	PS2_SendCommand(0x01);
+	PS2_SendCommand(0x42);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	IO_CS_H;
 	delay_us(16);
 }
 
 //进入配置
-void PS2_EnterConfig (void)
+void PS2_EnterConfigMode (void)
 {
-	CS_L;
+	IO_Clk_L;
 	delay_us(16);
-	PS2_Cmd(0x01);
-	PS2_Cmd(0x43);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x01);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	CS_H;
+	PS2_SendCommand(0x01);
+	PS2_SendCommand(0x43);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x01);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	IO_Clk_H;
 	delay_us(16);
 }
 
 //发送模式设置
 void PS2_TurnOnAnalogMode (void)
 {
-	CS_L;
-	PS2_Cmd(0x01);
-	PS2_Cmd(0x44);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x01);
-	PS2_Cmd(0xee);
+	IO_Clk_L;
+	delay_us(16);
+	PS2_SendCommand(0x01);
+	PS2_SendCommand(0x44);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x01);
+	PS2_SendCommand(0xee);
 	
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	CS_H;
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	IO_Clk_H;
 	delay_us(16);
 }
 
 //震动设置
 void PS2_VibrationMode (void)
 {
-	CS_L;
+	IO_Clk_L;
 	delay_us(16);
-	PS2_Cmd(0x01);
-	PS2_Cmd(0x4d);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x01);
-	CS_H;
+	PS2_SendCommand(0x01);
+	PS2_SendCommand(0x4d);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x01);
+	IO_Clk_H;
 	delay_us(16);
 }
 
 //完成并保存设置
-void PS2_ExitConfig (void)
+void PS2_ExitConfigMode (void)
 {
-	CS_L;
+	IO_Clk_L;
 	delay_us(16);
-	PS2_Cmd(0x01);
-	PS2_Cmd(0x43);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x5a);
-	PS2_Cmd(0x5a);
-	PS2_Cmd(0x5a);
-	PS2_Cmd(0x5a);
-	PS2_Cmd(0x5a);
-	CS_H;
+	PS2_SendCommand(0x01);
+	PS2_SendCommand(0x43);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x5a);
+	PS2_SendCommand(0x5a);
+	PS2_SendCommand(0x5a);
+	PS2_SendCommand(0x5a);
+	PS2_SendCommand(0x5a);
+	IO_Clk_H;
+	delay_us(16);
+}
+
+//m1 右侧电机，0x00关，其他开，m2左侧电机，0x44-0xff开，值越大震动越大
+void PS2_VibrationMotor (u8 m1, u8 m2)
+{
+	IO_Clk_L;
+	delay_us(16);
+	PS2_SendCommand(0x01);
+	PS2_SendCommand(0x42);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(m1);
+	PS2_SendCommand(m2);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	PS2_SendCommand(0x00);
+	IO_Clk_H;
 	delay_us(16);
 }
 
 //配置初始化
-void PS2_SetInit (void)
+void PS2_ModeConfigInit (void)
 {
 	PS2_ShortPoll();
 	PS2_ShortPoll();
 	PS2_ShortPoll();
-	PS2_EnterConfig();
+	PS2_EnterConfigMode();
 	PS2_TurnOnAnalogMode();
 	PS2_VibrationMode();
-	PS2_ExitConfig();
+	PS2_ExitConfigMode();
 }
 
-//m1 右侧电机，0x00关，其他开，m2左侧电机，0x44-0xff开，值越大震动越大
-void PS2_Vibration (u8 m1, u8 m2)
+//手柄初始化  
+void PS2_InterfaceInit (void)
+{	
+	//DI->PB14
+	ucGPIO_Config_Init (RCC_APB2Periph_GPIOB,			
+						GPIO_Mode_IPD,			//默认下拉
+						GPIO_Input_Speed,						
+						GPIORemapSettingNULL,			
+						GPIO_Pin_14,					
+						GPIOB,					
+						NI,				
+						EBO_Disable);
+
+	//DO->PA1 CS->PA4 CLK->PA5
+	ucGPIO_Config_Init (RCC_APB2Periph_GPIOA,			
+						GPIO_Mode_Out_PP,					
+						GPIO_Speed_50MHz,						
+						GPIORemapSettingNULL,			
+						GPIO_Pin_1 | GPIO_Pin_4 | GPIO_Pin_5,					
+						GPIOA,					
+						IHL,				
+						EBO_Enable);
+	
+	PS2_ModeConfigInit();				
+}
+
+//手柄动作触发任务
+void PS2_MatchStickMapTask (void)
 {
-	CS_L;
-	delay_us(16);
-	PS2_Cmd(0x01);
-	PS2_Cmd(0x42);
-	PS2_Cmd(0x00);
-	PS2_Cmd(m1);
-	PS2_Cmd(m2);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	PS2_Cmd(0x00);
-	CS_H;
-	delay_us(16);
+	globalPS2keyValue = PS2_MatchStickKeyValue();
+	if (globalPS2keyValue != ps2none)                   
+	{
+		if (No_Data_Receive && PC_Switch == PC_Enable && PS2P_Switch == PS2P_Enable)
+		{
+			printf("\r\nKey Value Map: %d ", globalPS2keyValue);
+			usart1WaitForDataTransfer();
+		}
+		if (globalPS2keyValue == ps2l1)
+		{
+			PS2_VibrationMotor(0xff, 0x00);
+			delay_ms(1000);
+		}
+		else if (globalPS2keyValue == ps2r1)
+		{
+			PS2_VibrationMotor(0x00, 0x41);
+			delay_ms(1000);
+		}
+		else
+			PS2_VibrationMotor(0x00, 0x00);
+	}
+	if (No_Data_Receive && PC_Switch == PC_Enable && PS2P_Switch == PS2P_Enable)
+	{
+		printf("Anolog Data: %5d %5d %5d %5d\r\n",
+			KeyValueCache[ps2lx], KeyValueCache[ps2ly],
+			KeyValueCache[ps2rx], KeyValueCache[ps2ry]);
+		usart1WaitForDataTransfer();
+	}
 }
-
-
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

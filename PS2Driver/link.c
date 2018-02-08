@@ -8,6 +8,7 @@
 */
 
 Stew_EXTI_Setting			StewEXTI_Switch;
+PS2_PrintKeyValue 			PS2P_Switch;
 
 //链接到Universal_Resource_Config函数的模块库
 void ModulePS2_UniResConfig (void)
@@ -17,12 +18,15 @@ void ModulePS2_UniResConfig (void)
     	但也有可能普通监测不够快
     */
     StewEXTI_Switch 	= StewEXTI_Enable;				//StewEXTI_Enable	StewEXTI_Disable
+	PS2P_Switch 		= PS2P_Enable;					//PS2P_Enable		PS2P_Disable
 }
 
 //模块选项映射表，链接到urcMapTable_Print函数
 void ModulePS2_URCMap (void)
 {
     printf("\r\n%02d 	Stew EXTI Setting", urc_stew);
+    usart1WaitForDataTransfer();
+	printf("\r\n%02d 	PS2 Joystick Print", urc_ps2p);
     usart1WaitForDataTransfer();
 }
 
@@ -31,9 +35,8 @@ void ModulePS2_urcDebugHandler (u8 ed_status, PS2_SwitchNbr sw_type)
 {
     switch (sw_type)
     {
-    case urc_stew:
-        StewEXTI_Switch	= (Stew_EXTI_Setting)ed_status;
-        break;
+    case urc_stew:	StewEXTI_Switch	= (Stew_EXTI_Setting)ed_status; break;
+	case urc_ps2p:	PS2P_Switch		= (PS2_PrintKeyValue)ed_status; break;
     }
 }
 
@@ -63,14 +66,17 @@ void U1RSD_example (void)
 //OLED常量第四屏，链接到OLED_DisplayInitConst和UIScreen_DisplayHandler函数
 void OLED_ScreenP4_Const (void)
 {
-    OLED_ShowString(strPos(0u), ROW1, (const u8*)"Global Position", Font_Size);
-    OLED_ShowString(strPos(0u), ROW2, (const u8*)"SatelliteSystem", Font_Size);
+    OLED_ShowString(strPos(0u), ROW1, (const u8*)" Joystick PS2  ", Font_Size);
+    OLED_ShowString(strPos(0u), ROW2, (const u8*)"SonyPlaystation", Font_Size);
     OLED_Refresh_Gram();
 }
 
 //OLED JoystickPS2数据显示，链接到UIScreen_DisplayHandler函数显示
 void OLED_DisplayPS2 (void)
 {
+	//显示键值
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)"MapKeyValue: ", Font_Size);
+	OLED_ShowNum(strPos(13u), ROW1, globalPS2keyValue, 2u, Font_Size);
     OLED_Refresh_Gram();
 }
 

@@ -21,7 +21,7 @@ void prio2TaskBus (void)
 	/*
 		@EmbeddedBreakerCore Extern API Insert
 	*/
-	PS2_Task();
+	PS2_MatchStickMapTask();
 	
 #ifdef useRTOSinProject
 	Semaphore_Handler();							//信号量处理
