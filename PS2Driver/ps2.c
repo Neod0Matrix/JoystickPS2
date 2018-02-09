@@ -117,7 +117,7 @@ void PS2_ShortPoll (void)
 //进入配置
 void PS2_EnterConfigMode (void)
 {
-	IO_Clk_L;
+	IO_CS_L;
 	delay_us(16);
 	PS2_SendCommand(0x01);
 	PS2_SendCommand(0x43);
@@ -128,14 +128,14 @@ void PS2_EnterConfigMode (void)
 	PS2_SendCommand(0x00);
 	PS2_SendCommand(0x00);
 	PS2_SendCommand(0x00);
-	IO_Clk_H;
+	IO_CS_H;
 	delay_us(16);
 }
 
 //发送模式设置
 void PS2_TurnOnAnalogMode (void)
 {
-	IO_Clk_L;
+	IO_CS_L;
 	delay_us(16);
 	PS2_SendCommand(0x01);
 	PS2_SendCommand(0x44);
@@ -147,28 +147,28 @@ void PS2_TurnOnAnalogMode (void)
 	PS2_SendCommand(0x00);
 	PS2_SendCommand(0x00);
 	PS2_SendCommand(0x00);
-	IO_Clk_H;
+	IO_CS_H;
 	delay_us(16);
 }
 
 //震动设置
 void PS2_VibrationMode (void)
 {
-	IO_Clk_L;
+	IO_CS_L;
 	delay_us(16);
 	PS2_SendCommand(0x01);
 	PS2_SendCommand(0x4d);
 	PS2_SendCommand(0x00);
 	PS2_SendCommand(0x00);
 	PS2_SendCommand(0x01);
-	IO_Clk_H;
+	IO_CS_H;
 	delay_us(16);
 }
 
 //完成并保存设置
 void PS2_ExitConfigMode (void)
 {
-	IO_Clk_L;
+	IO_CS_L;
 	delay_us(16);
 	PS2_SendCommand(0x01);
 	PS2_SendCommand(0x43);
@@ -179,14 +179,17 @@ void PS2_ExitConfigMode (void)
 	PS2_SendCommand(0x5a);
 	PS2_SendCommand(0x5a);
 	PS2_SendCommand(0x5a);
-	IO_Clk_H;
+	IO_CS_H;
 	delay_us(16);
 }
 
-//m1 右侧电机，0x00关，其他开，m2左侧电机，0x44-0xff开，值越大震动越大
+/*
+	m1 右侧电机，0x00关，其他开，
+	m2左侧电机，0x44-0xff开，值越大震动越大
+*/
 void PS2_VibrationMotor (u8 m1, u8 m2)
 {
-	IO_Clk_L;
+	IO_CS_L;
 	delay_us(16);
 	PS2_SendCommand(0x01);
 	PS2_SendCommand(0x42);
@@ -197,8 +200,11 @@ void PS2_VibrationMotor (u8 m1, u8 m2)
 	PS2_SendCommand(0x00);
 	PS2_SendCommand(0x00);
 	PS2_SendCommand(0x00);
-	IO_Clk_H;
+	IO_CS_H;
 	delay_us(16);
+	//震动延时
+	if (m1 || m2)
+		delay_ms(300);
 }
 
 //配置初始化
@@ -250,16 +256,16 @@ void PS2_StickTestDisplay (void)
 	globalPS2keyValue = PS2_MatchStickKeyValue();
 	
 	//电机驱动
-	if (globalPS2keyValue == ps2l1)
+	if (globalPS2keyValue == ps2r1)
 		PS2_VibrationMotor(0xff, 0x00);
-	else if (globalPS2keyValue == ps2r1)
+	else if (globalPS2keyValue == ps2l1)
 		PS2_VibrationMotor(0x00, 0x41);
 	else
 		PS2_VibrationMotor(0x00, 0x00);
 	//打印测试
 	if (No_Data_Receive && PC_Switch == PC_Enable && PS2P_Switch == PS2P_Enable)
 	{
-		if (localkv != globalPS2keyValue)
+		if (localkv != globalPS2keyValue)	//此处键值会自动复位
 		{
 			localkv = globalPS2keyValue;
 			printf("\r\nKey Value Map: %d\r\n", localkv);
@@ -267,7 +273,7 @@ void PS2_StickTestDisplay (void)
 			if (oledScreenFlag == 4)		//指向PS2键码显示屏
 				OLED_DisplayPS2();
 		}
-		if (anologSum != AnologSumValue)
+		if (anologSum != AnologSumValue)	//摇杆由于机械弹簧左右会自动复位
 		{
 			anologSum = AnologSumValue;
 			printf("\r\nAnolog Data: %5d %5d %5d %5d\r\n", 
