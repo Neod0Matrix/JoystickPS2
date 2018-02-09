@@ -55,6 +55,7 @@ extern void U1RSD_example (void);						//串口处理例程封装
 void ModulePS2_UniResConfig (void);
 void ModulePS2_URCMap (void);
 void ModulePS2_urcDebugHandler (u8 ed_status, PS2_SwitchNbr sw_type);
+void PS2_MatchStickMapTask (void);
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

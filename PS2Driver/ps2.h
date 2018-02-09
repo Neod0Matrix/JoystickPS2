@@ -67,7 +67,7 @@ void PS2_VibrationMode (void);
 void PS2_ExitConfigMode (void);
 void PS2_ModeConfigInit (void);
 void PS2_VibrationMotor (u8 m1, u8 m2);
-void PS2_MatchStickMapTask (void);
+void PS2_StickTestDisplay (void);
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

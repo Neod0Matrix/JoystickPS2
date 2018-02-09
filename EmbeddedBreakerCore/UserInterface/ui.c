@@ -295,9 +295,9 @@ void UIScreen_DisplayHandler (void)
 			OLED_StatusDetector();	
 			break;
 		
-		/*
-			@EmbeddedBreakerCore Extern API Insert
-		*/
+			/*
+				@EmbeddedBreakerCore Extern API Insert
+			*/
 		case 4:
 			OLED_DisplayPS2();
 			break;

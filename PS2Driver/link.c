@@ -7,6 +7,8 @@
 	该文件写入对框架的函数调用支持
 */
 
+#define PS2TimerInterval	50000
+
 Stew_EXTI_Setting			StewEXTI_Switch;
 PS2_PrintKeyValue 			PS2P_Switch;
 
@@ -71,13 +73,33 @@ void OLED_ScreenP4_Const (void)
     OLED_Refresh_Gram();
 }
 
-//OLED JoystickPS2数据显示，链接到UIScreen_DisplayHandler函数显示
+//OLED JoystickPS2数据显示
 void OLED_DisplayPS2 (void)
 {
 	//显示键值
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)"MapKeyValue: ", Font_Size);
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)"KeyValueMap: ", Font_Size);
 	OLED_ShowNum(strPos(13u), ROW1, globalPS2keyValue, 2u, Font_Size);
+	//显示摇杆模拟值
+	OLED_ShowNum(strPos(0u), ROW2, KeyValueCache[ps2lx], 3u, Font_Size);
+	OLED_ShowNum(strPos(4u), ROW2, KeyValueCache[ps2ly], 3u, Font_Size);
+	OLED_ShowNum(strPos(8u), ROW2, KeyValueCache[ps2rx], 3u, Font_Size);
+	OLED_ShowNum(strPos(12u), ROW2, KeyValueCache[ps2ry], 3u, Font_Size);
     OLED_Refresh_Gram();
+}
+
+//PS2手柄扫描实时任务
+void PS2_MatchStickMapTask (void)
+{
+	static u16 ps2ScanSem = 0u;
+	
+	if (Return_Error_Type == Error_Clear && pwsf != JBoot) 
+	{
+		if (ps2ScanSem++ == TickDivsIntervalus(PS2TimerInterval) - 1)
+		{
+			ps2ScanSem = 0u;
+			PS2_StickTestDisplay();			
+		}
+	}
 }
 
 //====================================================================================================

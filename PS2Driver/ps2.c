@@ -5,7 +5,8 @@
 //PS2手柄驱动
 
 //全局键值缓存
-u8 KeyValueCache[9] = {0}; 			
+u8 KeyValueCache[9] = {0}; 		
+u16 AnologSumValue = 0;
 StickKeyValueMap globalPS2keyValue = ps2none;
 
 //发送命令
@@ -19,6 +20,7 @@ void PS2_SendCommand (u8 cmd)
 		//输出以为控制位
         if (ref & cmd)	IO_Cmd_H;                   
         else 			IO_Cmd_L;
+		
         IO_Clk_H, delay_us(10);
         IO_Clk_L, delay_us(10);
         IO_Clk_H;
@@ -85,7 +87,10 @@ StickKeyValueMap PS2_MatchStickKeyValue (void)
     PS2_ReadStickData();
 
 	//这是16个按键，按下为0，未按下为1
-    handkey = (KeyValueCache[4] << 8) | KeyValueCache[3];    
+    handkey = (KeyValueCache[4] << 8) | KeyValueCache[3];   
+	//计算摇杆模拟量总和
+	AnologSumValue = KeyValueCache[ps2lx] + KeyValueCache[ps2ly] 
+		+ KeyValueCache[ps2rx] + KeyValueCache[ps2ry];
     for (index = 0; index < 16; index++)
     {
         if (!(handkey & (1 << (kvm[index] - 1))))
@@ -231,39 +236,47 @@ void PS2_InterfaceInit (void)
 						IHL,				
 						EBO_Enable);
 	
-	PS2_ModeConfigInit();				
+	PS2_ModeConfigInit();						
 }
 
-//手柄动作触发任务
-void PS2_MatchStickMapTask (void)
+//测试用显示键值
+void PS2_StickTestDisplay (void)
 {
+	//静态更新
+	static StickKeyValueMap localkv = ps2none;
+	static u16 anologSum = 0;
+	
+	//全局传参
 	globalPS2keyValue = PS2_MatchStickKeyValue();
-	if (globalPS2keyValue != ps2none)                   
-	{
-		if (No_Data_Receive && PC_Switch == PC_Enable && PS2P_Switch == PS2P_Enable)
-		{
-			printf("\r\nKey Value Map: %d ", globalPS2keyValue);
-			usart1WaitForDataTransfer();
-		}
-		if (globalPS2keyValue == ps2l1)
-		{
-			PS2_VibrationMotor(0xff, 0x00);
-			delay_ms(1000);
-		}
-		else if (globalPS2keyValue == ps2r1)
-		{
-			PS2_VibrationMotor(0x00, 0x41);
-			delay_ms(1000);
-		}
-		else
-			PS2_VibrationMotor(0x00, 0x00);
-	}
+	
+	//电机驱动
+	if (globalPS2keyValue == ps2l1)
+		PS2_VibrationMotor(0xff, 0x00);
+	else if (globalPS2keyValue == ps2r1)
+		PS2_VibrationMotor(0x00, 0x41);
+	else
+		PS2_VibrationMotor(0x00, 0x00);
+	//打印测试
 	if (No_Data_Receive && PC_Switch == PC_Enable && PS2P_Switch == PS2P_Enable)
 	{
-		printf("Anolog Data: %5d %5d %5d %5d\r\n",
-			KeyValueCache[ps2lx], KeyValueCache[ps2ly],
-			KeyValueCache[ps2rx], KeyValueCache[ps2ry]);
-		usart1WaitForDataTransfer();
+		if (localkv != globalPS2keyValue)
+		{
+			localkv = globalPS2keyValue;
+			printf("\r\nKey Value Map: %d\r\n", localkv);
+			usart1WaitForDataTransfer();
+			if (oledScreenFlag == 4)		//指向PS2键码显示屏
+				OLED_DisplayPS2();
+		}
+		if (anologSum != AnologSumValue)
+		{
+			anologSum = AnologSumValue;
+			printf("\r\nAnolog Data: %5d %5d %5d %5d\r\n", 
+				KeyValueCache[ps2lx], KeyValueCache[ps2ly],
+				KeyValueCache[ps2rx], KeyValueCache[ps2ry]);
+			usart1WaitForDataTransfer();
+			if (oledScreenFlag == 4)		//指向PS2键码显示屏
+				OLED_DisplayPS2();
+		}
 	}
 }
 
