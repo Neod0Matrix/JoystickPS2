@@ -86,10 +86,10 @@ void OLED_ScreenP3_Const (void)
 		//显示inner_temperature_detect
 		//OLED显示位数有限，仅精确到小数点后一位
 		OLED_ShowString(strPos(7u), ROW2, (const u8*)"ITD", Font_Size);							
-		OLED_ShowNum(strPos(10u), ROW2, MCU_Temperature_Detector(), 2u, Font_Size);//十位和个位
+		OLED_ShowNum(strPos(10u), ROW2, globalMCU_Temperature, 2u, Font_Size);//十位和个位
 		OLED_ShowString(strPos(12u), ROW2, (const u8*)".", Font_Size);//显示.
-		OLED_ShowNum(strPos(13u), ROW2, ((u32)(MCU_Temperature_Detector() * 10) % 10), 1u, Font_Size);//十分位
-		OLED_ShowNum(strPos(14u), ROW2, ((u32)(MCU_Temperature_Detector() * 100) % 10), 1u, Font_Size);//百分位
+		OLED_ShowNum(strPos(13u), ROW2, ((u32)(globalMCU_Temperature * 10) % 10), 1u, Font_Size);//十分位
+		OLED_ShowNum(strPos(14u), ROW2, ((u32)(globalMCU_Temperature * 100) % 10), 1u, Font_Size);//百分位
 	}
 	OLED_Refresh_Gram();
 }

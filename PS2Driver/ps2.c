@@ -5,7 +5,7 @@
 //PS2手柄驱动
 
 //全局键值缓存
-u8 KeyValueCache[9] = {0}; 		
+u8 KeyValueCache[9] = {0x00}; 		
 u16 AnologSumValue = 0;
 StickKeyValueMap globalPS2keyValue = ps2none;
 
@@ -51,7 +51,8 @@ void PS2_ReadStickData (void)
     PS2_SendCommand(0x01);  				//开始命令
     PS2_SendCommand(0x42);  				//请求数据
 
-    for (byte = 2; byte < 9; byte++)        //开始接受数据
+	//开始接受数据
+    for (byte = 2; byte < 9; byte++)        
     {
         for (ref = 0x01; ref < 0x100; ref <<= 1)
         {
@@ -68,32 +69,33 @@ void PS2_ReadStickData (void)
 
 /*
 	对读出来的PS2的数据进行处理
-	只处理了按键部分，默认数据是红灯模式
+	默认数据是红灯模式
 */
 StickKeyValueMap PS2_MatchStickKeyValue (void)
 {
     u8 index;
-	u16 handkey;
+	u16 temp;
 	//键值列表
 	static StickKeyValueMap kvm[16] = {
 		ps2select, ps2l3, ps2r3, ps2start, ps2padup,
 		ps2padright, ps2paddown, ps2padleft, ps2l2,
-		ps2r2, ps2l1, ps2r1, ps2green, ps2red,
-		ps2blue, ps2pink		
+		ps2r2, ps2l1, ps2r1, ps2triangle, ps2circle,
+		ps2cross, ps2square,
 	};
 
+	//清除键值缓存
     for (index = 0; index < 9; index++)
         KeyValueCache[index] = 0x00;
     PS2_ReadStickData();
-
-	//这是16个按键，按下为0，未按下为1
-    handkey = (KeyValueCache[4] << 8) | KeyValueCache[3];   
 	//计算摇杆模拟量总和
+    temp = (KeyValueCache[4] << 8) | KeyValueCache[3];   
 	AnologSumValue = KeyValueCache[ps2lx] + KeyValueCache[ps2ly] 
 		+ KeyValueCache[ps2rx] + KeyValueCache[ps2ry];
+	
+	//16个按键，按下为0，未按下为1
     for (index = 0; index < 16; index++)
     {
-        if (!(handkey & (1 << (kvm[index] - 1))))
+        if (!(temp & (1 << (kvm[index] - 1))))
             return (StickKeyValueMap)(index + 1);
     }
 	
@@ -142,7 +144,6 @@ void PS2_TurnOnAnalogMode (void)
 	PS2_SendCommand(0x00);
 	PS2_SendCommand(0x01);
 	PS2_SendCommand(0xee);
-	
 	PS2_SendCommand(0x00);
 	PS2_SendCommand(0x00);
 	PS2_SendCommand(0x00);
@@ -256,18 +257,22 @@ void PS2_StickTestDisplay (void)
 	globalPS2keyValue = PS2_MatchStickKeyValue();
 	
 	//电机驱动
-	if (globalPS2keyValue == ps2r1)
+	if (globalPS2keyValue == ps2r2)
 		PS2_VibrationMotor(0xff, 0x00);
-	else if (globalPS2keyValue == ps2l1)
-		PS2_VibrationMotor(0x00, 0x41);
+	else if (globalPS2keyValue == ps2l2)
+		PS2_VibrationMotor(0x00, 0xff);
+	else if (globalPS2keyValue == ps2select)
+		Sys_Soft_Reset();
 	else
 		PS2_VibrationMotor(0x00, 0x00);
+	
 	//打印测试
 	if (No_Data_Receive && PC_Switch == PC_Enable && PS2P_Switch == PS2P_Enable)
 	{
 		if (localkv != globalPS2keyValue)	//此处键值会自动复位
 		{
 			localkv = globalPS2keyValue;
+			Beep_Once;						//蜂鸣器触发提示
 			printf("\r\nKey Value Map: %d\r\n", localkv);
 			usart1WaitForDataTransfer();
 			if (oledScreenFlag == 4)		//指向PS2键码显示屏
@@ -276,7 +281,7 @@ void PS2_StickTestDisplay (void)
 		if (anologSum != AnologSumValue)	//摇杆由于机械弹簧左右会自动复位
 		{
 			anologSum = AnologSumValue;
-			printf("\r\nAnolog Data: %5d %5d %5d %5d\r\n", 
+			printf("\r\nJoy AnologData(0~255): %5d %5d %5d %5d\r\n", 
 				KeyValueCache[ps2lx], KeyValueCache[ps2ly],
 				KeyValueCache[ps2rx], KeyValueCache[ps2ry]);
 			usart1WaitForDataTransfer();

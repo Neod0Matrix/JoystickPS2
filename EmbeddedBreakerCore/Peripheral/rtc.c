@@ -121,7 +121,10 @@ void RTC_IRQHandler (void)
 #endif
 
     if (RTC_GetITStatus(RTC_IT_SEC) != RESET) 
+	{
 		RTC_Get();													//秒钟中断，更新时间
+		RTC_DataStorage(calendar);									//RTC时间寄存
+	}
 
     if (RTC_GetITStatus(RTC_IT_ALR) != RESET)						//闹钟中断
         RTC_ClearITPendingBit(RTC_IT_ALR);							//清闹钟中断

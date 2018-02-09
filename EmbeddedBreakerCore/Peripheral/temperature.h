@@ -17,7 +17,7 @@
 extern float globalMCU_Temperature;
 
 void adcInnerTemperature_Init (void); 				//ADC通道初始化
-float MCU_Temperature_Detector (void);				//计算出温度值
+void MCU_Temperature_Detector (void);				//计算出温度值
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

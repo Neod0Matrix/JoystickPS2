@@ -10,13 +10,12 @@
 
 void prio1TaskBus (void)
 {
-	OrderResponse_Handler();						//指令响应函数	
+	OrderResponse_Handler();						//指令响应函数
 }
 
 void prio2TaskBus (void)
 {
 	LVD_EW_Handler();								//输入电压低压监测
-	RTC_DataStorage(calendar);						//RTC时间寄存
 #ifdef useRTOSinProject
 	Semaphore_Handler();							//信号量处理
 #endif

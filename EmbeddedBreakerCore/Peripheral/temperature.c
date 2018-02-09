@@ -42,25 +42,25 @@ void adcInnerTemperature_Init (void)
 }
 
 //计算出内部温度值
-float MCU_Temperature_Detector (void)
+void MCU_Temperature_Detector (void)
 {
-	float act_temp = InnerTempCalcus(ADC_Temp_Channel, 1);							//换算出当前温度值	
+	static float act_temp = 0.f;													//静态更新
 	
-	if (globalMCU_Temperature != act_temp)											//值不同时才更新
-		globalMCU_Temperature = act_temp;
-
-	//内部温度检测主要工作：温度预警
-	if (globalMCU_Temperature >= Warning_Temperature)
-	{
-		delay_ms(20);																//消除温度抖动引起的报警
-		if (globalMCU_Temperature >= Warning_Temperature)
+	globalMCU_Temperature = InnerTempCalcus(ADC_Temp_Channel, 1);					
+	if (act_temp != globalMCU_Temperature)	
+	{		
+		 act_temp = globalMCU_Temperature;
+		//内部温度检测主要工作：温度预警
+		if (act_temp >= Warning_Temperature)
 		{
-			TEMPERATUREEXCESS;															
-			TEMPERATUREEXCESS_16;
+			delay_ms(20);															//消除温度抖动引起的报警
+			if (act_temp >= Warning_Temperature)
+			{
+				TEMPERATUREEXCESS;															
+				TEMPERATUREEXCESS_16;
+			}
 		}
 	}
-
-	return globalMCU_Temperature;													//返回全局参量
 }
 
 //====================================================================================================

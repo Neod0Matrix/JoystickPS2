@@ -7,7 +7,7 @@
 	该文件写入对框架的函数调用支持
 */
 
-#define PS2TimerInterval	50000
+#define PS2TimerInterval	20000						//扫描触发时间设置
 
 Stew_EXTI_Setting			StewEXTI_Switch;
 PS2_PrintKeyValue 			PS2P_Switch;
@@ -88,17 +88,15 @@ void OLED_DisplayPS2 (void)
 }
 
 //PS2手柄扫描实时任务
-void PS2_MatchStickMapTask (void)
+void PS2_MatchStickMotionTask (void)
 {
 	static u16 ps2ScanSem = 0u;
 	
-	if (Return_Error_Type == Error_Clear && pwsf != JBoot) 
+	if (ps2ScanSem++ == TickDivsIntervalus(PS2TimerInterval) - 1 
+		&& pwsf != JBoot)
 	{
-		if (ps2ScanSem++ == TickDivsIntervalus(PS2TimerInterval) - 1)
-		{
-			ps2ScanSem = 0u;
-			PS2_StickTestDisplay();			
-		}
+		ps2ScanSem = 0u;
+		PS2_StickTestDisplay();			
 	}
 }
 

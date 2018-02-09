@@ -16,7 +16,7 @@
 #define _Project_Type_			"Joystick"				//工程类型
 #define _Frame_Name_			"EmbeddedBreakerCore"	//架构名称
 #define _Project_Name_			"GlobalPositioningSystem"//工程名称
-#define _Code_Version_ 			"OS_v0p1_LTE"			//长期演进版
+#define _Code_Version_ 			"OS_v0p2_LTE"			//长期演进版
 #define _Laboratory_			"T.WKVER"				//实验室
 #define _Logo_					"Absolute Liberal"		//logo
 #define _Developer_				"Neod Anderjon"			//开发者
@@ -55,7 +55,7 @@ extern void U1RSD_example (void);						//串口处理例程封装
 void ModulePS2_UniResConfig (void);
 void ModulePS2_URCMap (void);
 void ModulePS2_urcDebugHandler (u8 ed_status, PS2_SwitchNbr sw_type);
-void PS2_MatchStickMapTask (void);
+void PS2_MatchStickMotionTask (void);
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

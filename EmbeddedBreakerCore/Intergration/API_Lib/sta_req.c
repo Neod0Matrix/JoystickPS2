@@ -86,7 +86,7 @@ void displaySystemInfo (void)
 		}
 		if (Temp_Switch == Temp_Enable)
 		{
-			printf("\r\nMCU Temperature: 	%02.02f C\r\n", MCU_Temperature_Detector());//内部温度检测
+			printf("\r\nMCU Temperature: 	%02.02f C\r\n", globalMCU_Temperature);//内部温度检测
 			usart1WaitForDataTransfer();		
 		}
 		if (TMMS == RTOS)

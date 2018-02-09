@@ -45,7 +45,7 @@ void TIM2_IRQHandler (void)
 		/*
 			@EmbeddedBreakerCore Extern API Insert
 		*/
-		PS2_MatchStickMapTask();							//PS2手柄键值扫描
+		PS2_MatchStickMotionTask();							//PS2手柄键值扫描
 	}
 	
 #if SYSTEM_SUPPORT_OS										//OS支持
