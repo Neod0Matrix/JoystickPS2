@@ -126,7 +126,7 @@ void BlinkLED_StatusCtrl (void)
 		LEDGroupCtrl(led_3, Off);
 	}
 	//只有警报清除且初始化完成才闪烁，系统正常运行指示
-	else if (Return_Error_Type == Error_Clear && pwsf != JBoot) 
+	else if (Return_Error_Type == Error_Clear && pwsf != JBoot && globalSleepflag == SysOrdWork) 
 	{
 		//信号量开始计数
 		runledBlinkSem++;									
@@ -167,7 +167,7 @@ void BreathPWMProduce (LEDGroupNbr nbr, BreathPWMGroup *led_nbr)
 	if (pwsf == JBoot || Return_Error_Type != Error_Clear)
 		LEDGroupCtrl(nbr, Off);
 	//初始化完成后开始呼吸
-	else if (Return_Error_Type == Error_Clear && pwsf != JBoot) 
+	else if (Return_Error_Type == Error_Clear && pwsf != JBoot && globalSleepflag == SysOrdWork) 
 	{
 		led_nbr -> breathCtrlSem++;							//信号量叠加
 		

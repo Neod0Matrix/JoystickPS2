@@ -40,47 +40,28 @@ void ucEXTI_ModeConfig (
 void EXTI_Config_Init (void)
 {
 	//STEW(正常状态低电平，触发拉高) PB8	
-	if (StewEXTI_Switch == StewEXTI_Enable)
-	{
-		//KEY0 PC5
-		ucGPIO_Config_Init (RCC_APB2Periph_GPIOC,			
-							GPIO_Mode_IPU,					
-							GPIO_Input_Speed,						//无效参数						
-							GPIORemapSettingNULL,							
-							GPIO_Pin_5,					
-							GPIOC,					
-							NI,				
-							EBO_Disable);
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);		//外部中断，需要使能AFIO时钟
-		ucEXTI_ModeConfig(	GPIO_PortSourceGPIOB, 
-							GPIO_PinSource8, 
-							Stew_EXTI_Line, 
-							EXTI_Mode_Interrupt, 
-							EXTI_Trigger_Rising, 
-							EXTI9_5_IRQn, 
-							0x01, 
-							0x03);
-	}
-	
+	ucGPIO_Config_Init (RCC_APB2Periph_GPIOB,			
+						GPIO_Mode_IPU,					
+						GPIO_Input_Speed,							//无效参数						
+						GPIO_Remap_SWJ_JTAGDisable,					//关闭jtag，启用swd
+						GPIO_Pin_8,					
+						GPIOB,					
+						NI,				
+						EBO_Disable);	
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);			//外部中断，需要使能AFIO时钟
+	ucEXTI_ModeConfig(
+						GPIO_PortSourceGPIOB, 
+						GPIO_PinSource8, 
+						Stew_EXTI_Line, 
+						EXTI_Mode_Interrupt, 
+						EXTI_Trigger_Rising, 
+						EXTI9_5_IRQn, 
+						0x01, 
+						0x03);
 	/*
 		@EmbeddedBreakerCore Extern API Insert
 	*/
-/*
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);			
-	MPU6050_INT_IO_Init();
-	ucEXTI_ModeConfig(	GPIO_PortSourceGPIOB, 
-						GPIO_PinSource12, 
-						MPU_INT_EXTI_Line, 
-						EXTI_Mode_Interrupt, 
-#if MPU_DataTransferFinishedINTLevel == Bit_RESET
-						EXTI_Trigger_Falling, 						
-#elif MPU_DataTransferFinishedINTLevel == Bit_SET
-						EXTI_Trigger_Rising,
-#endif
-						EXTI15_10_IRQn, 
-						0x03, 
-						0x03);
-*/
+	Modules_ExternInterruptInit();
 }
 
 //STEW--PB8
@@ -90,48 +71,19 @@ void EXTI9_5_IRQHandler (void)
 	OSIntEnter();    
 #endif
 	
-	/*
-		@EmbeddedBreakerCore Extern API Insert
-	*/
-	if (StewEXTI_Switch == StewEXTI_Enable && EXTI_GetITStatus(Stew_EXTI_Line) != RESET)//长按检测急停
+	if (EXTI_GetITStatus(Stew_EXTI_Line) != RESET)
 	{
 		EMERGENCYSTOP;												
 		EMERGENCYSTOP_16;
-		
 		while (STEW_LTrigger);										//等待急停释放，允许长期检测
 		ERROR_CLEAR;												//急停复位后自动清除警报	
-	}
+	}	
 	EXTI_ClearITPendingBit(Stew_EXTI_Line);  						//清除EXTI线路挂起位
 	
 #if SYSTEM_SUPPORT_OS 												//如果SYSTEM_SUPPORT_OS为真，则需要支持OS
 	OSIntExit();  											 
 #endif
 }
-
-/*
-	@EmbeddedBreakerCore Extern API Insert
-*/
-/*
-void EXTI15_10_IRQHandler (void)
-{
-#if SYSTEM_SUPPORT_OS 												
-	OSIntEnter();    
-#endif	
-	*/
-
-	/*	Here read one signal level not a key, handler method is different than last.
-	 *	If you confirm test in external interrupt update dmp, please enable IMUINT_Enable.
-	 *	Setting external interrupt may lead to program dump out, notice it.	
-	**/
-	/*
-	dmpAttitudeAlgorithm_RT(IMUINT_Enable);
-	EXTI_ClearITPendingBit(MPU_INT_EXTI_Line);  					//清除EXTI线路挂起位
-	
-#if SYSTEM_SUPPORT_OS 												
-	OSIntExit();  											 
-#endif
-}
-*/
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

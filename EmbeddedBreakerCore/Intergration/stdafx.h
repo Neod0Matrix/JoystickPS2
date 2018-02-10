@@ -69,9 +69,9 @@
 //UI
 #include "ui.h"											//OLED UI sample
 
-//链接所有JoystickPS2模块的头文件
-#include "ps2.h"										//PS2底层驱动
-#include "link.h"										//调用模块链接
+//模块
+#include "link.h"										//模块对框架链接最末端文件
+#include "ps2.h"										//PS2手柄底层驱动
 
 //===================================================================================================
 //code by </MATRIX>@Neod Anderjon

@@ -15,7 +15,7 @@
 #define __Project_Type__		"Frame"					//工程类型
 #define __Frame_Name__			"EmbeddedBreakerCore"	//架构名称
 #define __AbbrFrameName__		"EBCr"					//名称缩写(4字以内)
-#define __Code_Version__ 		"OS_v0p4_LTE"			//长期演进版
+#define __Code_Version__ 		"OS_v0p5_LTE"			//长期演进版
 #define __Laboratory__			"T.WKVER"				//实验室
 #define __Logo__				"Absolute Liberal"		//logo
 #define __Developer__			"Neod Anderjon"			//开发者
@@ -25,7 +25,7 @@
 #define __FunnyWord__			"(ಡωಡ)"					//滑稽颜文字
 
 //嵌入式系统版本
-#define __OS_Version__			"uC/OS-III v3p03"		//ucosiii	
+#define __OS_Version__			"uC/OS-III v3p03"		//ucosiii		
 
 //时钟设置
 #define InputOSCFreq			8						//输入晶振频率

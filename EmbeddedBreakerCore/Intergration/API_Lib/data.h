@@ -25,6 +25,7 @@ u16 Nbr10BitCalcus (int nbr);								//10进制位数获取
 static char *itoa (int value, char *string, int radix);		//整型数据转换为字符串
 void itoa_Test (void);										//itoa测试
 char* strData_Catenate (char* Array, char result[]);		//整体字符串拼接
+void U1RSD_example (void);
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

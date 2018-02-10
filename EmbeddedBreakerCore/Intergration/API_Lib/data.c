@@ -144,5 +144,28 @@ char* strData_Catenate (char* Array, char result[])
 	return result;							
 }
 
+//串口接收数据示例，不调用
+void U1RSD_example (void)
+{
+    u8 t, len;
+
+    if (PD_Switch == PD_Enable && Data_Receive_Over)	//接收数据标志
+    {
+        len = Data_All_Length;							//得到此次接收到的数据长度(字符串个数)
+        __ShellHeadSymbol__;
+        U1SD("Controller Get The Data: \r\n");
+        if (No_Data_Receive)							//没有数据接收，可以发送
+        {
+            for (t = 0u; t < len; t++)
+            {
+                USART_SendData(USART1, USART1_RX_BUF[t]);//将所有数据依次发出
+                usart1WaitForDataTransfer();			//等待发送结束
+            }
+        }
+        U1SD("\r\n");									//插入换行
+        USART1_RX_STA = 0u;								//接收状态标记
+    }
+}
+
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

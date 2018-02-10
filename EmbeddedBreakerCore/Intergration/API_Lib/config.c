@@ -13,12 +13,11 @@ Temperature_Warning_Switch 	Temp_Switch;				//是否启用内部温度监测报�
 Protocol_Com_Switch 		PC_Switch;					//是否启用协议通信机制
 TaskManage_Mode_Select 		TMMS;						//选择任务管理模式
 Low_Voltage_Detect_Warning	LVD_Switch;					//是否开启24V欠压报警
-SleepMode_Switch			SM_Switch;					//是否启用睡眠模式
-Boot_Standby_Switch			Stby_Switch;				//是否开机进入待机状态
 hex_ErrorWarning_Switch		hexEW_Switch;				//是否开启16进制报警
 pidDebugSpeed_Switch		pidDS_Switch;				//是否启用PID算法调速
 psaux_CheckTaskRound		psaux_Switch;				//是否开启任务资源切换查看
 DataScope_DetectData		DSD_Switch;					//是否允许使用DataScope查看数据
+HardwareErrorDirectReset	HEDR_Switch;				//是否允许触发硬件错误后直接软件复位
 
 /*	
 	统一资源配置，开机读取
@@ -42,12 +41,6 @@ void Universal_Resource_Config (void)
 		无论进行什么测试都请务必开启，它会代替SB的编译器给你报错
 	*/
     EW_Switch 			= EW_Enable;					//EW_Enable			EW_Disable
-	
-	/*
-		STM32自带睡眠模式
-		WK_UP影响复位、急停调试
-	*/
-	SM_Switch			= SM_Disable;					//SM_Enable			SM_Disable
 	
 	/*
 		在第三层封装库运动控制调用层中加入PID算法
@@ -79,6 +72,12 @@ void Universal_Resource_Config (void)
 		5V或者3.3V供电关闭
 	*/
 	LVD_Switch			= LVD_Disable;					//LVD_Enable		LVD_Disable
+	
+	/*
+		如果该框架用于工控设备
+		则需要设置为使能，使错误发生后直接复位
+	*/
+	HEDR_Switch			= HEDR_Disable;					//HEDR_Enable		HEDR_Disable
 
 /*$PAGE*/
 /*->> 开关类*/
@@ -108,15 +107,8 @@ void Universal_Resource_Config (void)
 
     /*
 		本工程属于可剪裁嵌入式项目，可以选择是否使用μCOS
-		选择使用OS的同时需要取消config.h中的相关注释
 	*/
 	TMMS				= Streak;						//RTOS				Streak
-	
-	/*
-		调用ST库中的开机待命WK_UP唤醒功能
-		由于太麻烦所以可以干掉
-	*/
-	Stby_Switch			= Stby_Disable;					//Stby_Enable		Stby_Disable
 	
 	/*
 		ps -aux
@@ -134,7 +126,7 @@ void Universal_Resource_Config (void)
 	/*
 		@EmbeddedBreakerCore Extern API Insert
 	*/
-	ModulePS2_UniResConfig();
+	Modules_UniResConfig();
 	
 #endif													//end of Frame_PreConfig flag
 }
@@ -165,10 +157,6 @@ void urcMapTable_Print (void)
 		usart1WaitForDataTransfer();
 		printf("\r\n%02d 	LowVoltage Detector", urc_lvd);
 		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	Sleep Mode", urc_sm);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	Standby", urc_stby);
-		usart1WaitForDataTransfer();
 		printf("\r\n%02d 	Hex Print Debug", urc_hex);
 		usart1WaitForDataTransfer();
 		printf("\r\n%02d 	PID", urc_pid);
@@ -177,12 +165,13 @@ void urcMapTable_Print (void)
 		usart1WaitForDataTransfer();
 		printf("\r\n%02d 	DataScope Detect Data Curve", urc_dsd);
 		usart1WaitForDataTransfer();
+		printf("\r\n%02d 	Hardware Error Direct Reset", urc_hedr);
+		usart1WaitForDataTransfer();
 		
 		/*
 			@EmbeddedBreakerCore Extern API Insert
 		*/
-		ModulePS2_URCMap();
-
+		Modules_URCMap();
 		printf("\r\n");
 		usart1WaitForDataTransfer();
 	}
@@ -218,22 +207,21 @@ void pclURC_DebugHandler (void)
 		case urc_pc: 		PC_Switch		= (Protocol_Com_Switch)ed_status;			break;	
 		case urc_task: 		TMMS			= (TaskManage_Mode_Select)ed_status;		break;	
 		case urc_lvd: 		LVD_Switch		= (Low_Voltage_Detect_Warning)ed_status;	break;	
-		case urc_sm: 		SM_Switch		= (SleepMode_Switch)ed_status;				break;	
-		case urc_stby: 		Stby_Switch		= (Boot_Standby_Switch)ed_status;			break;
 		case urc_hex: 		hexEW_Switch	= (hex_ErrorWarning_Switch)ed_status;		break;
 		case urc_pid: 		pidDS_Switch	= (pidDebugSpeed_Switch)ed_status;			break;
 		case urc_psaux: 	psaux_Switch	= (psaux_CheckTaskRound)ed_status;			break;
 		case urc_dsd:		DSD_Switch		= (DataScope_DetectData)ed_status;			break;
+		case urc_hedr:		HEDR_Switch		= (HardwareErrorDirectReset)ed_status;		break;
 		}
 		
 		/*
 			@EmbeddedBreakerCore Extern API Insert
 		*/
-		ModulePS2_urcDebugHandler(ed_status, (PS2_SwitchNbr)sw_type);
-		
-		__ShellHeadSymbol__; U1SD("URC Setting Update\r\n");	//URC配置更新
+		Modules_urcDebugHandler(ed_status, (Modules_SwitchNbr)sw_type);
+	
+		__ShellHeadSymbol__; U1SD("URC Setting Update\r\n");//URC配置更新
 	}
-	else if (sw_type > Max_Option_Value)						//选项超值报错
+	else if (sw_type > Max_Option_Value)				//选项超值报错
 	{
 		U1SD("Option Value Excess Error\r\n");			
 		SERIALDATAERROR;		

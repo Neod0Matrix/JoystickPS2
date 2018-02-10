@@ -37,7 +37,7 @@ void ucTimerx_InitSetting (	TIM_TypeDef 		*timx,				//定时器编号
 		GPIO_PinRemapConfig(remap, ENABLE);							//重映射IO编号(重映射必须在RCC初始化后使用才有效)
 	}
 	
-	TIM_TimeBaseStructure.TIM_Period = tim_arrtp;           		//翻转周期   
+	TIM_TimeBaseStructure.TIM_Period = tim_arrtp;           		//翻转周期    
 	TIM_TimeBaseStructure.TIM_Prescaler = tim_psc;  				//分频器
 	
     TIM_TimeBaseStructure.TIM_ClockDivision = clkdv; 				//时钟分割

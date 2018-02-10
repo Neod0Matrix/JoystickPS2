@@ -9,7 +9,6 @@
 	太大容易造成SRAM溢出，设置太小会触发硬件错误
 */
 
-#define SmallTaskStackSize				(CPU_STK_SIZE)64u	//小空间任务栈
 #define OrdTaskStackSize				(CPU_STK_SIZE)128u	//常用堆栈大小
 #define MainTaskStackSize				(CPU_STK_SIZE)256u	//主任务堆栈大小
 
@@ -30,7 +29,7 @@ typedef enum
 	DivTask1StkSize = OrdTaskStackSize,
 	DivTask2StkSize = OrdTaskStackSize,
 	DivTask3StkSize = MainTaskStackSize,
-	DivTask4StkSize = SmallTaskStackSize,
+	DivTask4StkSize = OrdTaskStackSize,
 } Task_StackSize_Setting;
 
 //任务放置划分函数(OS调用)
@@ -46,10 +45,10 @@ void ucosiii_TaskMgr (void);								//ucosiii工作预处理
 void ShareResources_Handler (u8 *resource, const void *task_str, u16 delay_time);//资源共享访问
 void Semaphore_Handler (void);								//信号量处理
 void MemStack_ReqHandler (void);							//内存块申请处理
-void osiiiTaskFuction (		void (*ActualExeFunction)(void), 
-							u8* srStr, 
-							u8 srpTime, 
-							u16 dlyTime);
+void osiiiTaskFuction (	void (*ActualExeFunction)(void), 
+						u8* srStr, 
+						u8 srpTime, 
+						u16 dlyTime);
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

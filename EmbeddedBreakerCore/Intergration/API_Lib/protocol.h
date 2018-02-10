@@ -14,12 +14,11 @@
 #define SSR					0x0A						//系统状态请求
 #define SOR					0x0B						//软件复位
 #define NQU					0x0C						//N皇后测试
-#define MSS					0x0D						//系统睡眠挂起	
-#define CT					0x0E						//通信测试
-#define EWF					0x0F						//报警反馈
-#define ORF					0x1A						//指令执行结束
-#define URC					0x1B						//URC的协议配置
-#define MEW					0x1C						//警报的手动触发与清除
+#define CT					0x0D						//通信测试
+#define EWF					0x0E						//报警反馈
+#define ORF					0x0F						//指令执行结束
+#define URC					0x1A						//URC的协议配置
+#define MEW					0x1B						//警报的手动触发与清除
 
 //数据位限定
 #define DMAX				0x09						//十进制最大
@@ -43,16 +42,19 @@
 //协议缓存数组第二位数据
 typedef enum
 {
-	//标准库包含
     pSSR	= 0,
     pSOR	= 1,
 	pNQU	= 2,
-	pMSS	= 3,
-	pCT		= 4,
-	pEWF	= 5,
-	pORF	= 6,
-	pURC	= 7,
-	pMEW	= 8,
+	pCT		= 3,
+	pEWF	= 4,
+	pORF	= 5,
+	pURC	= 6,
+	pMEW	= 7,
+	
+	/*
+		@EmbeddedBreakerCore Extern API Insert
+	*/
+	pMDLS	= 8,
 } Protocol_Order;
 extern Protocol_Order PO_Judge;							//判断标识
 

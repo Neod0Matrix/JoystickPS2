@@ -21,7 +21,6 @@ void USART2_Init (u32 baud);							//串口2初始化
 void u2_printf (char* fmt, ...);
 void TIM4_Switch (FunctionalState status);				//定时器4开关
 void TIM4_AuxUSART2_Init (void);						//初始化定时器4
-
 extern void usart2WaitForDataTransfer (void);			//等待数据发送完毕
 
 //====================================================================================================

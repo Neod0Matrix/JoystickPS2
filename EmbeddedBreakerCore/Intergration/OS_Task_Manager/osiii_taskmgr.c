@@ -243,19 +243,19 @@ void MemStack_ReqHandler (void)
 
 //osiii通用任务函数
 void osiiiTaskFuction (	void (*ActualExeFunction)(void),//执行函数
-						u8* srStr, 					//共享资源
-						u8 srpTime, 				//资源延时
-						u16 dlyTime)				//任务切换延时
+						u8* srStr, 						//共享资源
+						u8 srpTime, 					//资源延时
+						u16 dlyTime)					//任务切换延时
 {
 	OS_ERR err;										
 	
-	while (True)									//任务循环
+	while (True)										//任务循环
     {
-		ActualExeFunction();						//任务函数
+		ActualExeFunction();							//任务函数
 		ShareResources_Handler(share_resource, srStr, srpTime);//共享资源
 		//延时任务切换
 		if (dlyTime >= 1000u)
-			OSTimeDlyHMSM(0, 0, dlyTime / 1000u, dlyTime - 1000u, OS_OPT_TIME_PERIODIC, &err);
+			OSTimeDlyHMSM(0, 0, dlyTime / 1000u, dlyTime - (dlyTime / 1000u) * 1000u, OS_OPT_TIME_PERIODIC, &err);
 		else
 			OSTimeDlyHMSM(0, 0, 0, dlyTime, OS_OPT_TIME_PERIODIC, &err);
     }
@@ -270,21 +270,21 @@ void divTaskNbr4 (void *p_arg)
 {
 	u8 tastStr[] = "Task 4 Running";
 	p_arg = p_arg;	
-	osiiiTaskFuction(prio4TaskBus, tastStr, SRpTime, 20u);
+	osiiiTaskFuction(prio4TaskBus, tastStr, SRpTime, 100u);
 }
 
 void divTaskNbr3 (void *p_arg)
 {
 	u8 tastStr[] = "Task 3 Running";
 	p_arg = p_arg;	
-	osiiiTaskFuction(prio3TaskBus, tastStr, SRpTime, 300u);
+	osiiiTaskFuction(prio3TaskBus, tastStr, SRpTime, 400u);
 }
 
 void divTaskNbr2 (void *p_arg)
 {
 	u8 tastStr[] = "Task 2 Running";
 	p_arg = p_arg;	
-	osiiiTaskFuction(prio2TaskBus, tastStr, SRpTime, 100u);
+	osiiiTaskFuction(prio2TaskBus, tastStr, SRpTime, 200u);
 }
 
 void divTaskNbr1 (void *p_arg)

@@ -43,12 +43,6 @@ extern TaskManage_Mode_Select 		TMMS;
 //是否开启24V输入电压欠压报警
 typedef enum {LVD_Enable = 1, LVD_Disable = !LVD_Enable}				Low_Voltage_Detect_Warning;
 extern Low_Voltage_Detect_Warning	LVD_Switch;
-//是否启用睡眠模式
-typedef enum {SM_Enable = 1, SM_Disable = !SM_Enable}					SleepMode_Switch;
-extern SleepMode_Switch				SM_Switch;
-//是否开机进入待机状态
-typedef enum {Stby_Enable = 1, Stby_Disable = !Stby_Enable}				Boot_Standby_Switch;
-extern Boot_Standby_Switch			Stby_Switch;
 //是否启用16进制报警
 typedef enum {hexEW_Enable = 1, hexEW_Disable = !hexEW_Enable}			hex_ErrorWarning_Switch;
 extern hex_ErrorWarning_Switch		hexEW_Switch;
@@ -61,6 +55,9 @@ extern psaux_CheckTaskRound			psaux_Switch;
 //是否允许使用DataScope查看数据
 typedef enum {DSD_Enable = 1, DSD_Disable = !DSD_Enable}				DataScope_DetectData;
 extern DataScope_DetectData			DSD_Switch;		
+//是否允许触发硬件错误后直接软件复位
+typedef enum {HEDR_Enable = 1, HEDR_Disable = !HEDR_Enable} 			HardwareErrorDirectReset;
+extern HardwareErrorDirectReset		HEDR_Switch;
 
 //总体开关编号
 typedef enum
@@ -74,17 +71,15 @@ typedef enum
 	urc_pc		= 6,
 	urc_task	= 7,
 	urc_lvd		= 8,
-	urc_sm		= 9,
-	urc_stby	= 10,
-	urc_hex		= 11,
-	urc_pid		= 12,
-	urc_psaux	= 13,
-	urc_dsd		= 14,
+	urc_hex		= 9,
+	urc_pid		= 10,
+	urc_psaux	= 11,
+	urc_dsd		= 12,
+	urc_hedr	= 13,
 }
 Global_Switch_Nbr;
 
-//设置选项的最大值，可以注释掉在库中更新
-//#define Max_Option_Value	14u			
+//#define Max_Option_Value	12u			//设置选项的最大值
 
 //统一资源配置器
 extern void Universal_Resource_Config (void);

@@ -311,7 +311,7 @@ void OLED_ShowTime (u8 x, u8 y, u32 num, u8 size)
 //OLED指令初始化
 void OLED_CmdSetMode (void)
 {
-	OLED_WR_Byte(0xae, wr_cmd);				//关闭显示
+	OLED_WR_Byte(0xAE, wr_cmd);				//关闭显示
 	
     OLED_WR_Byte(0x40, wr_cmd);				//设置起始行地址(0x40第一行行首，0x80第二行行首)
 

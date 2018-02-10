@@ -48,12 +48,10 @@ void NVIC_Configuration (void)
 
 /*
 	RCC时钟配置，放在外设RCC时钟初始化之前
-	V3.0版本固件库之前是必备的，V3.0之后使用缺省配置(@72M主频)
-	如果使用其他主频则需要在main最开始调用
+	V3.0版本固件库之前是必备的，V3.0之后使用缺省配置
 */
 void RCC_Configuration (uint32_t pll)
 {
-	//SystemInit();									//直接调用固件库初始化系统
     RCC_DeInit();              						//RCC寄存器恢复初始化值
     RCC_HSEConfig(RCC_HSE_ON); 						//使能外部高速晶振HSE
 	

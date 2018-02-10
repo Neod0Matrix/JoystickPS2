@@ -41,7 +41,9 @@ void HardFault_Handler (void)
     {
         HARDFAULT;												//硬件报错	
 		HARDFAULT_16;
-	    //Sys_Soft_Reset();										//如果硬件错误直接触发复位
+		//如果错误直接触发复位
+		if (HEDR_Switch == HEDR_Enable)
+			Sys_Soft_Reset();										
 		if (Return_Error_Type == Error_Clear) break;
     }
 }
@@ -49,8 +51,12 @@ void HardFault_Handler (void)
 void MemManage_Handler (void)
 {
     /* Go to infinite loop when Memory Manage exception occurs */
-    while (1)
+    while (True)
     {
+		//如果错误直接触发复位
+		if (HEDR_Switch == HEDR_Enable)
+			Sys_Soft_Reset();										
+		if (Return_Error_Type == Error_Clear) break;
     }
 }
 
@@ -62,6 +68,9 @@ void BusFault_Handler (void)
     {
 		BUSFAULT;
 		BUSFAULT_16;
+		//如果错误直接触发复位
+		if (HEDR_Switch == HEDR_Enable)
+			Sys_Soft_Reset();	
 		if (Return_Error_Type == Error_Clear) break;
     }
 }
@@ -73,6 +82,9 @@ void UsageFault_Handler (void)
     {
 		USAGEFAULT;
 		USAGEFAULT_16;
+		//如果错误直接触发复位
+		if (HEDR_Switch == HEDR_Enable)
+			Sys_Soft_Reset();	
 		if (Return_Error_Type == Error_Clear) break;
     }
 }
@@ -113,10 +125,6 @@ void UsageFault_Handler (void)
 //	return;
 //}
 
-void SVC_Handler (void)
-{
-}
-
 void DebugMon_Handler (void)
 {
 }
@@ -129,6 +137,11 @@ void DebugMon_Handler (void)
 //void SysTick_Handler (void)
 //{
 //}
+
+//void SVC_Handler (void)
+//{
+//}
+
 
 /******************************************************************************/
 /*                 STM32F10x Peripherals Interrupt Handlers                   */

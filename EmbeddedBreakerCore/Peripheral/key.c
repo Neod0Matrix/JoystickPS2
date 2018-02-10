@@ -10,25 +10,21 @@ void KEY_Init (void)
 {
 	//一般设置成上拉输入
 	
-	if (StewEXTI_Switch == StewEXTI_Disable)
-	{
-		//KEY0 PC5
-		ucGPIO_Config_Init (RCC_APB2Periph_GPIOC | RCC_APB2Periph_AFIO,			
-							GPIO_Mode_IPU,					
-							GPIO_Input_Speed,									//无效参数						
-							GPIO_Remap_SWJ_JTAGDisable,							//关闭jtag，启用swd
-							GPIO_Pin_5,					
-							GPIOC,					
-							NI,				
-							EBO_Disable);
-	}
-	
-	//KEY1 PA15	WK_UP PA0		
-	ucGPIO_Config_Init (RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO,			
+	//KEY0 PC5
+	ucGPIO_Config_Init (RCC_APB2Periph_GPIOC | RCC_APB2Periph_AFIO,			
 						GPIO_Mode_IPU,					
 						GPIO_Input_Speed,										//无效参数						
 						GPIO_Remap_SWJ_JTAGDisable,								//关闭jtag，启用swd
-						GPIO_Pin_15 | GPIO_Pin_0,					
+						GPIO_Pin_5,					
+						GPIOC,					
+						NI,				
+						EBO_Disable);
+	//KEY1 PA15	
+	ucGPIO_Config_Init (RCC_APB2Periph_GPIOA,			
+						GPIO_Mode_IPU,					
+						GPIO_Input_Speed,										//无效参数						
+						GPIO_Remap_SWJ_JTAGDisable,								//关闭jtag，启用swd
+						GPIO_Pin_15,					
 						GPIOA,					
 						NI,				
 						EBO_Disable);

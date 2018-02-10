@@ -22,8 +22,6 @@ static int Protocol_Stack[][Protocol_Stack_Size] =
     /*1*/	{DH, SOR, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, DT},
 	//N皇后测试
 	/*2*/	{DH, NQU, DMAX, DMAX, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, DT},
-	//系统睡眠挂起
-	/*3*/	{DH, MSS, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, DT},
 	//通信测试
 	/*3*/	{DH, CT, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, NB, DT},
 	//报警反馈
@@ -38,6 +36,7 @@ static int Protocol_Stack[][Protocol_Stack_Size] =
 	/*
 		@EmbeddedBreakerCore Extern API Insert
 	*/
+	Modules_Protocol,
 };
 
 //通信起始标志
@@ -183,18 +182,16 @@ pclShell_Status shellTrigger (void)
 			{
 				PO_Judge = pcl_match;								//自动匹配，局部变量转全局变量
 				order_bootflag = pcl_pass;							//协议认证通过
-				
-				//匹配到对应值后直接退出for循环，不再匹配剩下的指令		
-				break;																
+				break;												//匹配到对应值后直接退出for循环，不再匹配剩下的指令		
 			}
 			
 			//数据公共鉴定位不正确
 			//如果是匹配类型找不到，系统将不会做出任何反应
-			else if (
-					//数据头不正确
-					USART1_RX_BUF[Header_Bit] 				!= Protocol_Stack[pcl_match][Header_Bit]
+			else if 
+				(	//数据头不正确
+					USART1_RX_BUF[Header_Bit] != Protocol_Stack[pcl_match][Header_Bit]
 					//数据尾不正确
-					|| USART1_RX_BUF[Protocol_Stack_Size - 1u] 	!= Protocol_Stack[pcl_match][Tail_Bit]
+					|| USART1_RX_BUF[Protocol_Stack_Size - 1u] != Protocol_Stack[pcl_match][Tail_Bit]
 				)												
 			{
 				order_bootflag = pcl_error;							//不执行协议栈
@@ -256,10 +253,6 @@ void OrderResponse_Handler (void)
 			U1SD("N Queen Question MCU Ability Test\r\n");
             nQueen_CalculusHandler();								//N皇后测试
             break;
-		case pMSS:
-			U1SD("MCU Sleep/Suspend Test\r\n");
-            mcu_SuspendHandler();									//系统睡眠处理
-            break;
 		case pURC:
 			U1SD("Protocol Setting URC\r\n");
 			pclURC_DebugHandler();									//协议配置资源									
@@ -274,6 +267,18 @@ void OrderResponse_Handler (void)
 			break;
 		case pORF:
 			break;
+		
+		/*
+			@EmbeddedBreakerCore Extern API Insert
+		*/
+		case pMDLS:
+			Modules_ProtocolTask();									
+			break;
+		
+		//OS延时任务切换
+        default:
+            delay_ms(10);											
+            break;
         }
 		
 		Beep_Once;													//指令完成哔一声

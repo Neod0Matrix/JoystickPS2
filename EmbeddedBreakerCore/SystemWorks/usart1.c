@@ -178,26 +178,26 @@ void USART1_IRQHandler (void)
 			{
 				//接收错误,重新开始
 				if (Res != 0x0A) 
-					USART1_RX_STA = 0;	
+					USART1_RX_STA = 0u;	
 				//接收完成了 
 				else 
 					USART1_RX_STA |= 0x8000;						
 			}
 			else 											//还没收到0X0D
 			{	
-				if (Res == 0x0D) 
-					USART1_RX_STA |= 0x4000;
+				if (Res == 0x0D) USART1_RX_STA |= 0x4000;
 				else
 				{
-					//将串口读到的数据送入缓存数组，之后使用串口数据从这里提取(查询方式)
+					//将串口读到的数据送入缓存数组，之后使用串口数据从这里提取
 					USART1_RX_BUF[USART1_RX_STA & 0X3FFF] = Res;
+					USART1_RX_STA++;
 					//接收数据错误,重新开始接收	  
-					if (++USART1_RX_STA > (USART1_REC_LEN - 1u)) 
+					if (USART1_RX_STA > (USART1_REC_LEN - 1u)) 
 						USART1_RX_STA = 0u;
 				}		 
 			}
-		}													
-    }														
+		}													//接收完成   		 
+    }														//接收中断
 	
 #if SYSTEM_SUPPORT_OS 										//如果SYSTEM_SUPPORT_OS为真，则需要支持OS
 	OSIntExit();  											 

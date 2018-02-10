@@ -264,10 +264,10 @@ void PS2_JoyStickResponseHandler (void)
 			{
 				printf("\r\nKey Value Map: %d\r\n", localkv);
 				usart1WaitForDataTransfer();
+				Beep_Once;												//蜂鸣器触发，放到后面体验效果会好一点
 			}
 			if (oledScreenFlag == 4)									//指向PS2键码显示屏
-				OLED_DisplayPS2();
-			Beep_Once;													//蜂鸣器触发，放到后面体验效果会好一点
+				OLED_DisplayModules();
 		}
 		if (anologSum != AnologSumValue)								//摇杆由于机械弹簧左右会自动复位
 		{
@@ -278,7 +278,7 @@ void PS2_JoyStickResponseHandler (void)
 				KeyValueCache[ps2rx], KeyValueCache[ps2ry]);
 			usart1WaitForDataTransfer();
 			if (oledScreenFlag == 4)									//指向PS2键码显示屏
-				OLED_DisplayPS2();
+				OLED_DisplayModules();
 			/*
 				红灯模式配对响应，当接收机和手柄完成配对，rx=lx=128，ry=ly=127，和为510
 				丢失响应，当接收机和手柄失去连接，rx=ry=lx=ly=128，和为512

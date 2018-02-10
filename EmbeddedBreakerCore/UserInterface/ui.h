@@ -8,9 +8,6 @@
 //拼凑初始化logo字符串
 #define CoreLogo 		(indStr_Catenate(indStr_Catenate(__Organization__, "@"), __AbbrFrameName__))
 
-//屏数设置，API接口，可以注释后在link.c中写入
-//#define ScreenPageCount	4u				
-
 //刷屏设置	
 extern u8 oledScreenFlag;
 
@@ -20,6 +17,7 @@ void OLED_ScreenP1_Const (void);
 void OLED_ScreenP2_Const (void);	
 void OLED_ScreenP3_Const (void);
 void OLED_DisplayInitConst (void);		//显示的常量字符
+//#define ScreenPageCount	4u				//页数统计
 
 void OLED_Display_EW (void);			//显示error_warning
 void OLED_Display_ITD (void);			//显示inner_temp_detector

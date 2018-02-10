@@ -10,11 +10,11 @@ float globalMCU_Temperature = 0.f;													//全局传参
 #define ADCx_Number 				ADC1											//使用的ADC
 #define RCC_AxBPeriph_ADCx			RCC_APB2Periph_ADC1								//ADC时钟
 #define NumberOfADCChannel 			1u												//一共开启的ADC通道数目
-#define ADC_SampleInterval			15u												//单次取值时间间隔，单位ms
+#define ADC_SampleInterval			20u												//单次取值时间间隔，单位ms
 #define ADC_SamplePeriod			ADC_SampleTime_239Cycles5						//ADC采样周期
-#define Average_Count 				10u												//ADC取值求平均元素个数
+#define Average_Count 				20u												//ADC取值求平均元素个数
 #define ADC_Temp_Channel  			ADC_Channel_16 									//温度传感器通道
-#define Warning_Temperature 		57.f											//报警温度(STM32原则上工作于-40~58度)
+#define Warning_Temperature 		56.f											//报警温度(STM32原则上工作于-40~58度)
 
 //初始化ADC 默认将开启通道0~3	
 void adcInnerTemperature_Init (void)  
@@ -44,17 +44,17 @@ void adcInnerTemperature_Init (void)
 //计算出内部温度值
 void MCU_Temperature_Detector (void)
 {
-	static float act_temp = 0.f;													//静态更新
+	static float act_temp = 0.f;													
 	
 	globalMCU_Temperature = InnerTempCalcus(ADC_Temp_Channel, 1);					
 	if (act_temp != globalMCU_Temperature)	
 	{		
-		 act_temp = globalMCU_Temperature;
+		act_temp = globalMCU_Temperature;
 		//内部温度检测主要工作：温度预警
-		if (act_temp >= Warning_Temperature)
+		if (act_temp >= Warning_Temperature && pwsf != JBoot)
 		{
-			delay_ms(20);															//消除温度抖动引起的报警
-			if (act_temp >= Warning_Temperature)
+			delay_ms(200);															//消除温度抖动引起的报警
+			if (act_temp >= Warning_Temperature && pwsf != JBoot)
 			{
 				TEMPERATUREEXCESS;															
 				TEMPERATUREEXCESS_16;

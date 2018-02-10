@@ -28,9 +28,9 @@ void bspPeriSysCalls (void)
 	
 	Mem_Manager_Init();									//内存管理初始化
 
-	//-------------------------------定时器设置初始化------------------------------------//
+	//--------------------------定时器及外部中断设置初始化-------------------------------//
 	
-	TIM2_usTimeBase_Init(ENABLE);						//us级公交车定时器2初始化(就是谁都可以蹭个时基的意思)	
+	TIM2_usTimeBase_Init(ENABLE);						//us级公交车定时器2初始化(就是谁都可以蹭个时基的意思)
 	EXTI_Config_Init();									//外部中断初始化
 	
 	//----------------------------------IO口初始化----------------------------------------//
@@ -50,7 +50,7 @@ void bspPeriSysCalls (void)
 	/*
 		@EmbeddedBreakerCore Extern API Insert
 	*/
-	PS2_InterfaceInit();								//初始化PS2手柄API
+	Modules_HardwareInit();								//模块硬件初始化
 }
 
 /*$PAGE*/
