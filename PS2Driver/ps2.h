@@ -43,11 +43,16 @@ typedef enum
 	ps2circle	= 14,
 	ps2cross	= 15,
 	ps2square	= 16,
+} StickKeyValueMap;
+
+//手柄摇杆映射数组
+typedef enum 
+{
 	ps2rx		= 5,
 	ps2ry		= 6,
 	ps2lx		= 7,
 	ps2ly		= 8,
-} StickKeyValueMap;
+} StickJoyValueMap;
 extern u8 KeyValueCache[9];
 extern StickKeyValueMap globalPS2keyValue;
 
@@ -63,7 +68,11 @@ void PS2_VibrationMode (void);
 void PS2_ExitConfigMode (void);
 void PS2_ModeConfigInit (void);
 void PS2_VibrationMotor (u8 m1, u8 m2);
-void PS2_StickTestDisplay (void);
+void PS2_JoyStickResponseHandler (void);
+
+//电机驱动
+#define VibrateLeftMotor 	PS2_VibrationMotor(0x00, 0xff)
+#define VibrateRightMotor 	PS2_VibrationMotor(0x00, 0xff)
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

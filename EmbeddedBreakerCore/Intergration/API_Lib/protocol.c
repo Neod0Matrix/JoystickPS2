@@ -274,14 +274,6 @@ void OrderResponse_Handler (void)
 			break;
 		case pORF:
 			break;
-		
-		/*
-			@EmbeddedBreakerCore Extern API Insert
-		*/
-		case pSSDS:
-			U1SD("MotorMotionControlModule API Single Step Debug Call\r\n");
-			
-			break;
         }
 		
 		Beep_Once;													//指令完成哔一声

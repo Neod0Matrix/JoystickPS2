@@ -246,48 +246,61 @@ void PS2_InterfaceInit (void)
 	PS2_ModeConfigInit();						
 }
 
-//测试用显示键值
-void PS2_StickTestDisplay (void)
+//手柄指令响应
+void PS2_JoyStickResponseHandler (void)
 {
 	//静态更新
 	static StickKeyValueMap localkv = ps2none;
 	static u16 anologSum = 0;
 	
-	//全局传参
-	globalPS2keyValue = PS2_MatchStickKeyValue();
-	
-	//电机驱动
-	if (globalPS2keyValue == ps2r2)
-		PS2_VibrationMotor(0xff, 0x00);
-	else if (globalPS2keyValue == ps2l2)
-		PS2_VibrationMotor(0x00, 0xff);
-	else if (globalPS2keyValue == ps2select)
-		Sys_Soft_Reset();
-	else
-		PS2_VibrationMotor(0x00, 0x00);
-	
-	//打印测试
+	globalPS2keyValue = PS2_MatchStickKeyValue();					//全局传参
 	if (No_Data_Receive && PC_Switch == PC_Enable && PS2P_Switch == PS2P_Enable)
 	{
-		if (localkv != globalPS2keyValue)	//此处键值会自动复位
+		if (localkv != globalPS2keyValue)							//此处键值会自动复位
 		{
 			localkv = globalPS2keyValue;
-			Beep_Once;						//蜂鸣器触发提示
-			printf("\r\nKey Value Map: %d\r\n", localkv);
-			usart1WaitForDataTransfer();
-			if (oledScreenFlag == 4)		//指向PS2键码显示屏
+			if (localkv)											//复位到ps2none不打印
+			{
+				printf("\r\nKey Value Map: %d\r\n", localkv);
+				usart1WaitForDataTransfer();
+			}
+			if (oledScreenFlag == 4)								//指向PS2键码显示屏
 				OLED_DisplayPS2();
+			Beep_Once;												//蜂鸣器触发，放到后面体验效果会好一点
 		}
-		if (anologSum != AnologSumValue)	//摇杆由于机械弹簧左右会自动复位
+		if (anologSum != AnologSumValue)							//摇杆由于机械弹簧左右会自动复位
 		{
+			//模拟量变化较快需要实时匹配，不适合加入蜂鸣器
 			anologSum = AnologSumValue;
 			printf("\r\nJoy AnologData(0~255): %5d %5d %5d %5d\r\n", 
 				KeyValueCache[ps2lx], KeyValueCache[ps2ly],
 				KeyValueCache[ps2rx], KeyValueCache[ps2ry]);
 			usart1WaitForDataTransfer();
-			if (oledScreenFlag == 4)		//指向PS2键码显示屏
+			if (oledScreenFlag == 4)								//指向PS2键码显示屏
 				OLED_DisplayPS2();
 		}
+	}
+	
+	//键值任务响应(这是一个Demo)
+	switch (localkv)
+	{
+		case ps2none: 		break;
+		case ps2select: 	Sys_Soft_Reset(); 			break;		//软重启
+		case ps2l3: 		break;
+		case ps2r3:			break;
+		case ps2start:		break;
+		case ps2padup:		break;
+		case ps2padright:	break;
+		case ps2paddown:	break;
+		case ps2padleft:	break;
+		case ps2l2: 		VibrateLeftMotor; 			break;		//电机驱动
+		case ps2r2: 		VibrateRightMotor; 			break;		//电机驱动
+		case ps2l1:			break;
+		case ps2r1:			nQueen_CalculusHandler();	break;		//8皇后
+		case ps2triangle:	CommunicationTest(); 		break;		//通信测试
+		case ps2circle:		displaySystemInfo(); 		break;		//系统信息显示
+		case ps2cross:		ERROR_CLEAR;				break;		//清除错误报警
+		case ps2square:		ManualCtrlEW();				break;		//强制报警
 	}
 }
 

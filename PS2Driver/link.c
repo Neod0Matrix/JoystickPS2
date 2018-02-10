@@ -96,7 +96,7 @@ void PS2_MatchStickMotionTask (void)
 		&& pwsf != JBoot)
 	{
 		ps2ScanSem = 0u;
-		PS2_StickTestDisplay();			
+		PS2_JoyStickResponseHandler();			
 	}
 }
 

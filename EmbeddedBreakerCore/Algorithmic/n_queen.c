@@ -24,7 +24,7 @@ void nQueen_CalculusHandler (void)
 	static Bool_ClassType memCreatedflag = False;					//内存创建标志
 	
 	u8 queenMatrixWidth = USART1_RX_BUF[2] * 10u + USART1_RX_BUF[3];//协议获得皇后数
-	if (queenMatrixWidth > QueenMatrixMax || queenMatrixWidth <= 0)
+	if (queenMatrixWidth > QueenMatrixMax)
 	{
 		queenMatrixWidth = 0u;
 		
@@ -32,14 +32,15 @@ void nQueen_CalculusHandler (void)
 		SERIALDATAERROR;
 		SERIALDATAERROR_16;
 	}
+	//若不传参则默认为8
+	else if (!queenMatrixWidth)
+		queenMatrixWidth = 8;
 	
 	if (memCreatedflag == False)
 	{
 		stackOverFlow(a);
 		memCreatedflag = True;
 	}
-	
-    a[1] = 1;  														//为数组的第一个元素赋初值
 
 	//打印皇后数
 	__ShellHeadSymbol__; 
@@ -50,6 +51,7 @@ void nQueen_CalculusHandler (void)
 	}
 	
 	//演算
+	a[1] = 1;  														//为数组的第一个元素赋初值
     while (not_finish && Return_Error_Type == Error_Clear) 			//无错状态下进行
 	{ 					
 		//处理尚未结束且还没处理到第Queens个元素		
