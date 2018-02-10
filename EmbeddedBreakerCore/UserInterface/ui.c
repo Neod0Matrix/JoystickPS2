@@ -221,8 +221,8 @@ void OLED_StatusDetector (void)
 //切屏控制
 void OLED_PageAlterCtrl (void)
 {
-	static unsigned long oledFreshcnt = 0u;
 	static Bool_ClassType oledFlushEnable = True;
+	static unsigned long oledFreshcnt = 0u;
 	
 	if (pwsf != JBoot)						
 	{
@@ -232,7 +232,7 @@ void OLED_PageAlterCtrl (void)
 			//反转使能
 			oledFlushEnable = (oledFlushEnable == True)? False : True;
 			oledFreshcnt = 0u;				
-			while(KEY1_NLTrigger);			
+			while(KEY1_NLTrigger);					
 		}
 		
 		//手动切屏使能控制
