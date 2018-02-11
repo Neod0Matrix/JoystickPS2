@@ -134,8 +134,8 @@ void USART1_Init (u32 bound)
 
 	//USART1 NVIC 配置
 	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;		//USART1中断
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;//抢占优先级
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;	//子优先级
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;//抢占优先级
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x04;	//子优先级
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
 	NVIC_Init(&NVIC_InitStructure);							//根据指定的参数初始化NVIC寄存器
   
@@ -190,9 +190,8 @@ void USART1_IRQHandler (void)
 				{
 					//将串口读到的数据送入缓存数组，之后使用串口数据从这里提取
 					USART1_RX_BUF[USART1_RX_STA & 0X3FFF] = Res;
-					USART1_RX_STA++;
 					//接收数据错误,重新开始接收	  
-					if (USART1_RX_STA > (USART1_REC_LEN - 1u)) 
+					if (++USART1_RX_STA > (USART1_REC_LEN - 1u)) 
 						USART1_RX_STA = 0u;
 				}		 
 			}

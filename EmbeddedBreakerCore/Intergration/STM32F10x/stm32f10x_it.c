@@ -40,7 +40,6 @@ void HardFault_Handler (void)
     while (1)													//进入死循环，不能让程序继续运行
     {
         HARDFAULT;												//硬件报错	
-		HARDFAULT_16;
 		//如果错误直接触发复位
 		if (HEDR_Switch == HEDR_Enable)
 			Sys_Soft_Reset();										
@@ -67,7 +66,6 @@ void BusFault_Handler (void)
     while (1)
     {
 		BUSFAULT;
-		BUSFAULT_16;
 		//如果错误直接触发复位
 		if (HEDR_Switch == HEDR_Enable)
 			Sys_Soft_Reset();	
@@ -81,7 +79,6 @@ void UsageFault_Handler (void)
     while (1)
     {
 		USAGEFAULT;
-		USAGEFAULT_16;
 		//如果错误直接触发复位
 		if (HEDR_Switch == HEDR_Enable)
 			Sys_Soft_Reset();	

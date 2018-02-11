@@ -56,23 +56,23 @@ typedef enum
 extern u8 KeyValueCache[9];
 extern StickKeyValueMap globalPS2keyValue;
 
-void PS2_InterfaceInit (void);
-void PS2_SendCommand (u8 cmd);
+static void PS2_SendCommand (u8 cmd);
 Bool_ClassType PS2_RedLightMode (void);
-void PS2_ReadStickData (void);
+static void PS2_ReadStickData (void);
+static void PS2_ShortPoll (void);
+static void PS2_EnterConfigMode (void);
+static void PS2_TurnOnAnalogMode (void);
+static void PS2_VibrationMode (void);
+static void PS2_ExitConfigMode (void);
+void PS2_InterfaceInit (void);
+static void PS2_ModeConfigInit (void);
+static void PS2_VibrationMotor (u8 m1, u8 m2);
 StickKeyValueMap PS2_MatchStickKeyValue (void);
-void PS2_ShortPoll (void);
-void PS2_EnterConfigMode (void);
-void PS2_TurnOnAnalogMode (void);
-void PS2_VibrationMode (void);
-void PS2_ExitConfigMode (void);
-void PS2_ModeConfigInit (void);
-void PS2_VibrationMotor (u8 m1, u8 m2);
 void PS2_JoyStickResponseHandler (void);
 
 //电机驱动
-#define VibrateLeftMotor 	PS2_VibrationMotor(0x00, 0xff)
-#define VibrateRightMotor 	PS2_VibrationMotor(0x00, 0xff)
+#define VibrateLeftMotor 	PS2_VibrationMotor(0x00, 0xff)		//左部电极震动
+#define VibrateRightMotor 	PS2_VibrationMotor(0x00, 0xff)		//右部电极震动
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

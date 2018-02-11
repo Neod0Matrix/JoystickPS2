@@ -3,9 +3,7 @@
 //code by </MATRIX>@Neod Anderjon
 //author: Neod Anderjon
 //====================================================================================================
-//外部操作通信协议
-//主要指令系统，API之一
-//采用16进制数据进行通信
+//上位机通信协议
 
 //添加通信协议栈
 #define DH 					0xAA						//协议数据头部
@@ -14,11 +12,9 @@
 #define SSR					0x0A						//系统状态请求
 #define SOR					0x0B						//软件复位
 #define NQU					0x0C						//N皇后测试
-#define CT					0x0D						//通信测试
-#define EWF					0x0E						//报警反馈
-#define ORF					0x0F						//指令执行结束
-#define URC					0x1A						//URC的协议配置
-#define MEW					0x1B						//警报的手动触发与清除
+//不能写0x0D，那是USART检测末尾字节的检测位
+#define URC					0x0E						//URC的协议配置
+#define MEW					0x0F						//警报的手动触发与清除
 
 //数据位限定
 #define DMAX				0x09						//十进制最大
@@ -45,22 +41,18 @@ typedef enum
     pSSR	= 0,
     pSOR	= 1,
 	pNQU	= 2,
-	pCT		= 3,
-	pEWF	= 4,
-	pORF	= 5,
-	pURC	= 6,
-	pMEW	= 7,
+	pURC	= 3,
+	pMEW	= 4,
 	
 	/*
 		@EmbeddedBreakerCore Extern API Insert
 	*/
-	pMDLS	= 8,
+	pMDLS	= 5,
 } Protocol_Order;
 extern Protocol_Order PO_Judge;							//判断标识
 
 //协议检查状态
-typedef enum {pcl_pass = 1, pcl_error = !pcl_pass} pclShell_Status;
-extern pclShell_Status order_bootflag;					
+typedef enum {pcl_pass = 1, pcl_error = !pcl_pass} pclShell_Status;				
 
 //模仿linux shell界面做的交互头
 #define __InterSymbol__		":~# "
@@ -70,8 +62,6 @@ pclShell_Status shellTrigger (void);					//协议栈检查、shell触发器
 u8 ASCII_ToHexCode (u8 ascii);							//ASCII码转16进制码
 u8 HexCode_ToASCII (u8 hexcode);						//16进制码转ascii
 extern void NewCoor_ReqOrder (void);					//请求坐标
-extern void ErrorWarning_Feedback (u16 order_src);		//报警反馈
-extern void orderExecuteFinished (void);				//指令执行结束
 void CommunicationTest (void);							//通信测试
 extern void Response_Strings (void);					//通信起始标志
 extern void OrderResponse_Handler (void);				//指令响应器

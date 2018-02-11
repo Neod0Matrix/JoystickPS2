@@ -6,6 +6,7 @@
 //初始化PC4用于报警用蜂鸣器
 
 #define Beep_IO 		PCout(4)							//PC4
+#define Read_Beep_IO	PCin(4)								/* Bell work once elapsed 50ms, we need to judge its level. */
 
 //高电平有效
 typedef enum {WARNING = 1, SLIENCE = !WARNING} Beep_Status;	//定义enum型做蜂鸣器使能状态

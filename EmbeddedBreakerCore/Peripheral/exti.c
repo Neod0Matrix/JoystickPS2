@@ -74,7 +74,6 @@ void EXTI9_5_IRQHandler (void)
 	if (EXTI_GetITStatus(Stew_EXTI_Line) != RESET)
 	{
 		EMERGENCYSTOP;												
-		EMERGENCYSTOP_16;
 		while (STEW_LTrigger);										//等待急停释放，允许长期检测
 		ERROR_CLEAR;												//急停复位后自动清除警报	
 	}	

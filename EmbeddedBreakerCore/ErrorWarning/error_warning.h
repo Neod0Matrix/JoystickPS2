@@ -41,28 +41,20 @@ extern void ManualCtrlEW (void);
 #define ERROR_CLEAR 			EW_TriggerHandler(Error_Clear)			//警报解除
 
 #define EMERGENCYSTOP 			EW_TriggerHandler(Emergency_Stop) 		//紧急停止
-#define EMERGENCYSTOP_16		ErrorWarning_Feedback(Emergency_Stop)
 
 #define SERIALDATAERROR 		EW_TriggerHandler(SendData_Error) 		//串口数据发送错误
-#define SERIALDATAERROR_16		ErrorWarning_Feedback(SendData_Error)
 
 #define PVDVOLTAGEEXCESS		EW_TriggerHandler(PVD_Excess)			//PVD检测电压低额
-#define PVDVOLTAGEEXCESS_16		ErrorWarning_Feedback(PVD_Excess)
 
 #define TEMPERATUREEXCESS		EW_TriggerHandler(Temp_Excess)			//MCU内部温度监测
-#define TEMPERATUREEXCESS_16	ErrorWarning_Feedback(Temp_Excess)
 
 #define HARDFAULT				EW_TriggerHandler(Hard_Fault)			//硬件错误
-#define HARDFAULT_16			ErrorWarning_Feedback(Hard_Fault)
 
 #define LVDWARNING				EW_TriggerHandler(LVD_Warn)				//24V输入电压低于18V
-#define LVDWARNING_16			ErrorWarning_Feedback(LVD_Warn)
 
 #define USAGEFAULT				EW_TriggerHandler(Usage_Fault)			//用量错误
-#define USAGEFAULT_16			ErrorWarning_Feedback(Usage_Fault)
 
 #define BUSFAULT				EW_TriggerHandler(Bus_Fault)			//总线错误
-#define BUSFAULT_16				ErrorWarning_Feedback(Bus_Fault)
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

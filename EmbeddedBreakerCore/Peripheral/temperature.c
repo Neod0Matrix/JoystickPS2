@@ -55,10 +55,7 @@ void MCU_Temperature_Detector (void)
 		{
 			delay_ms(200);															//消除温度抖动引起的报警
 			if (act_temp >= Warning_Temperature && pwsf != JBoot)
-			{
 				TEMPERATUREEXCESS;															
-				TEMPERATUREEXCESS_16;
-			}
 		}
 	}
 }

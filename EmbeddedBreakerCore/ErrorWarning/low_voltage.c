@@ -29,10 +29,7 @@ void LVD_EW_Handler (void)
     if (LVD_Switch == LVD_Enable)												//首先使能该功能
     {
 		if (LVD_IO == LV_TriggerLevel)											//达到电平触发报警
-		{
 			LVDWARNING;															//报警
-			LVDWARNING_16;
-		}
     }
 }
 

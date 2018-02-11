@@ -30,7 +30,6 @@ void nQueen_CalculusHandler (void)
 		
 		__ShellHeadSymbol__; U1SD("Queen Matrix Width Error\r\n");	//皇后数报错
 		SERIALDATAERROR;
-		SERIALDATAERROR_16;
 	}
 	//若不传参则默认为8
 	else if (!queenMatrixWidth)

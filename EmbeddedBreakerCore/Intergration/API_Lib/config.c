@@ -198,9 +198,9 @@ void pclURC_DebugHandler (void)
 	
 	//接收数据处理
 	__ShellHeadSymbol__;
-	if (sw_type <= Max_Option_Value && sw_type > 0)		//打印映射表则不需要打印这段
+	if (sw_type <= Max_Option_Value)		
 	{
-		if (SendDataCondition)
+		if (SendDataCondition && sw_type > 0)			//打印映射表则不需要打印这段
 		{
 			printf("Setting Switch Number: [%d] Set to Status: [%d]\r\n", sw_type, ed_status);
 			usart1WaitForDataTransfer();
@@ -237,7 +237,6 @@ void pclURC_DebugHandler (void)
 	{
 		U1SD("Option Value Excess Error\r\n");			
 		SERIALDATAERROR;		
-		SERIALDATAERROR_16;		
 	}
 }
 

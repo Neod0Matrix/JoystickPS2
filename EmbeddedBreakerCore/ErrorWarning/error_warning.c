@@ -80,7 +80,7 @@ void EW_TriggerHandler (globalSystem_EW sys_ew)										//函数调用传参，
 		{
 			LEDGroupCtrl(led_0, Off);												//关闭故障提示灯
 			Beep_Once;	
-			U1SD("[!CLEAR!!CLEAR!] No Error or Error-Clear\r\n");
+			U1SD("[!CLEAR!!CLEAR!] No Error or Error Clear\r\n");
 		}
 		Beep_Once;																	//蜂鸣器最后哔一声
 		
@@ -116,7 +116,6 @@ void ManualCtrlEW (void)
 	{
 		U1SD("Option Value Excess Error\r\n");			
 		SERIALDATAERROR;		
-		SERIALDATAERROR_16;		
 	}
 }
 

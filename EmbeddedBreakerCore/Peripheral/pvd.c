@@ -59,10 +59,7 @@ void PVD_IRQHandler (void)
 #endif
 	
     if (PWR_GetFlagStatus(PWR_FLAG_PVDO) == SET)
-    {
         PVDVOLTAGEEXCESS;								//报警
-		PVDVOLTAGEEXCESS_16;
-    }
     EXTI_ClearITPendingBit(PVD_EXTI_Line); 				//清除中断
 	
 #if SYSTEM_SUPPORT_OS

@@ -7,7 +7,6 @@
 	该文件写入对框架的函数调用支持
 */
 
-#define PS2TimerInterval	20000						//扫描触发时间设置
 PS2_PrintKeyValue 			PS2P_Switch;
 
 //选项设置，链接到Universal_Resource_Config函数的模块库
@@ -99,6 +98,7 @@ void Modules_InterruptTask (void)
 {
 	static u16 ps2ScanSem = 0u;
 	
+#define PS2TimerInterval	10000						//扫描触发时间设置
 	if (ps2ScanSem++ == TickDivsIntervalus(PS2TimerInterval) - 1 
 		&& pwsf != JBoot)
 	{
