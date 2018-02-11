@@ -10,11 +10,19 @@ u8 oledScreenFlag = 2u;
 
 //-----------------------------------常量处理-------------------------------------->
 
+//OLED睡眠状态显示
+void OLED_SleepStaticDisplay (void)
+{
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)"System  Suspend", Font_Size);	
+	OLED_ShowString(strPos(0u), ROW2, (const u8*)"InterruptAwaken", Font_Size);	
+	OLED_Refresh_Gram();
+}
+
 //OLED常量第零屏
 void OLED_ScreenP0_Const (void)
 {	
-	OLED_ShowString(strPos(1u), ROW1, (const u8*)"EmbeddedBreake", Font_Size);	
-	OLED_ShowString(strPos(1u), ROW2, (const u8*)"DevelopCoreKit", Font_Size);	
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)"EmbeddedBreaker", Font_Size);	
+	OLED_ShowString(strPos(0u), ROW2, (const u8*)"DevelopCoreKits", Font_Size);	
 	OLED_Refresh_Gram();
 }
 
@@ -99,12 +107,13 @@ void OLED_DisplayInitConst (void)
 {
 	if (OLED_Switch == OLED_Enable)
 	{
-		//OLED_ScreenP0_Const();	
-		
-		/*
-			@EmbeddedBreakerCore Extern API Insert
-		*/
-		OLED_ScreenModules_Const();
+		if (MOE_Switch == MOE_Disable)
+			OLED_ScreenP0_Const();	
+		else
+			/*
+				@EmbeddedBreakerCore Extern API Insert
+			*/
+			OLED_ScreenModules_Const();
 		delay_ms(300);						//logo延迟
 		OLED_Clear();						//擦除原先的画面
 		OLED_ScreenP1_Const();	
@@ -286,12 +295,13 @@ void UIScreen_DisplayHandler (void)
 		switch (pageUpdate)
 		{
 		case 0: 
-			//OLED_ScreenP0_Const(); 
-		
-			/*
-				@EmbeddedBreakerCore Extern API Insert
-			*/
-			OLED_ScreenModules_Const();
+			if (MOE_Switch == MOE_Disable)
+				OLED_ScreenP0_Const();	
+			else
+				/*
+					@EmbeddedBreakerCore Extern API Insert
+				*/
+				OLED_ScreenModules_Const();
 			break;
 		case 1: 
 			OLED_ScreenP1_Const();
@@ -303,12 +313,13 @@ void UIScreen_DisplayHandler (void)
 		case 3:
 			OLED_ScreenP3_Const();
 			OLED_StatusDetector();	
-			break;
+			break;	
 		/*
 			@EmbeddedBreakerCore Extern API Insert
 		*/
 		case 4:
-			OLED_DisplayModules();
+			if (MOE_Switch == MOE_Enable)
+				OLED_DisplayModules();
 			break;
 		}
 	}

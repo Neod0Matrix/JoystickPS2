@@ -58,6 +58,9 @@ extern DataScope_DetectData			DSD_Switch;
 //是否允许触发硬件错误后直接软件复位
 typedef enum {HEDR_Enable = 1, HEDR_Disable = !HEDR_Enable} 			HardwareErrorDirectReset;
 extern HardwareErrorDirectReset		HEDR_Switch;
+//是否使模块OLED显示生效
+typedef enum {MOE_Enable = 1, MOE_Disable = !MOE_Enable}				ModuleOLEDDisplay_Effect;
+extern ModuleOLEDDisplay_Effect 	MOE_Switch;
 
 //总体开关编号
 typedef enum
@@ -76,6 +79,7 @@ typedef enum
 	urc_psaux	= 11,
 	urc_dsd		= 12,
 	urc_hedr	= 13,
+	urc_moe		= 14,
 }
 Global_Switch_Nbr;
 

@@ -18,6 +18,7 @@ pidDebugSpeed_Switch		pidDS_Switch;				//是否启用PID算法调速
 psaux_CheckTaskRound		psaux_Switch;				//是否开启任务资源切换查看
 DataScope_DetectData		DSD_Switch;					//是否允许使用DataScope查看数据
 HardwareErrorDirectReset	HEDR_Switch;				//是否允许触发硬件错误后直接软件复位
+ModuleOLEDDisplay_Effect 	MOE_Switch;					//是否使模块OLED显示生效
 
 /*	
 	统一资源配置，开机读取
@@ -124,6 +125,14 @@ void Universal_Resource_Config (void)
 	DSD_Switch			= DSD_Disable;					//DSD_Enable		DSD_Disable
 	
 	/*
+		对框架而言，不显示模块的OLED部分
+		对应用的模块而言，不显示框架的常量字符
+		且需要使自己本身的显示生效
+		框架设置为失能，模块设置为使能
+	*/
+	MOE_Switch			= MOE_Enable;					//MOE_Enable		MOE_Disable
+	
+	/*
 		@EmbeddedBreakerCore Extern API Insert
 	*/
 	Modules_UniResConfig();
@@ -166,6 +175,8 @@ void urcMapTable_Print (void)
 		printf("\r\n%02d 	DataScope Detect Data Curve", urc_dsd);
 		usart1WaitForDataTransfer();
 		printf("\r\n%02d 	Hardware Error Direct Reset", urc_hedr);
+		usart1WaitForDataTransfer();
+		printf("\r\n%02d 	Module OLED Display Effect", urc_moe);
 		usart1WaitForDataTransfer();
 		
 		/*
@@ -212,6 +223,7 @@ void pclURC_DebugHandler (void)
 		case urc_psaux: 	psaux_Switch	= (psaux_CheckTaskRound)ed_status;			break;
 		case urc_dsd:		DSD_Switch		= (DataScope_DetectData)ed_status;			break;
 		case urc_hedr:		HEDR_Switch		= (HardwareErrorDirectReset)ed_status;		break;
+		case urc_moe:		MOE_Switch		= (ModuleOLEDDisplay_Effect)ed_status;		break;
 		}
 		
 		/*

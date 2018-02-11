@@ -40,7 +40,7 @@ void Sys_Enter_Standby (void)
 
 /*
 	检测WKUP脚的信号，
-	返回True: 连续按下3s以上
+	返回True: 连续按下xs以上
 		False: 错误的触发	
 */
 Bool_ClassType Check_WKUP (void) 
@@ -55,10 +55,12 @@ Bool_ClassType Check_WKUP (void)
 		{
 			t++;				//已经按下了 
 			delay_ms(30);
-			if (t >= 100)		//按下超过3秒钟
+			if (t >= 100)		//按下超过x秒钟
 			{
 				globalSleepflag = SysIntoSleep;
 				LED0_On;
+				OLED_SleepStaticDisplay();
+				
 				return True; 	//按下3s以上了
 			}
 		}
@@ -66,6 +68,7 @@ Bool_ClassType Check_WKUP (void)
 		{
 			globalSleepflag = SysOrdWork;
 			LED0_Off;
+			
 			return False; 		//按下不足3秒
 		}
 	}
@@ -94,8 +97,6 @@ void WKUP_Init (void)
 						EXTI0_IRQn, 
 						0x02, 
 						0x02);		
-//	if (!Check_WKUP()) 
-//		Sys_Standby();
 }
 
 //中断,检测到PA0脚的一个上升沿
@@ -107,7 +108,10 @@ void EXTI0_IRQHandler (void)
 	
 	EXTI_ClearITPendingBit(WKUP_EXTI_Line); 		//清除中断标志位
     if (Check_WKUP()) 
+	{
 		Sys_Enter_Standby();						//WK_UP确认，系统进入待机模式
+		while (Check_WKUP());						//等待释放
+	}
 	
 #if SYSTEM_SUPPORT_OS 								//如果SYSTEM_SUPPORT_OS为真，则需要支持OS
 	OSIntExit();  											 

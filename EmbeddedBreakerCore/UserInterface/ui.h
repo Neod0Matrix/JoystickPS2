@@ -24,7 +24,7 @@ void OLED_Display_ITD (void);			//显示inner_temp_detector
 void OLED_Display_CPU (void);			//显示OSCPU占用率
 void OLED_Display_Mem (void);			//显示内存使用率
 void OLED_Display_RTC (void);			//显示RTC时间
-	
+void OLED_SleepStaticDisplay (void);	//睡眠状态
 void OLED_StatusDetector (void);		//OLED状态显示检测
 void OLED_PageAlterCtrl (void);
 void UIScreen_DisplayHandler (void);
