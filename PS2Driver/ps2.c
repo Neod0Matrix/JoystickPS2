@@ -12,12 +12,11 @@ StickKeyValueMap globalPS2keyValue = ps2none;
 //发送命令
 static void PS2_SendCommand (u8 cmd)
 {
-    volatile u16 ref = 0x01;
+    volatile u16 ref;
 	
     KeyValueCache[1] = 0;
     for (ref = 0x01; ref < 0x0100; ref <<= 1)
     {
-		//输出以为控制位
         if (ref & cmd)	IO_Cmd_H;                   
         else 			IO_Cmd_L;
 		
@@ -44,8 +43,8 @@ Bool_ClassType PS2_RedLightMode (void)
 //读取手柄数据
 static void PS2_ReadStickData (void)
 {
-    volatile u8 byte = 0;
-    volatile u16 ref = 0x01;
+    volatile u8 byte;
+    volatile u16 ref;
 
     IO_CS_L;
     PS2_SendCommand(0x01);  				//开始命令
@@ -232,10 +231,10 @@ StickKeyValueMap PS2_MatchStickKeyValue (void)
         KeyValueCache[index] = 0x00;
     PS2_ReadStickData();
 	//计算摇杆模拟量总和
-    temp = (KeyValueCache[4] << 8) | KeyValueCache[3];   
 	AnologSumValue = KeyValueCache[ps2lx] + KeyValueCache[ps2ly] 
 		+ KeyValueCache[ps2rx] + KeyValueCache[ps2ry];
-	
+	//临时高低位
+	temp = (KeyValueCache[4] << 8) | KeyValueCache[3];   
 	//16个按键，按下为0，未按下为1
     for (index = 0; index < 16; index++)
     {
@@ -263,7 +262,8 @@ void PS2_JoyStickResponseHandler (void)
 		{
 			if (SendDataCondition && PS2P_Switch == PS2P_Enable)
 			{
-				printf("\r\nKey Value Map: %d\r\n", localkv);
+				//这里打印的字符越短越节省时间，用户体验会更流畅
+				printf("\r\n[JoystickPS2] KeyValue: %d\r\n", localkv);
 				usart1WaitForDataTransfer();
 			}
 			Beep_Once;													//蜂鸣器触发，放到后面体验效果会好一点
@@ -301,7 +301,8 @@ void PS2_JoyStickResponseHandler (void)
 		anologSum = AnologSumValue;
 		if (SendDataCondition && PS2P_Switch == PS2P_Enable)
 		{
-			printf("\r\nJoy AnologData(0~255): %5d %5d %5d %5d\r\n", 
+			//这里打印的字符越短越节省时间，用户体验会更流畅
+			printf("\r\n[JoystickPS2] JoyAnologValue(0~255): %5d %5d %5d %5d\r\n", 
 				KeyValueCache[ps2lx], KeyValueCache[ps2ly],
 				KeyValueCache[ps2rx], KeyValueCache[ps2ry]);
 			usart1WaitForDataTransfer();

@@ -98,8 +98,8 @@ void Modules_InterruptTask (void)
 {
 	static u16 ps2ScanSem = 0u;
 	
-#define PS2TimerInterval	10000						//扫描触发时间设置
-	if (ps2ScanSem++ == TickDivsIntervalus(PS2TimerInterval) - 1 
+	//间隔不能小于10ms，否则会误触发
+	if (ps2ScanSem++ == TickDivsIntervalus(10000) - 1 
 		&& pwsf != JBoot)
 	{
 		ps2ScanSem = 0u;
