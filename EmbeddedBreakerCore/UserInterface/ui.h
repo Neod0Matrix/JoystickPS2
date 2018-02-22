@@ -6,7 +6,7 @@
 //user interface
 
 //拼凑初始化logo字符串
-#define CoreLogo 		(indStr_Catenate(indStr_Catenate(__Organization__, "@"), __AbbrFrameName__))
+#define CoreLogo 						(indStr_Catenate(indStr_Catenate(__Organization__, "@"), __AbbrFrameName__))
 
 //刷屏设置	
 extern u8 oledScreenFlag;
@@ -28,6 +28,9 @@ void OLED_SleepStaticDisplay (void);	//睡眠状态
 void OLED_StatusDetector (void);		//OLED状态显示检测
 void OLED_PageAlterCtrl (void);
 void UIScreen_DisplayHandler (void);
+
+//框架内定义默认OLED切屏数
+#define FrameDefault_oledScreen_Count	4u
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

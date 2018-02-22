@@ -38,9 +38,9 @@ void TIM2_IRQHandler (void)
 	{
 		TIM_ClearITPendingBit(TimeBaseFreqDivTimer, TIM_IT_Update);//清除TIMx的中断待处理位
 		
+		BreathLEDGroupCall();								//呼吸灯动作处理
 		BlinkLED_StatusCtrl();								//闪烁LED动作处理
 		OLED_PageAlterCtrl();								//OLED切屏控制
-		BreathLEDGroupCall();								//呼吸灯动作处理
 		
 		/*
 			@EmbeddedBreakerCore Extern API Insert

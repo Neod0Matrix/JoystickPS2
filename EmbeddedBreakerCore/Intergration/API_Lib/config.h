@@ -61,6 +61,9 @@ extern HardwareErrorDirectReset		HEDR_Switch;
 //是否使模块OLED显示生效
 typedef enum {MOE_Enable = 1, MOE_Disable = !MOE_Enable}				ModuleOLEDDisplay_Effect;
 extern ModuleOLEDDisplay_Effect 	MOE_Switch;
+//是否启用框架默认的灯效(包括呼吸灯和随机闪烁灯)
+typedef enum {Light_Enable = 1, Light_Disable = !Light_Enable}			FrameDefaultLight_Effect;
+extern FrameDefaultLight_Effect		Light_Switch;
 
 //总体开关编号
 typedef enum
@@ -80,10 +83,11 @@ typedef enum
 	urc_dsd		= 12,
 	urc_hedr	= 13,
 	urc_moe		= 14,
+	urc_light	= 15,
 }
 Global_Switch_Nbr;
 
-//#define Max_Option_Value	12u			//设置选项的最大值
+#define FrameDefault_urcOption_Count	15u			//设置框架内选项总数值
 
 //统一资源配置器
 extern void Universal_Resource_Config (void);

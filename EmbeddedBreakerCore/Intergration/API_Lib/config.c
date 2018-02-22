@@ -19,6 +19,7 @@ psaux_CheckTaskRound		psaux_Switch;				//是否开启任务资源切换查看
 DataScope_DetectData		DSD_Switch;					//是否允许使用DataScope查看数据
 HardwareErrorDirectReset	HEDR_Switch;				//是否允许触发硬件错误后直接软件复位
 ModuleOLEDDisplay_Effect 	MOE_Switch;					//是否使模块OLED显示生效
+FrameDefaultLight_Effect	Light_Switch;				//是否启用框架默认的灯效(包括呼吸灯和随机闪烁灯)
 
 /*	
 	统一资源配置，开机读取
@@ -79,6 +80,13 @@ void Universal_Resource_Config (void)
 		则需要设置为使能，使错误发生后直接复位
 	*/
 	HEDR_Switch			= HEDR_Disable;					//HEDR_Enable		HEDR_Disable
+	
+	/*
+		框架自带娱乐使用的LED特效
+		包括随机灯和呼吸灯，如果外设模块需要LED指示
+		需要先关闭这些功能
+	*/
+	Light_Switch		= Light_Enable;					//Light_Enable		Light_Disable
 
 /*$PAGE*/
 /*->> 开关类*/
@@ -130,7 +138,7 @@ void Universal_Resource_Config (void)
 		且需要使自己本身的显示生效
 		框架设置为失能，模块设置为使能
 	*/
-	MOE_Switch			= MOE_Enable;					//MOE_Enable		MOE_Disable
+	MOE_Switch			= MOE_Disable;					//MOE_Enable		MOE_Disable
 	
 	/*
 		@EmbeddedBreakerCore Extern API Insert
@@ -178,6 +186,8 @@ void urcMapTable_Print (void)
 		usart1WaitForDataTransfer();
 		printf("\r\n%02d 	Module OLED Display Effect", urc_moe);
 		usart1WaitForDataTransfer();
+		printf("\r\n%02d 	Frame Default Light Effect", urc_light);
+		usart1WaitForDataTransfer();
 		
 		/*
 			@EmbeddedBreakerCore Extern API Insert
@@ -224,6 +234,7 @@ void pclURC_DebugHandler (void)
 		case urc_dsd:		DSD_Switch		= (DataScope_DetectData)ed_status;			break;
 		case urc_hedr:		HEDR_Switch		= (HardwareErrorDirectReset)ed_status;		break;
 		case urc_moe:		MOE_Switch		= (ModuleOLEDDisplay_Effect)ed_status;		break;
+		case urc_light:		Light_Switch	= (FrameDefaultLight_Effect)ed_status;		break;
 		}
 		
 		/*

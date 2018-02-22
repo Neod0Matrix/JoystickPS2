@@ -119,28 +119,28 @@ void BlinkLED_StatusCtrl (void)
 	static u16 runledBlinkSem = 0u;
 	static u16 randledBlinkSem = 0u;
 	static u32 randledinterval = InvalMinLimit;				//闪烁间隔变量
+	
 	//初始化过程常亮
 	if (Return_Error_Type == Error_Clear && pwsf == JBoot)
 	{
-		LEDGroupCtrl(led_1, On);
+		LEDGroupCtrl(led_1, On);							//外设内定运行指示灯常亮
 		LEDGroupCtrl(led_3, Off);
 	}
-	//只有警报清除且初始化完成才闪烁，系统正常运行指示
 	else if (Return_Error_Type == Error_Clear && pwsf != JBoot && globalSleepflag == SysOrdWork) 
 	{
-		//信号量开始计数
-		runledBlinkSem++;									
-		randledBlinkSem++;
-		if (runledBlinkSem == TickDivsIntervalus(BlinkInterval) - 1)
+		if (runledBlinkSem++ == TickDivsIntervalus(BlinkInterval) - 1)
 		{
 			runledBlinkSem = 0u;
 			LEDGroupCtrl(led_1, Blink);															
 		}
-		if (randledBlinkSem == TickDivsIntervalus(randledinterval) - 1)
+		//可以关闭随机灯
+		if (randledBlinkSem++ == TickDivsIntervalus(randledinterval) - 1 
+			&& Light_Switch == Light_Enable)
 		{
 			randledBlinkSem = 0u;
 			LEDGroupCtrl(led_3, Blink);	
-			randledinterval = RangeRandom(InvalMinLimit, InvalMaxLimit);//更新
+			//更新随机闪烁间隔
+			randledinterval = RangeRandom(InvalMinLimit, InvalMaxLimit);
 		}
 	}
 }
@@ -166,32 +166,35 @@ void BreathPWMProduce (LEDGroupNbr nbr, BreathPWMGroup *led_nbr)
 	//初始化过程关闭
 	if (pwsf == JBoot || Return_Error_Type != Error_Clear)
 		LEDGroupCtrl(nbr, Off);
-	//初始化完成后开始呼吸
-	else if (Return_Error_Type == Error_Clear && pwsf != JBoot && globalSleepflag == SysOrdWork) 
+	else if (Return_Error_Type == Error_Clear && pwsf != JBoot 
+		&& globalSleepflag == SysOrdWork && Light_Switch == Light_Enable) 
 	{
-		led_nbr -> breathCtrlSem++;							//信号量叠加
+		//初始状态
+		(led_nbr -> breathCtrlSem <= led_nbr -> dutyCycle)? \
+			LEDGroupCtrl(nbr, On) : LEDGroupCtrl(nbr, Off);
 		
-		if (led_nbr -> breathCtrlSem <= led_nbr -> dutyCycle)
-			LEDGroupCtrl(nbr, On);
-		else
-			LEDGroupCtrl(nbr, Off);
-		
-		if (led_nbr -> breathCtrlSem == TickDivsIntervalus(led_nbr -> breathInterval) - 1)//决定变换周期
+		if (led_nbr -> breathCtrlSem++ == TickDivsIntervalus(led_nbr -> breathInterval) - 1)
 		{
 			led_nbr -> breathCtrlSem = 0u;					//信号量复位
+			//注意，led_nbr -> dutyCycle无需复位
 			if (!led_nbr -> changeDirFlag)
 			{
-				led_nbr -> dutyCycle++; 					//占空比增加，LED逐渐变亮
-				if (led_nbr -> dutyCycle == 100u) 			//占空比默认在0-100之间变化
+				//占空比增大，灯逐渐变亮
+				if (led_nbr -> dutyCycle++ == 99u) 			//占空比默认在0-100之间变化
 					led_nbr -> changeDirFlag = True;		//换向
 			}	
 			else
 			{
-				led_nbr -> dutyCycle--;						//占空比减小，LED逐渐变暗
-				if (led_nbr -> dutyCycle == 0u) 				
+				//占空比减小，LED逐渐变暗
+				if (led_nbr -> dutyCycle-- == 0u) 							
 					led_nbr -> changeDirFlag = False;		//换向
 			}
 		}
+	}
+	//关闭呼吸灯
+	else if (Light_Switch == Light_Disable)
+	{
+		//这里不作处理
 	}
 }
 
