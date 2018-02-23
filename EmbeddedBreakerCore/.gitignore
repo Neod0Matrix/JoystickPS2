@@ -1,0 +1,5 @@
+# git不上传同步MDK工程文件目录MDK-ARMProject
+# 使用本框架时请复制该.gitignore文件到工程的根目录下
+# code by </MATRIX>@Neod Anderjon
+
+MDK-ARMProject/

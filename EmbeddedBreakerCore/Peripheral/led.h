@@ -53,11 +53,13 @@ typedef __packed struct
 	u32 			breathInterval;		//呼吸间隔
 } BreathPWMGroup;
 extern BreathPWMGroup led2;
+extern Bool_ClassType StopLightEffect;
 
 void LED_Init (void);					//初始化
 extern void LEDGroupCtrl (LEDGroupNbr nbr, LEDMoveList mv);
 extern void Aft_PeriInit_Blink (void);	//系统外设初始化完成标志
 extern void BlinkLED_StatusCtrl (void);	
+void LightEffectDisable (void);
 void BreathPara_Init (BreathPWMGroup *led_nbr, u32 iv);
 void BreathPWMProduce (LEDGroupNbr nbr, BreathPWMGroup *led_nbr);
 extern void BreathLEDGroupCall (void);

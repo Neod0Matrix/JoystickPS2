@@ -11,7 +11,8 @@
 #define InvalMaxLimit 			300000u						//上限300ms
 
 //结构体声明
-BreathPWMGroup led2;																
+BreathPWMGroup led2;								
+Bool_ClassType StopLightEffect = False;						//停止LED特效标志
 
 //LED IO初始化
 void LED_Init (void)
@@ -113,6 +114,23 @@ void Aft_PeriInit_Blink (void)
     }
 }
 
+//框架自带灯光特效失能后熄灭特效LED
+void LightEffectDisable (void)
+{
+	//接收到失能信号并且处于特效灯未停止工作状态，关闭灯，标志置位
+	if (Light_Switch == Light_Disable && StopLightEffect == False)
+	{
+		StopLightEffect = True;
+		LEDGroupCtrl(led_2, Off);
+		LEDGroupCtrl(led_3, Off);
+	}
+	//接收到使能信号并且灯关闭，复位标志
+	else if (Light_Switch == Light_Enable && StopLightEffect == True)
+	{
+		StopLightEffect = False;
+	}
+}
+
 //BlinkLED状态控制
 void BlinkLED_StatusCtrl (void)
 {
@@ -202,6 +220,7 @@ void BreathPWMProduce (LEDGroupNbr nbr, BreathPWMGroup *led_nbr)
 void BreathLEDGroupCall (void)
 {		
 	BreathPWMProduce(led_2, &led2);
+	LightEffectDisable();
 }
 
 //====================================================================================================
