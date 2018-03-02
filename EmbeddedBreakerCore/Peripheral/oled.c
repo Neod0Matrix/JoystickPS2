@@ -242,7 +242,7 @@ void OLED_ShowChar (u8 x, u8 y, u8 chr, u8 size, u8 mode)
 }
 
 /*
-	显示2个数字
+	显示数字
 	x,y :起点坐标
 	len :数字的位数
 	size:字体大小
@@ -270,6 +270,19 @@ void OLED_ShowNum (u8 x, u8 y, u32 num, u8 len, u8 size)
     }
 }
 
+//数字显示，带有不足位补零效果
+void OLED_ShowNum_Supple0 (u8 x, u8 y, u32 num, u8 space, u8 size)
+{
+	u8 i, bitNum;
+	
+	bitNum = Nbr10BitCalcus(num);				//获取数字的位数(十进制)
+	//缺省补零
+	for (i = 0; i < (space - bitNum); i++)
+		OLED_ShowNum(x + i * (size / 2), y, 0, 1u, size);		
+	//末尾数字显示
+	OLED_ShowNum(x + (space - bitNum) * (size / 2), y, num, bitNum, size);		
+}
+
 /*
 	显示字符串
 	x,y:起点坐标
@@ -294,18 +307,6 @@ void OLED_ShowString (u8 x, u8 y, const u8 *p, u8 size)
         x += size / 2;
         p++;
     }
-}
-
-//专用于时间显示，支持月日时分秒
-void OLED_ShowTime (u8 x, u8 y, u32 num, u8 size)
-{
-	if (num < 10)
-	{
-		OLED_ShowNum(x, y, 0, 1u, size);					//显示补0
-		OLED_ShowNum(x + size / 2, y, num, 1u, size);		//退位显示1位数据	
-	}
-	else
-		OLED_ShowNum(x, y, num, 2u, size);					//正常两位
 }
 
 //OLED指令初始化

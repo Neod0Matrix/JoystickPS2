@@ -100,7 +100,6 @@ void displaySystemInfo (void)
 	
 	if (pwsf == JBoot)
 	{
-		RTC_DataStorage(calendar);
 		RTC_ReqOrderHandler();						//RTC时间
 	}
 	

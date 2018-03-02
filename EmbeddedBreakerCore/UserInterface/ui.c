@@ -29,8 +29,10 @@ void OLED_ScreenP0_Const (void)
 //OLED常量第一屏
 void OLED_ScreenP1_Const (void)
 {	
-	OLED_ShowString(strPos(1u), ROW1, (const u8*)"</MATRIX>@NdAn", Font_Size);	
-	OLED_ShowString(strPos(1u), ROW2, (const u8*)"System Running", Font_Size);	
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)" </MATRIX>@NdAn", Font_Size);
+	//此处区分系统报警状态	
+	OLED_ShowString(strPos(0u), ROW2, 
+		(const u8*)((Return_Error_Type == Error_Clear)? "Working Correct" : " Error Warning "), Font_Size);	
 	OLED_Refresh_Gram();
 }
 
@@ -39,20 +41,19 @@ void OLED_ScreenP2_Const (void)
 {
 	char* week;					
 	
-	RTC_DataStorage(calendar);
 	//时间
-	OLED_ShowTime(strPos(4u), ROW1, rtcWholeData[4], Font_Size);
+	OLED_ShowNum_Supple0(strPos(4u), ROW1, rtcWholeData[4], 2u, Font_Size);
 	OLED_ShowString(strPos(6u), ROW1, (const u8*)":", Font_Size);
-	OLED_ShowTime(strPos(7u), ROW1, rtcWholeData[5], Font_Size);
+	OLED_ShowNum_Supple0(strPos(7u), ROW1, rtcWholeData[5], 2u, Font_Size);
 	OLED_ShowString(strPos(9u), ROW1, (const u8*)":", Font_Size);
-	OLED_ShowTime(strPos(10u), ROW1, rtcWholeData[6], Font_Size);
+	OLED_ShowNum_Supple0(strPos(10u), ROW1, rtcWholeData[6], 2u, Font_Size);
 	
 	//年月日
 	OLED_ShowNum(strPos(0u), ROW2, rtcWholeData[0], 4u, Font_Size);	
 	OLED_ShowString(strPos(4u), ROW2, (const u8*)"/", Font_Size);
-	OLED_ShowTime(strPos(5u), ROW2, rtcWholeData[1], Font_Size);
+	OLED_ShowNum_Supple0(strPos(5u), ROW2, rtcWholeData[1], 2u, Font_Size);
 	OLED_ShowString(strPos(7u), ROW2, (const u8*)"/", Font_Size);
-	OLED_ShowTime(strPos(8u), ROW2, rtcWholeData[2], Font_Size);
+	OLED_ShowNum_Supple0(strPos(8u), ROW2, rtcWholeData[2], 2u, Font_Size);
 	
 	//当前星期							
 	switch (rtcWholeData[3])
@@ -130,14 +131,14 @@ void OLED_Display_RTC (void)
 	char* week;
 			
 	//时间
-	OLED_ShowTime(strPos(4u), ROW1, rtcWholeData[4], Font_Size);
-	OLED_ShowTime(strPos(7u), ROW1, rtcWholeData[5], Font_Size);
-	OLED_ShowTime(strPos(10u), ROW1, rtcWholeData[6], Font_Size);
+	OLED_ShowNum_Supple0(strPos(4u), ROW1, rtcWholeData[4], 2u, Font_Size);
+	OLED_ShowNum_Supple0(strPos(7u), ROW1, rtcWholeData[5], 2u, Font_Size);
+	OLED_ShowNum_Supple0(strPos(10u), ROW1, rtcWholeData[6], 2u, Font_Size);
 	
 	//年月日
 	OLED_ShowNum(strPos(0u), ROW2, rtcWholeData[0], 4u, Font_Size);	
-	OLED_ShowTime(strPos(5u), ROW2, rtcWholeData[1], Font_Size);
-	OLED_ShowTime(strPos(8u), ROW2, rtcWholeData[2], Font_Size);
+	OLED_ShowNum_Supple0(strPos(5u), ROW2, rtcWholeData[1], 2u, Font_Size);
+	OLED_ShowNum_Supple0(strPos(8u), ROW2, rtcWholeData[2], 2u, Font_Size);
 	
 	//当前星期							
 	switch (rtcWholeData[3])
