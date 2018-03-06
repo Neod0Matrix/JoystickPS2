@@ -138,7 +138,7 @@ void Universal_Resource_Config (void)
 		且需要使自己本身的显示生效
 		框架设置为失能，模块设置为使能
 	*/
-	MOE_Switch			= MOE_Disable;					//MOE_Enable		MOE_Disable
+	MOE_Switch			= MOE_Enable;					//MOE_Enable		MOE_Disable
 	
 	/*
 		@EmbeddedBreakerCore Extern API Insert

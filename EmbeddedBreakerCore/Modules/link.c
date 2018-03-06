@@ -42,8 +42,10 @@ void Modules_ProtocolTask (void)
 //OLED常量显示屏，链接到OLED_DisplayInitConst和UIScreen_DisplayHandler函数
 void OLED_ScreenModules_Const (void)
 {
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)" Joystick PS2  ", Font_Size);
-    OLED_ShowString(strPos(0u), ROW2, (const u8*)"SonyPlaystation", Font_Size);
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, (" Joystick PS2  "));
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("SonyPlaystation"));
+	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);
     OLED_Refresh_Gram();
 }
 
@@ -51,13 +53,13 @@ void OLED_ScreenModules_Const (void)
 void OLED_DisplayModules (void)
 {
 	//显示键值
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)"KeyValueMap: ", Font_Size);
-	OLED_ShowNum(strPos(13u), ROW1, globalPS2keyValue, 2u, Font_Size);
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("KeyValueMap: %2d"), globalPS2keyValue);
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
+	
 	//显示摇杆模拟值
-	OLED_ShowNum(strPos(0u), ROW2, KeyValueCache[ps2lx], 3u, Font_Size);
-	OLED_ShowNum(strPos(4u), ROW2, KeyValueCache[ps2ly], 3u, Font_Size);
-	OLED_ShowNum(strPos(8u), ROW2, KeyValueCache[ps2rx], 3u, Font_Size);
-	OLED_ShowNum(strPos(12u), ROW2, KeyValueCache[ps2ry], 3u, Font_Size);
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("%03d %03d %03d %03d"), 
+		KeyValueCache[ps2lx], KeyValueCache[ps2ly], KeyValueCache[ps2rx], KeyValueCache[ps2ry]);
+	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);
     OLED_Refresh_Gram();
 }
 

@@ -15,7 +15,7 @@
 #define __Project_Type__		"Frame"					//工程类型
 #define __Frame_Name__			"EmbeddedBreakerCore"	//架构名称
 #define __AbbrFrameName__		"EBCr"					//名称缩写(4字以内)
-#define __Code_Version__ 		"OS_v0p5_LTE"			//长期演进版
+#define __Code_Version__ 		"OS_v0p6_LTE"			//长期演进版
 #define __Laboratory__			"T.WKVER"				//实验室
 #define __Logo__				"Absolute Liberal"		//logo
 #define __Developer__			"Neod Anderjon"			//开发者

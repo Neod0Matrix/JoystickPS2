@@ -13,49 +13,45 @@ u8 oledScreenFlag = 2u;
 //OLED睡眠状态显示
 void OLED_SleepStaticDisplay (void)
 {
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)"System  Suspend", Font_Size);	
-	OLED_ShowString(strPos(0u), ROW2, (const u8*)"InterruptAwaken", Font_Size);	
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("System  Suspend"));
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);	
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("InterruptAwaken"));
+	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);	
 	OLED_Refresh_Gram();
 }
 
 //OLED常量第零屏
 void OLED_ScreenP0_Const (void)
 {	
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)"EmbeddedBreaker", Font_Size);	
-	OLED_ShowString(strPos(0u), ROW2, (const u8*)"DevelopCoreKits", Font_Size);	
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("EmbeddedBreaker"));
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);	
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("DevelopCoreKits"));
+	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);	
 	OLED_Refresh_Gram();
 }
 
 //OLED常量第一屏
 void OLED_ScreenP1_Const (void)
 {	
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)" </MATRIX>@NdAn", Font_Size);
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, (" </MATRIX>@NdAn"));
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
 	//此处区分系统报警状态	
-	OLED_ShowString(strPos(0u), ROW2, 
-		(const u8*)((Return_Error_Type == Error_Clear)? "Working Correct" : " Error Warning "), Font_Size);	
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, 
+		((Return_Error_Type == Error_Clear)? "Working Correct" : " Error Warning "));
+	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);	
 	OLED_Refresh_Gram();
 }
 
-//OLED常量第二屏
-void OLED_ScreenP2_Const (void)
+//OLED常量第二屏RTC时间
+void OLED_Display_RTC (void)
 {
 	char* week;					
 	
 	//时间
-	OLED_ShowNum_Supple0(strPos(4u), ROW1, rtcWholeData[4], 2u, Font_Size);
-	OLED_ShowString(strPos(6u), ROW1, (const u8*)":", Font_Size);
-	OLED_ShowNum_Supple0(strPos(7u), ROW1, rtcWholeData[5], 2u, Font_Size);
-	OLED_ShowString(strPos(9u), ROW1, (const u8*)":", Font_Size);
-	OLED_ShowNum_Supple0(strPos(10u), ROW1, rtcWholeData[6], 2u, Font_Size);
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("    %02d:%02d:%02d    "), rtcWholeData[4], rtcWholeData[5], rtcWholeData[6]);
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
 	
-	//年月日
-	OLED_ShowNum(strPos(0u), ROW2, rtcWholeData[0], 4u, Font_Size);	
-	OLED_ShowString(strPos(4u), ROW2, (const u8*)"/", Font_Size);
-	OLED_ShowNum_Supple0(strPos(5u), ROW2, rtcWholeData[1], 2u, Font_Size);
-	OLED_ShowString(strPos(7u), ROW2, (const u8*)"/", Font_Size);
-	OLED_ShowNum_Supple0(strPos(8u), ROW2, rtcWholeData[2], 2u, Font_Size);
-	
-	//当前星期							
+	//年月日，当前星期							
 	switch (rtcWholeData[3])
 	{
 	case 0: week = "Sun"; break;
@@ -66,40 +62,22 @@ void OLED_ScreenP2_Const (void)
 	case 5: week = "Fri"; break;
 	case 6: week = "Sat"; break;
 	}
-	OLED_ShowString(strPos(12u), ROW2, (const u8*)week, Font_Size);
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("%4d/%02d/%02d  %s"), rtcWholeData[0], rtcWholeData[1], rtcWholeData[2], week);
+	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);
 	OLED_Refresh_Gram();
 }
 
-//OLED常量第三屏
-void OLED_ScreenP3_Const (void)
+//OLED常量第三屏系统状态
+void OLED_StatusDetector (void)
 {
-	//显示OS CPU 占用率
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)"CPU", Font_Size);							
-	OLED_ShowNum(strPos(3u), ROW1, RTOSCPUUsage / 100, 3u, Font_Size); 
-	//OLED_ShowString(strPos(6u), ROW1, (const u8*)"%", Font_Size);		
+	//显示OS CPU占用率、报警情况 
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("CPU  %d EW  %d"), RTOSCPUUsage / 100, Return_Error_Type);
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
 	
-	if (EW_Switch == EW_Enable)
-	{
-		//显示error_warning
-		OLED_ShowString(strPos(7u), ROW1, (const u8*)"EW", Font_Size);					
-		OLED_ShowNum(strPos(10u), ROW1, Return_Error_Type, 2u, Font_Size);
-	}		
+	//显示mem占用率、内部温度
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("MEM  %d ITD %.1f"), mem_perused(), globalMCU_Temperature);
+	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);
 	
-	//显示mem占用率
-	OLED_ShowString(strPos(0u), ROW2, (const u8*)"MEM", Font_Size);							
-	OLED_ShowNum(strPos(3u), ROW2, mem_perused(), 3u, Font_Size);
-	//OLED_ShowString(strPos(6u), ROW2, (const u8*)"%", Font_Size);	
-	
-	if (Temp_Switch == Temp_Enable)
-	{
-		//显示inner_temperature_detect
-		//OLED显示位数有限，仅精确到小数点后一位
-		OLED_ShowString(strPos(7u), ROW2, (const u8*)"ITD", Font_Size);							
-		OLED_ShowNum(strPos(10u), ROW2, globalMCU_Temperature, 2u, Font_Size);//十位和个位
-		OLED_ShowString(strPos(12u), ROW2, (const u8*)".", Font_Size);//显示.
-		OLED_ShowNum(strPos(13u), ROW2, ((u32)(globalMCU_Temperature * 10) % 10), 1u, Font_Size);//十分位
-		OLED_ShowNum(strPos(14u), ROW2, ((u32)(globalMCU_Temperature * 100) % 10), 1u, Font_Size);//百分位
-	}
 	OLED_Refresh_Gram();
 }
 
@@ -124,110 +102,6 @@ void OLED_DisplayInitConst (void)
 }
 
 //-----------------------------------变量处理-------------------------------------->
-
-//显示RTC时间
-void OLED_Display_RTC (void)
-{
-	char* week;
-			
-	//时间
-	OLED_ShowNum_Supple0(strPos(4u), ROW1, rtcWholeData[4], 2u, Font_Size);
-	OLED_ShowNum_Supple0(strPos(7u), ROW1, rtcWholeData[5], 2u, Font_Size);
-	OLED_ShowNum_Supple0(strPos(10u), ROW1, rtcWholeData[6], 2u, Font_Size);
-	
-	//年月日
-	OLED_ShowNum(strPos(0u), ROW2, rtcWholeData[0], 4u, Font_Size);	
-	OLED_ShowNum_Supple0(strPos(5u), ROW2, rtcWholeData[1], 2u, Font_Size);
-	OLED_ShowNum_Supple0(strPos(8u), ROW2, rtcWholeData[2], 2u, Font_Size);
-	
-	//当前星期							
-	switch (rtcWholeData[3])
-	{
-	case 0: week = "Sun"; break;
-	case 1: week = "Mon"; break;
-	case 2: week = "Tue"; break;
-	case 3: week = "Wed"; break;
-	case 4: week = "Thu"; break;
-	case 5: week = "Fri"; break;
-	case 6: week = "Sat"; break;
-	}
-	OLED_ShowString(strPos(12u), ROW2, (const u8*)week, Font_Size);
-	OLED_Refresh_Gram();
-}
-
-//显示错误报警类型(仅在错误变更时调用)
-void OLED_Display_EW (void)
-{
-	if (EW_Switch == EW_Enable)
-	{		
-		OLED_ShowNum(strPos(10u), ROW1, detErrorStatus(), 2u, Font_Size);
-		OLED_Refresh_Gram();				//更新显示
-	}
-}
-
-//显示内部温度检测(仅在温度变化时载入进程)
-void OLED_Display_ITD (void)
-{
-	static float displayTemperature = 0.f;	//显示温度
-	static u8 tempInt = 0u;					//温度整数位
-	static u8 tempFlaot1, tempFlaot2 = 0u;	//温度小数位
-	
-	if (displayTemperature != globalMCU_Temperature)
-	{
-		displayTemperature = globalMCU_Temperature;//检测到温度变化才更新
-		tempInt = displayTemperature;		//十位、个位
-		tempFlaot1 = ((u32)(displayTemperature * 10)) % 10;//十分位
-		tempFlaot2 = ((u32)(displayTemperature * 100)) % 10;//百分位
-		
-		if (Temp_Switch == Temp_Enable)			
-		{
-			//OLED显示位数有限，仅精确到小数点后一位
-			OLED_ShowNum(strPos(10u), ROW2, tempInt, 2u, Font_Size);				
-			OLED_ShowNum(strPos(13u), ROW2, tempFlaot1, 1u, Font_Size);	
-			OLED_ShowNum(strPos(14u), ROW2, tempFlaot2, 1u, Font_Size);				
-			OLED_Refresh_Gram();	
-		}
-	}
-}
-
-//显示OS CPU占用率(仅在变化时载入进程)
-void OLED_Display_CPU (void)
-{
-	static u8 cpuUsagePercent = 0u;
-	
-	if (cpuUsagePercent != RTOSCPUUsage / 100)//值变化后才更新
-	{
-		cpuUsagePercent = RTOSCPUUsage / 100;
-		if (TMMS == RTOS)
-		{					
-			OLED_ShowNum(strPos(3u), ROW1, cpuUsagePercent, 3u, Font_Size); 		
-			OLED_Refresh_Gram();			//更新显示
-		}
-	}
-}
-
-//OLED显示内存占用率(仅在变化时载入进程)
-void OLED_Display_Mem (void)
-{
-	static u8 memUsagePercent = 0u;
-	
-	if (memUsagePercent != MemUsagePercent)	//值变化后才更新
-	{
-		memUsagePercent = MemUsagePercent;
-		
-		OLED_ShowNum(strPos(3u), ROW2, memUsagePercent, 3u, Font_Size); 		
-		OLED_Refresh_Gram();				//更新显示
-	}
-}
-
-//OLED系统状态显示监视
-void OLED_StatusDetector (void)
-{
-	OLED_Display_CPU(); 
-	OLED_Display_EW(); 
-	OLED_Display_Mem(); 
-	OLED_Display_ITD(); 	
-}
 
 //切屏控制
 void OLED_PageAlterCtrl (void)
@@ -308,11 +182,9 @@ void UIScreen_DisplayHandler (void)
 			OLED_ScreenP1_Const();
 			break;
 		case 2: 
-			OLED_ScreenP2_Const();
 			OLED_Display_RTC();
 			break;
 		case 3:
-			OLED_ScreenP3_Const();
 			OLED_StatusDetector();	
 			break;	
 		/*

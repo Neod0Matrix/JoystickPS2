@@ -195,7 +195,7 @@ void *myrealloc (void *ptr, u32 size)
 */
 void Mem_RequestHandler (float *array, u16 array_width)
 { 
- 	float *p = 0u, *tp = 0u;   					//内存指针
+ 	float *p = 0, *tp = 0;   					//内存指针
 	u16 byte_space = array_width * sizeof(float);//计算需要的内存大小
 	
 	p = mymalloc(byte_space);					//申请相应数组的字节空间
