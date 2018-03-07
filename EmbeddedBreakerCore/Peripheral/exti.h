@@ -6,10 +6,6 @@
 //外部中断驱动代码
 
 //总线设置
-#define ARM2Dn_EXTI_Line  	EXTI_Line3								//机械臂2下方传感器					
-#define ARM2Up_EXTI_Line	EXTI_Line4								//机械臂2上方传感器						
-#define ARM1Dn_EXTI_Line 	EXTI_Line12								//机械臂1下方传感器	
-#define ARM1Up_EXTI_Line	EXTI_Line14								//机械臂1上方传感器
 #define Stew_EXTI_Line 		EXTI_Line8								//急停	
 
 //EXTI模式配置
