@@ -50,17 +50,14 @@ void OLED_ScreenModules_Const (void)
 }
 
 //OLED模块调用数据显示，链接到UIScreen_DisplayHandler函数
-void OLED_DisplayModules (void)
+void OLED_DisplayModules (u8 page)
 {
-	//显示键值
-	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("KeyValueMap: %2d"), globalPS2keyValue);
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
-	
-	//显示摇杆模拟值
-	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("%03d %03d %03d %03d"), 
-		KeyValueCache[ps2lx], KeyValueCache[ps2ly], KeyValueCache[ps2rx], KeyValueCache[ps2ry]);
-	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);
-    OLED_Refresh_Gram();
+	switch (page)
+	{
+	case 4:
+		OLED_DisplayPS2();
+		break;
+	}
 }
 
 //硬件底层初始化任务，链接到bspPeriSysCalls函数

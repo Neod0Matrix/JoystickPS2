@@ -42,7 +42,7 @@ void Modules_URCMap (void);									//模块选项映射表，链接到urcMapTab
 void Modules_urcDebugHandler (u8 ed_status, Modules_SwitchNbr sw_type);//选项处理，链接到pclURC_DebugHandler函数
 void Modules_ProtocolTask (void);							//协议调用指令响应，链接到OrderResponse_Handler函数
 void OLED_ScreenModules_Const (void);						//OLED常量显示屏，链接到OLED_DisplayInitConst和UIScreen_DisplayHandler函数
-void OLED_DisplayModules (void);							//OLED模块调用数据显示，链接到UIScreen_DisplayHandler函数
+void OLED_DisplayModules (u8 page);							//OLED模块调用数据显示，链接到UIScreen_DisplayHandler函数
 void Modules_HardwareInit (void);							//硬件底层初始化任务，链接到bspPeriSysCalls函数
 void Modules_ExternInterruptInit (void);					//硬件底层外部中断初始化，链接到EXTI_Config_Init函数
 void Modules_NonInterruptTask (void);						//模块非中断任务，链接到local_taskmgr.c，默认添加到第二任务

@@ -245,6 +245,19 @@ StickKeyValueMap PS2_MatchStickKeyValue (void)
     return ps2none;         
 }
 
+//OLED显示PS2键值和摇杆状态
+void OLED_DisplayPS2 (void)
+{
+	//显示键值
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("KeyValueMap: %2d"), globalPS2keyValue);
+	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
+	//显示摇杆模拟值
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("%03d %03d %03d %03d"), 
+		KeyValueCache[ps2lx], KeyValueCache[ps2ly], KeyValueCache[ps2rx], KeyValueCache[ps2ry]);
+	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);
+	OLED_Refresh_Gram();
+}
+
 //手柄指令响应
 void PS2_JoyStickResponseHandler (void)
 {
@@ -269,7 +282,7 @@ void PS2_JoyStickResponseHandler (void)
 			Beep_Once;													//蜂鸣器触发，放到后面体验效果会好一点
 		}
 		if (oledScreenFlag == 4)										//指向PS2键码显示屏
-			OLED_DisplayModules();
+			OLED_DisplayPS2();
 		
 		//键值任务响应(这是一个Demo)
 		switch (localkv)
@@ -308,7 +321,7 @@ void PS2_JoyStickResponseHandler (void)
 			usart1WaitForDataTransfer();
 		}
 		if (oledScreenFlag == 4)										//指向PS2键码显示屏
-			OLED_DisplayModules();
+			OLED_DisplayPS2();
 		/*
 			红灯模式配对响应，当接收机和手柄完成配对，rx=lx=128，ry=ly=127，和为510
 			丢失响应，当接收机和手柄失去连接，rx=ry=lx=ly=128，和为512

@@ -68,6 +68,7 @@ void PS2_InterfaceInit (void);
 static void PS2_ModeConfigInit (void);
 static void PS2_VibrationMotor (u8 m1, u8 m2);
 StickKeyValueMap PS2_MatchStickKeyValue (void);
+void OLED_DisplayPS2 (void);
 void PS2_JoyStickResponseHandler (void);
 
 //电机驱动
