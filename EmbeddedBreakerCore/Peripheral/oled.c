@@ -29,7 +29,7 @@
 	[7]0 1 2 3 ... 127
 */
 u8 OLED_GRAM[Max_Column][SIZE];				//128x8显存数组
-char oled_dtbuf[OneRowMaxWord];				//OLED显示打印snprintf缓存
+__align(4) char oled_dtbuf[OneRowMaxWord];	//OLED显示打印snprintf缓存
 
 //启动IIC
 void IIC_Start (void)

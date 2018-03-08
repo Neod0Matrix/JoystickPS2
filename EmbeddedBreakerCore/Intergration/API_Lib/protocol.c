@@ -87,17 +87,9 @@ void CommunicationTest (void)
 pclShell_Status shellTrigger (void)
 {
     Protocol_Order pcl_match;										//匹配传参
-	static Bool_ClassType memCreatedflag = False;					//内存创建标志
 	pclShell_Status order_bootflag;									
 	
 	order_bootflag = pcl_error;										//先关闭协议栈认证
-	//协议栈载入动态内存，只创建一次
-	if (memCreatedflag == False)
-	{
-		stackOverFlow(Protocol_Stack);
-		memCreatedflag = True;
-	}
-	
 	//判断程序内部是否存在拒绝协议的指令设定
     if (PC_Switch == PC_Enable && Data_Receive_Over)				//串口1数据接收完成										
     {
@@ -110,11 +102,11 @@ pclShell_Status shellTrigger (void)
 				你无法忍受一个嵌入式系统整天给你报错
 			*/
 			if (//1、检查数据头部
-				USART1_RX_BUF[Header_Bit] == Protocol_Stack[pcl_match][Header_Bit]
+				*(USART1_RX_BUF + Header_Bit) == Protocol_Stack[pcl_match][Header_Bit]
 				//2、检查数据尾部(固有字节检查，也可以换成检查数据末尾字头)
-				&& USART1_RX_BUF[Tail_Bit] == Protocol_Stack[pcl_match][Tail_Bit]
+				&& *(USART1_RX_BUF + Tail_Bit) == Protocol_Stack[pcl_match][Tail_Bit]
 				//3、检查指令类型
-				&& USART1_RX_BUF[Order_Type_Bit] == Protocol_Stack[pcl_match][Order_Type_Bit])
+				&& *(USART1_RX_BUF + Order_Type_Bit) == Protocol_Stack[pcl_match][Order_Type_Bit])
 			{
 				//获得有效指令位
 				order_bootflag = pcl_pass;			
@@ -123,10 +115,11 @@ pclShell_Status shellTrigger (void)
 				break;												
 			}
 			//数据公共鉴定位不正确
-			else if (//数据头不正确
-					USART1_RX_BUF[Header_Bit] != Protocol_Stack[pcl_match][Header_Bit]
-					//数据尾不正确
-					|| USART1_RX_BUF[Tail_Bit] != Protocol_Stack[pcl_match][Tail_Bit])												
+			else if (
+				//数据头不正确
+				*(USART1_RX_BUF + Header_Bit) != Protocol_Stack[pcl_match][Header_Bit]
+				//数据尾不正确
+				|| *(USART1_RX_BUF + Tail_Bit) != Protocol_Stack[pcl_match][Tail_Bit])												
 			{
 				order_bootflag = pcl_error;		
 				PO_Judge = (Protocol_Order)Stack_Member_Num;		//限定位外值

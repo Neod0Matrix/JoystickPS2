@@ -15,7 +15,7 @@ _calendar_obj calendar, _start;
 const u8 table_week[12] = {0u, 3u, 3u, 6u, 1u, 4u, 6u, 2u, 5u, 0u, 3u, 5u};
 //平年的月份日期表
 const u8 mon_table[12] = {31u, 28u, 31u, 30u, 31u, 30u, 31u, 31u, 30u, 31u, 30u, 31u};
-
+//全局缓存数组
 u16 rtcWholeData[7];
 
 //RTC中断初始化
@@ -313,7 +313,6 @@ void RTC_Init_Check (void)
 void RTC_DataStorage (_calendar_obj rtc)
 {
 	static vu8 temp_sec;
-	static Bool_ClassType memOperatFlag = False;
 	
 	//时间更新
 	if (temp_sec != rtc.sec)
@@ -327,11 +326,6 @@ void RTC_DataStorage (_calendar_obj rtc)
 		rtcWholeData[4] = rtc.hour;
 		rtcWholeData[5] = rtc.min;
 		rtcWholeData[6] = rtc.sec;
-	}
-	if (memOperatFlag == False)
-	{
-		memOperatFlag = True;
-		stackOverFlow(rtcWholeData);
 	}
 }
 

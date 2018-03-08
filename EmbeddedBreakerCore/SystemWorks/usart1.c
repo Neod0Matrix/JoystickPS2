@@ -189,7 +189,7 @@ void USART1_IRQHandler (void)
 				else
 				{
 					//将串口读到的数据送入缓存数组，之后使用串口数据从这里提取
-					USART1_RX_BUF[USART1_RX_STA & 0X3FFF] = Res;
+					*(USART1_RX_BUF + (USART1_RX_STA & 0X3FFF)) = Res;
 					//接收数据错误,重新开始接收	  
 					if (++USART1_RX_STA > (USART1_REC_LEN - 1u)) 
 						USART1_RX_STA = 0u;

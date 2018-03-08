@@ -38,14 +38,7 @@ extern u8 MemUsagePercent;										//全局内存占用率
 //用户调用函数
 void myfree (void *ptr);  										//内存释放(外部调用)
 void *mymalloc (u32 size);										//内存分配(外部调用)
-void *myrealloc (void *ptr, u32 size);							//重新分配内存(外部调用)
-//封装申请内存
-void Mem_RequestHandler (float *array, u16 array_width);		
-
-//带参宏代替内存申请
-#ifndef stackOverFlow
-#define stackOverFlow(a)		Mem_RequestHandler((float* )a, Get_Array_Size(a))
-#endif
+void *myrealloc (void *ptr, u32 size);							//重新分配内存(外部调用)		
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

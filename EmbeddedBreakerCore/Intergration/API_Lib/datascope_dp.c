@@ -12,11 +12,11 @@ u8 DataScope_OutPut_Buffer[StableWidthSize] = {0};	   		//串口发送缓冲区
 */
 void Float2Byte (float *target, u8 *buf, u8 beg)
 {
-	u8 i = 0u;
-    u8 *point = (unsigned char*)target;						//得到float的地址
+    u8 i, *point;
 	
+	point = (u8*)target;									//得到float的地址
 	for (i = 0; i < 4; i++)
-		buf[beg + i] = point[i];
+		*(buf + (beg + 1)) = *(point + i);
 }
 
 /*
@@ -39,13 +39,17 @@ void DataScope_Get_Channel_Data (float Data, u8 Channel)
 */
 u8 DataScope_Data_Generate (u8 Channel_Number)
 {
+	u8 channel_offset;
+	
     if ((Channel_Number > 10) || (Channel_Number == 0)) 
         return 0;    										//通道个数大于10或等于0，直接跳出，不执行函数
     else
     {
         DataScope_OutPut_Buffer[0] = '$';  					//帧头
-		DataScope_OutPut_Buffer[Channel_Number * 4 + 1] = Channel_Number * 4 + 1;
-		return Channel_Number * 4 + 2;
+		channel_offset = Channel_Number * 4 + 1;
+		*(DataScope_OutPut_Buffer + channel_offset) = channel_offset;
+		
+		return channel_offset + 1;
 	}
 }
 
@@ -60,16 +64,11 @@ void DataScope_LocalBuild (float dat, u8 ch)
 		//生成10个通道的格式化帧数据，返回帧数据长度
 		for(i = 0; i < DataScope_Data_Generate(10); i++) 
 		{
-			USART_SendData(USART1, DataScope_OutPut_Buffer[i]);//将所有数据依次发出	
-			usart1WaitForDataTransfer();					//等待发送结束
+			//将所有数据依次发出
+			USART_SendData(USART1, *(DataScope_OutPut_Buffer + i));	
+			usart1WaitForDataTransfer();					
 		}								
 	}
-}
-
-//生成固定范围的随机数
-u16 rangeRand (u16 max_range, u16 min_range)
-{
-	return rand() % (max_range - min_range) + min_range;
 }
 
 //简易测试(可放到PTFAI里测试)
@@ -80,10 +79,10 @@ void DataScope_Test (void)
 #define MinRand		20
 	while (i < 500u)
 	{
-		DataScope_LocalBuild(rangeRand(MaxRand, MinRand), 1);
-		DataScope_LocalBuild(rangeRand(MaxRand, MinRand), 2);
-		DataScope_LocalBuild(rangeRand(MaxRand, MinRand), 3);
-		DataScope_LocalBuild(rangeRand(MaxRand, MinRand), 4);
+		DataScope_LocalBuild(RangeRandom(MaxRand, MinRand), 1);
+		DataScope_LocalBuild(RangeRandom(MaxRand, MinRand), 2);
+		DataScope_LocalBuild(RangeRandom(MaxRand, MinRand), 3);
+		DataScope_LocalBuild(RangeRandom(MaxRand, MinRand), 4);
 		i++;
 		delay_ms(50);
 	}

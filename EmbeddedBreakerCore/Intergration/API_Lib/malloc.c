@@ -160,11 +160,14 @@ void myfree (void *ptr)							//为方便适应任何数据类型的数组，使
 	返回值:分配到的内存首地址
 */
 void *mymalloc (u32 size)  
-{  					      				   
-    if (mem_malloc(size) == 0XFFFFFFFF) 
+{  					      		
+	u32 offset;
+	
+	offset = mem_malloc(size);
+    if (offset == 0XFFFFFFFF) 
 		return NULL;  
     else 
-		return (void*)((u32)mallco_dev.membase + mem_malloc(size));  
+		return (void*)((u32)mallco_dev.membase + offset);  
 }  
 
 /*
@@ -185,48 +188,6 @@ void *myrealloc (void *ptr, u32 size)
 		
         return (void*)((u32)mallco_dev.membase + mem_malloc(size));//返回新内存首地址
     }  
-}
-
-/*
-	内存申请处理函数 
-	在函数内建过程中只用一次，避免重复申请，必要时使用Bool_ClassType的标志进行操作
-	传参：数组，数组大小(使用Get_Array_Size带参宏的方法获取)
-	在数组进栈时申请，在数组退栈时使用myfree释放
-*/
-void Mem_RequestHandler (float *array, u16 array_width)
-{ 
- 	float *p = 0, *tp = 0;   					//内存指针
-	u16 byte_space = array_width * sizeof(float);//计算需要的内存大小
-	
-	p = mymalloc(byte_space);					//申请相应数组的字节空间
-	
-	__ShellHeadSymbol__; 
-	if (SendDataCondition)
-	{
-		printf("Array Size: %d | Request Malloc Space: %dbytes\r\n", array_width, byte_space);
-		usart1WaitForDataTransfer();
-	}
-	
-	if (p != NULL) 
-		p = array;								//向p写入一些内容
-	else 
-	{
-		__ShellHeadSymbol__; U1SD("Memory Stack Over Flow\r\n");//申请失败
-	}
-	
-	if (tp != p)								//内容变更
-	{
-		tp = p;									//重新写入
-		
-		__ShellHeadSymbol__; 
-		if (SendDataCondition)
-		{
-			printf("Array Request Space Address: %#8x\r\n", (u32)tp);
-			usart1WaitForDataTransfer();
-		}
-	}
-	
-	myfree(p);									//释放内存
 }
 
 //====================================================================================================

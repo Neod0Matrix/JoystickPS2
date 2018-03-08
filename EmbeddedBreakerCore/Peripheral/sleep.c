@@ -60,6 +60,7 @@ Bool_ClassType Check_WKUP (void)
 				globalSleepflag = SysIntoSleep;
 				LED0_On;
 				OLED_SleepStaticDisplay();
+				delay_ms(100);	//等待OLED显示完全
 				
 				return True; 	//按下3s以上了
 			}

@@ -35,7 +35,7 @@ char* indStr_Catenate (char *s1, char *s2)
 	value 要转换的整形数
 	radix = 10
  */
-static char *itoa (int value, char *string, int radix)
+char *itoa (int value, char *string, int radix)
 {
     int i, d;
     int flag = 0;
@@ -102,21 +102,8 @@ u16 Nbr10BitCalcus (int nbr)
 		}
 		nbr = -nbr;
 	}
-	return bit;
-}
-
-//itoa测试
-void itoa_Test (void)
-{
-	char *test_strings;
-	int test_int = 123;
 	
-	__ShellHeadSymbol__;
-	if (SendDataCondition)
-	{
-		printf("itoa Function Test: Transfer Integer Data: %d Transfer String: %s\r\n", test_int, itoa(test_int, test_strings, 10));
-		usart1WaitForDataTransfer();
-	}
+	return bit;
 }
 
 //ASCII字符拼接
@@ -142,29 +129,6 @@ char* strData_Catenate (char* Array, char result[])
 	}	
 	
 	return result;							
-}
-
-//串口接收数据示例，不调用
-void U1RSD_example (void)
-{
-    u8 t, len;
-
-    if (PD_Switch == PD_Enable && Data_Receive_Over)	//接收数据标志
-    {
-        len = Data_All_Length;							//得到此次接收到的数据长度(字符串个数)
-        __ShellHeadSymbol__;
-        U1SD("Controller Get The Data: \r\n");
-        if (No_Data_Receive)							//没有数据接收，可以发送
-        {
-            for (t = 0u; t < len; t++)
-            {
-                USART_SendData(USART1, USART1_RX_BUF[t]);//将所有数据依次发出
-                usart1WaitForDataTransfer();			//等待发送结束
-            }
-        }
-        U1SD("\r\n");									//插入换行
-        USART1_RX_STA = 0u;								//接收状态标记
-    }
 }
 
 //====================================================================================================

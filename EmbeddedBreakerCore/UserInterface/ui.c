@@ -71,11 +71,11 @@ void OLED_Display_RTC (void)
 void OLED_StatusDetector (void)
 {
 	//显示OS CPU占用率、报警情况 
-	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("CPU  %d EW  %d"), RTOSCPUUsage / 100, Return_Error_Type);
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("CPU %3d EW %02d"), RTOSCPUUsage / 100, Return_Error_Type);
 	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
 	
 	//显示mem占用率、内部温度
-	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("MEM  %d ITD %.1f"), mem_perused(), globalMCU_Temperature);
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("MEM %3d IT %.1f"), mem_perused(), globalMCU_Temperature);
 	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);
 	
 	OLED_Refresh_Gram();

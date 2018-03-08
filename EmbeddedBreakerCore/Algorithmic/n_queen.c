@@ -15,13 +15,12 @@
 */
 
 #define QueenMatrixMax 		20u  									//定义结果数组的最大大小，可以扩充
-int a[QueenMatrixMax + 1u];    										//N皇后问题的皇后所在的行列位置，从1幵始算起，所以加1
+int* a;    										
 
 //问题演算处理
 void nQueen_CalculusHandler (void) 
 {
     int i = 1, k, flag, not_finish = 1, count = 0;					//正在处理的元素下标，表示前i-1个元素已符合要求，正在处理第i个元素
-	static Bool_ClassType memCreatedflag = False;					//内存创建标志
 	
 	u8 queenMatrixWidth = USART1_RX_BUF[2] * 10u + USART1_RX_BUF[3];//协议获得皇后数
 	if (queenMatrixWidth > QueenMatrixMax)
@@ -35,11 +34,7 @@ void nQueen_CalculusHandler (void)
 	else if (!queenMatrixWidth)
 		queenMatrixWidth = 8;
 	
-	if (memCreatedflag == False)
-	{
-		stackOverFlow(a);
-		memCreatedflag = True;
-	}
+	a = (int*)mymalloc(sizeof(int) * (queenMatrixWidth + 1));		//N皇后问题的皇后所在的行列位置，从1幵始算起，所以加1
 
 	//打印皇后数
 	__ShellHeadSymbol__; 
@@ -50,7 +45,7 @@ void nQueen_CalculusHandler (void)
 	}
 	
 	//演算
-	a[1] = 1;  														//为数组的第一个元素赋初值
+	*(a + 1) = 1;  													//为皇后的第一个元素赋初值
     while (not_finish && Return_Error_Type == Error_Clear) 			//无错状态下进行
 	{ 					
 		//处理尚未结束且还没处理到第Queens个元素		
@@ -59,36 +54,42 @@ void nQueen_CalculusHandler (void)
 			//判断是否有多个皇后在同一行
             for (flag = 1, k = 1; flag && k < i; k++) 
 			{
-                if (a[k] == a[i]) flag = 0;
+                if (*(a + k) == *(a + i)) 
+					flag = 0;
 			}
 			
 			//判断是否有多个皇后在同一对角线
             for (k = 1; flag && k < i; k++)  
 			{
-                if ((a[i] == a[k] - (k - i)) || (a[i] == a[k] + (k - i))) 
+                if ((*(a + i) == *(a + k) - (k - i)) 
+					|| (*(a + i) == *(a + k) + (k - i))) 
 					flag = 0;
 			}
 					
 			//若存在矛盾不满足要求，需要重新设置第i个元素
             if (!flag) 
 			{ 
-                if (a[i] == a[i - 1]) 								//若a[i]的值已经经过一圈追上a[i-1]的值
+                if (*(a + i) == *(a + (i - 1))) 					//若a[i]的值已经经过一圈追上a[i-1]的值
 				{ 
                     i--;  											//退回一步，重新试探处理前一个元素
-                    if (i > 1 && a[i] == queenMatrixWidth) 
-						a[i] = 1;									//当a[i]为Queens时将a[i]的值置1
+                    if (i > 1 && *(a + i) == queenMatrixWidth) 
+						*(a + i) = 1;								//当a[i]为Queens时将a[i]的值置1
                     else if (i == 1 && a[i] == queenMatrixWidth) 
 						not_finish = 0;								//当第一位的值达到Queens时结束
                     else 
-						a[i]++;  									//将a[il的值取下一个值
+						(*(a + i))++;  								//将a[i]的值取下一个值
                 } 
-				else if (a[i] == queenMatrixWidth) a[i] = 1;
-                else a[i]++;  										//将a[i]的值取下一个值
+				else if (*(a + i) == queenMatrixWidth) 
+					*(a + i) = 1;
+                else 
+					(*(a + i))++;   								//将a[i]的值取下一个值
             } 
 			else if (++i <= queenMatrixWidth)
 			{
-                if (a[i-1] == queenMatrixWidth) a[i] = 1;			//若前一个元素的值为Queens则a[i]=l
-				else a[i] = a[i-1] + 1;  							//否则元素的值为前一个元素的下一个值
+                if (*(a + (i - 1)) == queenMatrixWidth) 
+					*(a + i) = 1;									//若前一个元素的值为Queens则a[i]=1
+				else 
+					*(a + i) = *(a + (i - 1)) + 1;  				//否则元素的值为前一个元素的下一个值
 			}
         }
 		
@@ -104,19 +105,20 @@ void nQueen_CalculusHandler (void)
 				
 				for (k = 1; k <= queenMatrixWidth; k++) 
 				{				
-					printf(" %02d ", a[k]);							//打印序列
+					printf(" %02d ", *(a + k));						//打印序列
 					usart1WaitForDataTransfer();		
 				}
 			}
 			
-            if (a[queenMatrixWidth - 1] < queenMatrixWidth) 
-				a[queenMatrixWidth - 1]++;							//修改倒数第二位的值
+            if (*(a + (queenMatrixWidth - 1)) < queenMatrixWidth) 
+				(*(a + (queenMatrixWidth - 1)))++;					//修改倒数第二位的值
             else 
-				a[queenMatrixWidth - 1] = 1;
+				*(a + (queenMatrixWidth - 1)) = 1;
 			
             i = queenMatrixWidth - 1;    							//开始寻找下一个满足条件的解
         }
     }
+	myfree(a);
 }
 
 //====================================================================================================

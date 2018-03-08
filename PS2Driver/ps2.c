@@ -14,7 +14,7 @@ static void PS2_SendCommand (u8 cmd)
 {
     volatile u16 ref;
 	
-    KeyValueCache[1] = 0;
+    *(KeyValueCache + 1) = 0;
     for (ref = 0x01; ref < 0x0100; ref <<= 1)
     {
         if (ref & cmd)	IO_Cmd_H;                   
@@ -24,7 +24,7 @@ static void PS2_SendCommand (u8 cmd)
         IO_Clk_L, delay_us(10);
         IO_Clk_H;
         if (IO_DataIn) 
-			KeyValueCache[1] |= ref;
+			*(KeyValueCache + 1) |= ref;
     }
 	delay_us(16);
 }
@@ -37,7 +37,7 @@ Bool_ClassType PS2_RedLightMode (void)
     PS2_SendCommand(0x42);  				//请求数据
     IO_CS_H;
 
-	return (KeyValueCache[1] == 0x73)? False : True;
+	return (*(KeyValueCache + 1) == 0x73)? False : True;
 }
 
 //读取手柄数据
@@ -59,7 +59,7 @@ static void PS2_ReadStickData (void)
             IO_Clk_L, delay_us(10);
             IO_Clk_H;
             if (IO_DataIn) 
-				KeyValueCache[byte] |= ref;
+				*(KeyValueCache + byte) |= ref;
         }
         delay_us(16);
     }
@@ -228,17 +228,17 @@ StickKeyValueMap PS2_MatchStickKeyValue (void)
 
 	//清除键值缓存
     for (index = 0; index < 9; index++)
-        KeyValueCache[index] = 0x00;
+        *(KeyValueCache + index) = 0x00;
     PS2_ReadStickData();
 	//计算摇杆模拟量总和
-	AnologSumValue = KeyValueCache[ps2lx] + KeyValueCache[ps2ly] 
-		+ KeyValueCache[ps2rx] + KeyValueCache[ps2ry];
+	AnologSumValue = *(KeyValueCache + ps2lx) + *(KeyValueCache + ps2ly)
+		+ *(KeyValueCache + ps2rx) + *(KeyValueCache + ps2ry);
 	//临时高低位
-	temp = (KeyValueCache[4] << 8) | KeyValueCache[3];   
+	temp = (*(KeyValueCache + 4) << 8) | *(KeyValueCache + 3);   
 	//16个按键，按下为0，未按下为1
     for (index = 0; index < 16; index++)
     {
-        if (!(temp & (1 << (kvm[index] - 1))))
+        if (!(temp & (1 << (*(kvm + index) - 1))))
             return (StickKeyValueMap)(index + 1);
     }
 	
@@ -253,7 +253,7 @@ void OLED_DisplayPS2 (void)
 	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
 	//显示摇杆模拟值
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("%03d %03d %03d %03d"), 
-		KeyValueCache[ps2lx], KeyValueCache[ps2ly], KeyValueCache[ps2rx], KeyValueCache[ps2ry]);
+		*(KeyValueCache + ps2lx), *(KeyValueCache + ps2ly), *(KeyValueCache + ps2rx), *(KeyValueCache + ps2ry));
 	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);
 	OLED_Refresh_Gram();
 }
@@ -288,7 +288,7 @@ void PS2_JoyStickResponseHandler (void)
 		switch (localkv)
 		{
 			case ps2none: 		break;
-			case ps2select: 	Sys_Soft_Reset(); 				break;	//软重启
+			case ps2select: 	break;									//悬空状态键值为1，不要在这里添加危险代码
 			case ps2l3: 		break;
 			case ps2r3:			break;
 			case ps2start:		break;
@@ -298,7 +298,7 @@ void PS2_JoyStickResponseHandler (void)
 			case ps2padleft:	break;
 			case ps2l2: 		VibrateLeftMotor; 				break;	//电机驱动
 			case ps2r2: 		VibrateRightMotor; 				break;	//电机驱动
-			case ps2l1:			break;
+			case ps2l1:			Sys_Soft_Reset(); 				break;	//软重启
 			case ps2r1:			nQueen_CalculusHandler();		break;	//8皇后
 			case ps2triangle:	CommunicationTest(); 			break;	//通信测试
 			case ps2circle:		displaySystemInfo(); 			break;	//系统信息显示
@@ -316,8 +316,8 @@ void PS2_JoyStickResponseHandler (void)
 		{
 			//这里打印的字符越短越节省时间，用户体验会更流畅
 			printf("\r\n[JoystickPS2] JoyAnologValue(0~255): %5d %5d %5d %5d\r\n", 
-				KeyValueCache[ps2lx], KeyValueCache[ps2ly],
-				KeyValueCache[ps2rx], KeyValueCache[ps2ry]);
+				*(KeyValueCache + ps2lx), *(KeyValueCache + ps2ly),
+				*(KeyValueCache + ps2rx), *(KeyValueCache + ps2ry));
 			usart1WaitForDataTransfer();
 		}
 		if (oledScreenFlag == 4)										//指向PS2键码显示屏

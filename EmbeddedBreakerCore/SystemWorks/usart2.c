@@ -139,7 +139,7 @@ void USART2_IRQHandler (void)
             TIM_SetCounter(U2AuxTimerx, TimerInitCounterValue);				
             if (USART2_RX_STA == 0) 
 				TIM4_Switch(ENABLE);					//使能定时器4的中断
-            USART2_RX_BUF[USART2_RX_STA++] = res;		//记录接收到的值
+			*(USART2_RX_BUF + (USART2_RX_STA++)) = res;	//记录接收到的值
         } 
 		else
             USART2_RX_STA |= 1 << 15;					//强制标记接收完成
