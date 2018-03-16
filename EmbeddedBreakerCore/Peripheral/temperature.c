@@ -5,6 +5,7 @@
 //内部温度传感器，监测MCU工作温度
 //不使用DS18B20外部传感器
 
+kf_1deriv_factor itd_kf;
 float globalMCU_Temperature = 0.f;													//全局传参
 
 #define ADCx_Number 				ADC1											//使用的ADC
@@ -46,17 +47,13 @@ void MCU_Temperature_Detector (void)
 {
 	static float act_temp = 0.f;													
 	
-	globalMCU_Temperature = InnerTempCalcus(ADC_Temp_Channel, 1);					
+	globalMCU_Temperature = InnerTempCalcus(ADC_Temp_Channel, 1);					//读取ADC温度数据
+	globalMCU_Temperature = Kalman_1DerivFilter(globalMCU_Temperature, &itd_kf);	//卡尔曼温度滤波
 	if (act_temp != globalMCU_Temperature)	
 	{		
 		act_temp = globalMCU_Temperature;
-		//内部温度检测主要工作：温度预警
 		if (act_temp >= Warning_Temperature && pwsf != JBoot)
-		{
-			delay_ms(200);															//消除温度抖动引起的报警
-			if (act_temp >= Warning_Temperature && pwsf != JBoot)
-				TEMPERATUREEXCESS;															
-		}
+			TEMPERATUREEXCESS;														//内部温度检测主要工作：温度预警				
 	}
 }
 

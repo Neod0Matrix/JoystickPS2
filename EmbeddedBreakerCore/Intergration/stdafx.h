@@ -32,6 +32,12 @@
 #include "data.h"										//数据处理
 #include "datascope_dp.h"								//串口虚拟示波器
 
+//算法集合
+#include "time_base.h"									//算法使用的时基
+#include "pid.h"										//PID
+#include "n_queen.h"									//N皇后CPU性能测试
+#include "filter.h"										//数字滤波器
+
 //系统功能监控机制
 #include "error_warning.h"								//错误报警机制
 #include "low_voltage.h"								//欠压保护监测
@@ -60,11 +66,6 @@
 #include "led.h"										//LED IO口初始化
 #include "key.h"										//键盘扫描IO口初始化
 #include "beep.h"										//报警用蜂鸣器初始化
-
-//算法集合
-#include "time_base.h"									//算法使用的时基
-#include "pid.h"										//PID
-#include "n_queen.h"									//N皇后CPU性能测试
 
 //UI
 #include "ui.h"											//OLED UI sample

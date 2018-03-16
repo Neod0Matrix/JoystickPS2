@@ -14,6 +14,7 @@
 #define InnerTempCalcus(ch, rk) ((TEMPCONST25 - adcChannelRankDefine(ch, rk)) / PERCENTCONST + BASETEMP25)
 #endif
 
+extern kf_1deriv_factor itd_kf;						//内部温度滤波器
 extern float globalMCU_Temperature;
 
 void adcInnerTemperature_Init (void); 				//ADC通道初始化

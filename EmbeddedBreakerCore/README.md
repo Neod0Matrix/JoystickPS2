@@ -41,6 +41,7 @@ Use Manual
 	define: STM32F10X_HD(芯片容量),USE_STDPERIPH_DRIVER(使用固件库)
 	Optimize for time, One ELF Section per Function
 	所有的模块链接到框架里的函数和设置项都在Modules/link.*里
+	更新框架覆盖时不覆盖EmbeddedBreakerCore\Modules目录和外部应用目录
 	默认不开启OS，如需要修改config.*选项，并注意设置相应的任务特性
 	请尽量不要修该框架内除link.*，config.*以外的文件内容
 	移植框架后请失能MOE_Switch选项，详见config.c内容
