@@ -5,7 +5,7 @@
 //DSP DF(数字信号处理，数字滤波器)
 
 //卡尔曼一阶因子初始化
-static void KF_1DerivFactor_Init (kf_1deriv_factor *kf)
+void KF_1DerivFactor_Init (kf_1deriv_factor *kf)
 {
 	/*
 		卡尔曼滤波参数的调整：
@@ -34,14 +34,6 @@ static void KF_1DerivFactor_Init (kf_1deriv_factor *kf)
 float Kalman_1DerivFilter (float mes, kf_1deriv_factor *kfstr)
 {	
 	float mat;
-	static Bool_ClassType strHasInit = False;
-	
-	//只初始化一次结构体成员
-	if (strHasInit == False)
-	{
-		strHasInit = True;
-		KF_1DerivFactor_Init(kfstr);							
-	}
 							
 	//以下只有P值得到继承，其他变量均在重新载入滤波函数时被刷新
 	kfstr -> x = mes;									
@@ -51,7 +43,7 @@ float Kalman_1DerivFilter (float mes, kf_1deriv_factor *kfstr)
 	kfstr -> p = pow(kfstr -> A, 2) * kfstr -> p + kfstr -> q;
 	//计算卡尔曼滤波增益，被除数不能为0，不然会返回NAN
 	mat = ((kfstr -> p * pow(kfstr -> H, 2)) + kfstr -> r);
-	if (!mat) kfstr -> g = kfstr -> p * kfstr -> H / mat;
+	if (mat != 0) kfstr -> g = kfstr -> p * kfstr -> H / mat;
 	//状态估计校正
     kfstr -> x += kfstr -> g * (kfstr -> y - (kfstr -> H * kfstr -> x));
 	//误差协方差估计校正
@@ -63,7 +55,7 @@ float Kalman_1DerivFilter (float mes, kf_1deriv_factor *kfstr)
 }
 
 //卡尔曼二阶因子初始化
-static void KF_2DerivFactor_Init (kf_2deriv_factor *kf)
+void KF_2DerivFactor_Init (kf_2deriv_factor *kf)
 {
 	/*
 		卡尔曼滤波参数的调整：
@@ -104,14 +96,6 @@ static void KF_2DerivFactor_Init (kf_2deriv_factor *kf)
 __packed float* Kalman_2DerivFilter (float mes, kf_2deriv_factor *kfstr)
 {
 	float mat1, mat2, mat3;
-	static Bool_ClassType strHasInit = False;
-	
-	//只初始化一次结构体成员
-	if (strHasInit == False)
-	{
-		strHasInit = True;
-		KF_2DerivFactor_Init(kfstr);						
-	}
 
 	//滤波变量赋值
 	kfstr -> x[0] = mes;		
@@ -134,7 +118,7 @@ __packed float* Kalman_2DerivFilter (float mes, kf_2deriv_factor *kfstr)
 	mat3 = kfstr -> r + kfstr -> H[0] * mat1 + kfstr -> H[1] * mat2;
 	
 	//被除数不能为0，不然会返回NAN
-	if (!mat3)										
+	if (mat3 != 0)										
 	{
 		kfstr -> g[0] = mat1 / mat3;
 		kfstr -> g[1] = mat2 / mat3;
