@@ -13,6 +13,7 @@ kf_1deriv_factor itd_kf;
 #define NumberOfADCChannel 			1u												//一共开启的ADC通道数目
 #define ADC_SampleInterval			20u												//单次取值时间间隔，单位ms
 #define ADC_SamplePeriod			ADC_SampleTime_239Cycles5						//ADC采样周期
+#define ADC_SequencerRank			1u												//定序组等级排名，与多通道采集有关
 #define Average_Count 				20u												//ADC取值求平均元素个数
 #define ADC_Temp_Channel  			ADC_Channel_16 									//温度传感器通道
 #define Warning_Temperature 		56.f											//报警温度(STM32原则上工作于-40~58度)
@@ -50,7 +51,7 @@ void MCU_Temperature_Detector (void)
 	
 	//读取ADC温度数据，并进行卡尔曼温度滤波
 	globalMCU_Temperature = Kalman_1DerivFilter(
-		InnerTempCalcus(ADC_Temp_Channel, 1), &itd_kf);	
+		InnerTempCalcus(ADC_Temp_Channel, ADC_SequencerRank), &itd_kf);	
 	if (act_temp != globalMCU_Temperature)	
 		act_temp = globalMCU_Temperature;			
 	//内部温度检测主要工作：温度预警	

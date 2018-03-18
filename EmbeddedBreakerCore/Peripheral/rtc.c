@@ -319,13 +319,13 @@ void RTC_DataStorage (_calendar_obj rtc)
 	{
 		temp_sec = rtc.sec;	
 		
-		rtcWholeData[0] = rtc.w_year;
-		rtcWholeData[1] = rtc.w_month;
-		rtcWholeData[2] = rtc.w_date;
-		rtcWholeData[3] = rtc.week;
-		rtcWholeData[4] = rtc.hour;
-		rtcWholeData[5] = rtc.min;
-		rtcWholeData[6] = rtc.sec;
+		*(rtcWholeData + 0) = rtc.w_year;
+		*(rtcWholeData + 1) = rtc.w_month;
+		*(rtcWholeData + 2) = rtc.w_date;
+		*(rtcWholeData + 3) = rtc.week;
+		*(rtcWholeData + 4) = rtc.hour;
+		*(rtcWholeData + 5) = rtc.min;
+		*(rtcWholeData + 6) = rtc.sec;
 	}
 }
 
@@ -338,15 +338,16 @@ void RTC_ReqOrderHandler (void)
 	if (SendDataCondition)
 	{
 		//显示年月日
-		printf("System Built-in RTC Clock Log: %04d/%02d/%02d ", rtcWholeData[0], rtcWholeData[1], rtcWholeData[2]);
+		printf("System Built-in RTC Clock Log: %04d/%02d/%02d ", 
+			*(rtcWholeData + 0), *(rtcWholeData + 1), *(rtcWholeData + 2));
 		usart1WaitForDataTransfer();
 	
 		//显示当前时间
-		printf("%02d:%02d:%02d ", rtcWholeData[4], rtcWholeData[5], rtcWholeData[6]);
+		printf("%02d:%02d:%02d ", *(rtcWholeData + 4), *(rtcWholeData + 5), *(rtcWholeData + 6));
 		usart1WaitForDataTransfer();
 		
 		//显示当前星期							
-		switch (rtcWholeData[3])
+		switch (*(rtcWholeData + 3))
 		{
 		case 0: week = "Sun"; break;
 		case 1: week = "Mon"; break;

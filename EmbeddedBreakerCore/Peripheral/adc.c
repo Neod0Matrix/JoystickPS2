@@ -40,10 +40,10 @@ void ucADCx_Config (			uint32_t 		rcc_axbper_adc, 					//RCC时钟
 //获得ADCx的某一通道值
 uint16_t getADCxChannel_Data (	ADC_TypeDef* 	adcx, 								//ADCx
 								uint8_t 		chx, 								//通道编号
-								uint8_t 		rank, 								//等级值
+								uint8_t 		rank, 								//定序组等级排名，与多通道采集有关
 								uint8_t 		sample_period)						//采样周期
 {
-	ADC_RegularChannelConfig(adcx, chx, rank, sample_period);						//ADC编号，ADC通道
+	ADC_RegularChannelConfig(adcx, chx, rank, sample_period);						
     ADC_SoftwareStartConvCmd(adcx, ENABLE);											//使能指定的ADCx的软件转换启动功能
 	
 	//等待转换结束
@@ -57,7 +57,7 @@ uint16_t getADCxChannel_Data (	ADC_TypeDef* 	adcx, 								//ADCx
 //多次采样取平均值，减小误差，非常重要
 u16 adcx_AverageHandler (		ADC_TypeDef* 	adcx,								//ADCx
 								uint8_t 		chx, 								//通道编号
-								uint8_t 		rank, 								//等级值
+								uint8_t 		rank, 								//定序组等级排名，与多通道采集有关
 								uint8_t 		sample_period,						//采样周期
 								u8 				times,								//检测次数取平均
 								u8				interval)							//取值间隔
