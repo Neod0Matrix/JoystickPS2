@@ -17,7 +17,7 @@
 #define ROW2			Font_Size * 3u	//第二行
 
 #define OneRowMaxWord	16u				//一行最多16个字符
-extern __align(4) char oled_dtbuf[OneRowMaxWord];
+extern char oled_dtbuf[OneRowMaxWord];	//固定缓存空间
 //显示序列，pos取值0-14(只能写15位，第16位(pos=15)有bug)
 //格式：x位置，y位置，内容，字号
 #ifndef strPos
@@ -36,6 +36,7 @@ typedef enum {wr_cmd = 0x00, wr_dat = 0x01} OLED_WriteCD;//写命令/写数据
 #define IIC_COND 		0x40			//控制字节指定下一个字节为数据
 
 //IIC处理
+void oledDelay (void);
 void IIC_Start (void);
 void IIC_Stop (void);
 void IIC_Wait_Ack (void);
