@@ -24,11 +24,83 @@ __packed struct __FILE
 }; 
 FILE __stdout;       
 
+typedef int FILEHANDLE; 
+
 //定义_sys_exit()以避免使用半主机模式    
-void _sys_exit (int x) 										//添加了一个void
+void _sys_exit (int status) 										
 { 
-	x = x; 
+	//status = status;
+	while (True);
 } 
+
+FILEHANDLE _sys_open (const char *name, int openmode)  
+{  
+    return False;  
+}  
+
+int _sys_close (FILEHANDLE fh)  
+{  
+    return False; 
+}  
+  
+int _sys_write (FILEHANDLE fh, const unsigned char *buf, unsigned len, int mode)  
+{  
+    return False; 
+}  
+  
+int _sys_read (FILEHANDLE fh, unsigned char*buf, unsigned len, int mode)  
+{  
+    return False; 
+}  
+  
+int _sys_istty (FILEHANDLE fh)  
+{  
+    return False; 
+}  
+  
+int _sys_seek (FILEHANDLE fh, long pos)  
+{  
+    return False; 
+}  
+  
+int _sys_ensure (FILEHANDLE fh)  
+{  
+    return False; 
+}  
+  
+long _sys_flen (FILEHANDLE fh)  
+{  
+    return False; 
+}  
+  
+int _sys_tmpnam (char *name, int fileno, unsigned maxlength)  
+{  
+    return False; 
+}  
+  
+void _ttywrch (int ch)  
+{  
+}
+
+int time (int *t)
+{  
+    return False; 
+}  
+
+int remove (const char *filename)  
+{  
+    return False; 
+}  
+  
+char *_sys_command_string (char *cmd, int len)  
+{  
+    return 0; 
+}  
+  
+int clock (void)  
+{  
+    return False; 
+}  
 
 //重定义fputc函数 
 //读stdin数据
@@ -38,6 +110,7 @@ int fputc (int ch, FILE *f)
 	{
 	}
     USART_SendData(USART1, (uint8_t)ch);   
+	
 	return ch;
 }
 

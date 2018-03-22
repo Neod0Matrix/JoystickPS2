@@ -204,33 +204,35 @@ void OLED_DrawPoint (u8 x, u8 y, u8 t)
 	在指定位置显示一个字符,包括部分字符
 	x:0~127 (X_MAX-1)
 	y:0~63  (Y_MAX-1)
-	mode:0,反白显示;1,正常显示
-	size:选择字体
+	mode:	0,反白显示;1,正常显示
+	size:	选择字号
 */
-void OLED_ShowChar (u8 x, u8 y, u8 chr, u8 size, u8 mode)
+void OLED_ShowChar (u8 x, u8 y, u8 chr, Font_Column_Size size, u8 mode)
 {
-    u8 temp, t, t1;
+    u8 temp, j, i;
     u8 y0 = y;
+	FontArray* font_select;
+
+	//字号选型
+	switch (size)
+	{
+	case f12: font_select = (FontArray*)ascii_1206; break;
+	case f16: font_select = (FontArray*)ascii_1608; break;
+	case f24: font_select = (FontArray*)ascii_2412; break;
+	}
 	
-    chr -= ' ';								//ascii序列偏移
-    for (t = 0; t < size; t++)
+	chr -= ' ';										//ascii序列偏移
+    for (j = 0; j < size; j++)
     {
-		if (size == 12)
-            temp = asc2_1206[chr][t];		//调用1206字体
-        else if (size == 16)
-            temp = asc2_1608[chr][t];		//调用1608字体
-		else if (size == 24)
-			temp = asc2_2412[chr][t];		//调用2412字体
-		
-        for (t1 = SIZE; t1 > 0; t1--)		//取反偏差值
+		temp = *(font_select + (chr * size + j));	//通过一阶指针访问二阶数组
+        for (i = SIZE; i > 0; i--)					//取反偏差值
         {
 			OLED_DrawPoint(x, y, (temp & 0x80)? mode:!mode);
-            temp <<= 1;
-            y++;
+			
+            temp <<= 1, y++;
             if ((y - y0) == size)
             {
-                y = y0;
-                x++;
+                y = y0, x++;
                 break;
             }
         }
@@ -244,7 +246,7 @@ void OLED_ShowChar (u8 x, u8 y, u8 chr, u8 size, u8 mode)
 	size:字体大小
 	num	:显示数值
 */
-void OLED_ShowNum (u8 x, u8 y, u32 num, u8 len, u8 size)
+void OLED_ShowNum (u8 x, u8 y, u32 num, u8 len, Font_Column_Size size)
 {
     u8 t, temp;
     u8 enshow = 0u;
@@ -267,7 +269,7 @@ void OLED_ShowNum (u8 x, u8 y, u32 num, u8 len, u8 size)
 }
 
 //数字显示，带有不足位补零效果(某个迭代版本已把这个函数省略掉)
-void OLED_ShowNum_Supple0 (u8 x, u8 y, u32 num, u8 space, u8 size)
+void OLED_ShowNum_Supple0 (u8 x, u8 y, u32 num, u8 space, Font_Column_Size size)
 {
 	u8 i, bitNum;
 	
@@ -285,7 +287,7 @@ void OLED_ShowNum_Supple0 (u8 x, u8 y, u32 num, u8 space, u8 size)
 	size:字体大小
 	*p:字符串起始地址
 */
-void OLED_ShowString (u8 x, u8 y, const u8 *p, u8 size)
+void OLED_ShowString (u8 x, u8 y, const u8 *p, Font_Column_Size size)
 {
 	while (*p != '\0')
     {

@@ -12,7 +12,7 @@
 #define Max_Column		128u			//横轴显示分辨率
 #define Max_Row			64u				//纵轴显示分辨率
 //字体选择
-#define Font_Size 		16u				//16号字体
+#define Font_Size 		f16				//16号字体
 #define ROW1			Font_Size * 2u	//第一行
 #define ROW2			Font_Size * 3u	//第二行
 
@@ -54,10 +54,10 @@ void OLED_Set_Pos (u8 x, u8 y);
 //OLED显示屏操作函数
 void OLED_Clear (void);					//清除显示
 void OLED_DrawPoint (u8 x, u8 y, u8 t);	//画点
-void OLED_ShowChar (u8 x, u8 y, u8 chr, u8 size, u8 mode);
-void OLED_ShowNum (u8 x, u8 y, u32 num, u8 len, u8 size);
-void OLED_ShowNum_Supple0 (u8 x, u8 y, u32 num, u8 space, u8 size);
-void OLED_ShowString (u8 x, u8 y, const u8 *p, u8 size);
+void OLED_ShowChar (u8 x, u8 y, u8 chr, Font_Column_Size size, u8 mode);
+void OLED_ShowNum (u8 x, u8 y, u32 num, u8 len, Font_Column_Size size);
+void OLED_ShowNum_Supple0 (u8 x, u8 y, u32 num, u8 space, Font_Column_Size size);
+void OLED_ShowString (u8 x, u8 y, const u8 *p, Font_Column_Size size);
 void OLED_CmdSetMode (void);			//指令设置OLED显示模式
 void OLED_Init (void);					//初始化SSD1300
 

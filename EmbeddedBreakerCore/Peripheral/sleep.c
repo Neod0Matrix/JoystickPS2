@@ -23,11 +23,6 @@ void Sys_Standby (void)
     * @retval None
     */
     PWR_WakeUpPinCmd(ENABLE);  						//使能唤醒管脚功能
-	/**
-    * @brief  Enters STANDBY mode
-    * @param  None
-    * @retval None
-    */
     PWR_EnterSTANDBYMode();	  						//进入待命(STANDBY)模式
 }
 

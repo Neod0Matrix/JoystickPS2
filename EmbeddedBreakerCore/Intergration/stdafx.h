@@ -52,15 +52,15 @@
 #include "local_taskmgr.h"								//任务管理器
 
 //外设库
+#include "malloc.h"	    								//动态内存
 #include "gpio.h"										//GPIO通用初始化配置库
 #include "timer.h"										//通用定时器配置
 #include "exti.h"										//外部中断
 #include "dma.h"										//DMA1加速USART1传输
-#include "malloc.h"	    								//动态内存
 #include "adc.h"										//ADC库
 #include "i2c.h"										//I2C软件底层
-#include "oled.h"										//初始化OLED
 #include "ascii_font.h"  	 							//ASCII字库(OLED专用)
+#include "oled.h"										//初始化OLED
 
 //IO口初始化
 #include "led.h"										//LED IO口初始化

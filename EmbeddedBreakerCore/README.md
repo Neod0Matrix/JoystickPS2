@@ -8,7 +8,7 @@ Copyright
 Update
 ===============
 
-	最后更新时间: 2018/03/06pm1310
+	最后更新时间: 2018/03/22pm1453
 	详细更新内容见softlog.txt
 
 Project Manual
@@ -45,6 +45,7 @@ Use Manual
 	默认不开启OS，如需要修改config.*选项，并注意设置相应的任务特性
 	请尽量不要修该框架内除link.*，config.*以外的文件内容
 	移植框架后请失能MOE_Switch选项，详见config.c内容
+	关于动态内存管理，既可以使用mymalloc，myfree自适应嵌入式底层函数，也可以使用标准库
 	
 Inner IO Map
 ===============
