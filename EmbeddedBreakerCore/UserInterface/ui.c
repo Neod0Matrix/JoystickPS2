@@ -21,9 +21,9 @@ void UISAC_StructureInit (void)
 void OLED_SleepStaticDisplay (void)
 {
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("System  Suspend"));
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);	
+	OLED_ShowString(strPos(0u), ROW1, (StringCache*)oled_dtbuf, Font_Size);	
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("InterruptAwaken"));
-	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);	
+	OLED_ShowString(strPos(0u), ROW2, (StringCache*)oled_dtbuf, Font_Size);	
 	OLED_Refresh_Gram();
 }
 
@@ -31,25 +31,36 @@ void OLED_SleepStaticDisplay (void)
 void OLED_ScreenP0_Const (void)
 {	
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("EmbeddedBreaker"));
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);	
+	OLED_ShowString(strPos(0u), ROW1, (StringCache*)oled_dtbuf, Font_Size);	
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("DevelopCoreKits"));
-	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);	
+	OLED_ShowString(strPos(0u), ROW2, (StringCache*)oled_dtbuf, Font_Size);	
 	OLED_Refresh_Gram();
 }
 
 //OLED常量第一屏
 void OLED_ScreenP1_Const (void)
 {	
-	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("</MATRIX>@NdAn "));
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("    T.WKVER    "));
+	OLED_ShowString(strPos(0u), ROW1, (StringCache*)oled_dtbuf, Font_Size);
 	//此处区分系统报警状态	
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, 
 		((Return_Error_Type == Error_Clear)? "Working Correct":" Error Warning "));
-	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);	
+	OLED_ShowString(strPos(0u), ROW2, (StringCache*)oled_dtbuf, Font_Size);	
 	OLED_Refresh_Gram();
 }
 
-//OLED常量第二屏RTC时间
+//OLED常量第二屏
+void OLED_ScreenP2_Const (void)
+{	
+	//logo: </MATRIX>@Neod Anderjon
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("   </MATRIX>   "));
+	OLED_ShowString(strPos(0u), ROW1, (StringCache*)oled_dtbuf, Font_Size);
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, (" Neod Anderjon "));
+	OLED_ShowString(strPos(0u), ROW2, (StringCache*)oled_dtbuf, Font_Size);	
+	OLED_Refresh_Gram();
+}
+
+//OLED常量第三屏RTC时间
 void OLED_Display_RTC (void)
 {
 	char* week;					
@@ -57,7 +68,7 @@ void OLED_Display_RTC (void)
 	//时间
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("    %02d:%02d:%02d    "), 
 		*(rtcWholeData + 4), *(rtcWholeData + 5), *(rtcWholeData + 6));
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
+	OLED_ShowString(strPos(0u), ROW1, (StringCache*)oled_dtbuf, Font_Size);
 	
 	//年月日，当前星期							
 	switch (*(rtcWholeData + 3))
@@ -72,21 +83,21 @@ void OLED_Display_RTC (void)
 	}
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("%4d/%02d/%02d  %s"), 
 		*(rtcWholeData + 0), *(rtcWholeData + 1), *(rtcWholeData + 2), week);
-	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);
+	OLED_ShowString(strPos(0u), ROW2, (StringCache*)oled_dtbuf, Font_Size);
 	OLED_Refresh_Gram();
 }
 
-//OLED常量第三屏系统状态
+//OLED常量第四屏系统状态
 void OLED_StatusDetector (void)
 {
 	//显示OS CPU占用率、报警情况 
-	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("CPU %3d EW %02d"), RTOSCPUUsage / 100, Return_Error_Type);
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
-	
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("CPU %3d EW %02d"), 
+		RTOSCPUUsage / 100, Return_Error_Type);
+	OLED_ShowString(strPos(0u), ROW1, (StringCache*)oled_dtbuf, Font_Size);
 	//显示mem占用率、内部温度
-	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("MEM %3d IT %.1f"), mem_perused(), globalMCU_Temperature);
-	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);
-	
+	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("MEM %3d IT %.1f"), 
+		mem_perused(), globalMCU_Temperature);
+	OLED_ShowString(strPos(0u), ROW2, (StringCache*)oled_dtbuf, Font_Size);
 	OLED_Refresh_Gram();
 }
 
@@ -104,6 +115,9 @@ void OLED_DisplayInitConst (void)
 		delay_ms(300);						//logo延迟
 		OLED_Clear();						//擦除原先的画面
 		OLED_ScreenP1_Const();	
+		delay_ms(300);						//logo延迟
+		OLED_Clear();						//擦除原先的画面
+		OLED_ScreenP2_Const();
 		delay_ms(300);						//logo延迟
 		OLED_Clear();						//擦除原先的画面
 		UISAC_StructureInit();				//初始化切屏结构体
@@ -127,21 +141,16 @@ void OLED_PageAlterCtrl (void)
 		if (KEY0_NLTrigger)					
 		{
 			if (++ui_oled.ui_screen_nbr == ScreenPageCount)					
-				ui_oled.ui_screen_nbr = 0u;	//现有屏数复位
+				ui_oled.ui_screen_nbr = 0u;	
 			while(KEY0_NLTrigger);			
 		}
-		
-		//时间扩展5s自动切屏/按键KEY0手动切屏
-		if (ui_oled.ui_alter_flag)
+		//时间扩展5s自动切屏
+		if (ui_oled.ui_fresh_cnt++ == 
+			TickDivsIntervalus(PageAlterInterval) - 1 && ui_oled.ui_alter_flag)
 		{
-			if (ui_oled.ui_fresh_cnt++ == 
-				TickDivsIntervalus(PageAlterInterval) - 1 || KEY0_NLTrigger)
-			{
-				ui_oled.ui_fresh_cnt = 0u;	
-				if (++ui_oled.ui_screen_nbr == ScreenPageCount)					
-					ui_oled.ui_screen_nbr = 0u;	
-				while(KEY0_NLTrigger);		
-			}
+			ui_oled.ui_fresh_cnt = 0u;	
+			if (++ui_oled.ui_screen_nbr == ScreenPageCount)					
+				ui_oled.ui_screen_nbr = 0u;	
 		}
 	}
 }
@@ -158,7 +167,6 @@ void UIScreen_DisplayHandler (void)
 		{				
 			pageUpdate = ui_oled.ui_screen_nbr;
 			OLED_Clear();		
-			delay_ms(50);					//等待OLED硬件响应结束
 		}
 		switch (pageUpdate)
 		{
@@ -168,26 +176,19 @@ void UIScreen_DisplayHandler (void)
 			*/
 			//替换框架预设置logo
 			(MOE_Switch == MOE_Disable)? 
-				OLED_ScreenP0_Const():OLED_ScreenModules_Const();
-			break;
-		case 1: 
-			OLED_ScreenP1_Const();
-			break;
-		case 2: 
-			OLED_Display_RTC();
-			break;
-		case 3:
-			OLED_StatusDetector();	
-			break;	
+				OLED_ScreenP0_Const():OLED_ScreenModules_Const(); break;
+		case 1: OLED_ScreenP1_Const(); 	break;
+		case 2: OLED_ScreenP2_Const(); 	break;
+		case 3: OLED_Display_RTC(); 	break;
+		case 4: OLED_StatusDetector();	break;	
 		}
 		/*
 			@EmbeddedBreakerCore Extern API Insert
 		*/
 		if (MOE_Switch == MOE_Enable)
-			OLED_DisplayModules(pageUpdate);
-		
+			OLED_DisplayModules(pageUpdate);	
 		//外部调用API切换
-		ui_oled.ui_confirm_alter = pageUpdate;		
+		ui_oled.ui_confirm_alter = pageUpdate;	
 	}
 }
 

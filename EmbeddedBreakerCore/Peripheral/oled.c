@@ -28,8 +28,8 @@
 	[6]0 1 2 3 ... 127
 	[7]0 1 2 3 ... 127
 */
-u8 OLED_GRAM[Max_Column][SIZE];				//128x8显存数组
-char oled_dtbuf[OneRowMaxWord];				//OLED显示打印snprintf缓存
+__align(4) u8 OLED_GRAM[Max_Column][8];				//128x8显存数组
+__align(4) char oled_dtbuf[OneRowMaxWord];			//OLED显示打印snprintf缓存
 
 //适用于OLED IIC显示的延时
 void oledDelay (void)
@@ -76,23 +76,19 @@ void IIC_WriteChar (u8 byte)
 {	
 	uint8_t i;
 
-	/* 先发送字节的高位bit7 */
+	//先发送字节的高7位
 	for (i = 0; i < 8; i++)
 	{		
-		if (byte & 0x80) OLED_SDA = 1;
-		else OLED_SDA = 0;
-		
+		OLED_SDA = (byte & 0x80)? 1:0;
 		oledDelay();
 		OLED_SCL = 1;
 		oledDelay();
 		OLED_SCL = 0;
-		
 		//释放总线
 		if (i == 7) 
 			OLED_SDA = 1;			
-		
 		byte <<= 1;							//左移一个bit
-		i2c_Delay();
+		oledDelay();
 	}
 }
 
@@ -161,27 +157,29 @@ void OLED_Display_Off (void)
 //更新显存到OLED
 void OLED_Refresh_Gram (void)
 {
-    u8 i, n;
+    u8 i, j;
 	
-    for (i = 0; i < SIZE; i++)
+    for (i = 0; i < 8; i++)
     {
         OLED_WR_Byte(0xb0 + i, wr_cmd);  	
-		//TODO: 2018/3/20pm2013 修改设置列地址高低顺序
-		OLED_WR_Byte(0x10, wr_cmd);      	//设置显示位置列高地址
 		OLED_WR_Byte(0x04, wr_cmd);      	//设置显示位置列低地址
-        for (n = 0; n < Max_Column; n++)
-            OLED_WR_Byte(OLED_GRAM[n][i], wr_dat);
+		OLED_WR_Byte(0x10, wr_cmd);      	//设置显示位置列高地址
+		
+        for (j = 0; j < Max_Column; j++)
+            OLED_WR_Byte(*(*(OLED_GRAM + j) + i), wr_dat);
     }
 }
 
 //清除屏幕所有旧显示
 void OLED_Clear (void)
 {
-    u8 i, n;
+    u8 i, j;
 	
-    for (i = 0; i < SIZE; i++)
-        for (n = 0; n < Max_Column; n++)
-			OLED_GRAM[n][i] = 0x00;			//清除数据
+    for (i = 0; i < 8; i++)
+	{
+        for (j = 0; j < Max_Column; j++)
+			*(*(OLED_GRAM + j) + i) = 0x00;	//清除数据
+	}
 	OLED_Refresh_Gram();					//更新显示
 }
 
@@ -192,12 +190,15 @@ void OLED_Clear (void)
 */
 void OLED_DrawPoint (u8 x, u8 y, u8 t)
 {
+	short poi, surcol;
+	
     if (x > Max_Column - 1 || y > Max_Row - 1)
-		return;								//超出范围直接结束程序
-    if (t)
-		OLED_GRAM[x][SIZE - 1 - y / SIZE] |= (1 << (SIZE - 1 - y % SIZE));
-    else 
-		OLED_GRAM[x][SIZE - 1 - y / SIZE] &= ~(1 << (SIZE - 1 - y % SIZE));
+		return;		
+	
+	poi = 1 << (7 - y % 8);
+	surcol = 7 - y / 8;
+    (t)? (*(*(OLED_GRAM + x) + surcol) |= poi):
+		(*(*(OLED_GRAM + x) + surcol) &= ~poi);
 }
 
 /*
@@ -209,11 +210,10 @@ void OLED_DrawPoint (u8 x, u8 y, u8 t)
 */
 void OLED_ShowChar (u8 x, u8 y, u8 chr, Font_Column_Size size, u8 mode)
 {
-    u8 temp, j, i;
-    u8 y0 = y;
+    u8 temp, j, i, y0 = y;
 	FontArray* font_select;
 
-	//字号选型
+	//字号选型(默认固定字号16号字)
 	switch (size)
 	{
 	case f12: font_select = (FontArray*)ascii_1206; break;
@@ -224,13 +224,13 @@ void OLED_ShowChar (u8 x, u8 y, u8 chr, Font_Column_Size size, u8 mode)
 	chr -= ' ';										//ascii序列偏移
     for (j = 0; j < size; j++)
     {
-		temp = *(font_select + (chr * size + j));	//通过一阶指针访问二阶数组
-        for (i = SIZE; i > 0; i--)					//取反偏差值
+		temp = *(font_select + (chr * size + j));	//通过一阶指针访问二阶数组取字
+		//该部分不同于标准库，是修改过显示效果的操作
+        for (i = 8; i > 0; i--)						
         {
 			OLED_DrawPoint(x, y, (temp & 0x80)? mode:!mode);
-			
-            temp <<= 1, y++;
-            if ((y - y0) == size)
+            temp <<= 1;								
+            if (++y == (size + y0))
             {
                 y = y0, x++;
                 break;
@@ -245,31 +245,32 @@ void OLED_ShowChar (u8 x, u8 y, u8 chr, Font_Column_Size size, u8 mode)
 	len :数字的位数
 	size:字体大小
 	num	:显示数值
+	(某个迭代版本已把这个函数替代掉)
 */
-void OLED_ShowNum (u8 x, u8 y, u32 num, u8 len, Font_Column_Size size)
+void OLED_ShowNum (u8 x, u8 y, int32_t num, u8 len, Font_Column_Size size)
 {
-    u8 t, temp;
-    u8 enshow = 0u;
+    u8 t, temp, size_cache, enshow = 0u;
 	
     for (t = 0; t < len; t++)
     {
         temp = (num / (u32)pow(10, len - t - 1)) % 10u;
         if (!enshow && t < (len - 1))
         {
+			size_cache = (size / 2) * t;
             if (!temp)
             {
-                OLED_ShowChar(x + (size / 2) * t, y, ' ', size, 1);
+                OLED_ShowChar(x + size_cache, y, ' ', size, 1);
                 continue;
             }
             else
                 enshow = 1;
         }
-        OLED_ShowChar(x + (size / 2) * t, y, temp + '0', size, 1);
+        OLED_ShowChar(x + size_cache, y, temp + '0', size, 1);
     }
 }
 
-//数字显示，带有不足位补零效果(某个迭代版本已把这个函数省略掉)
-void OLED_ShowNum_Supple0 (u8 x, u8 y, u32 num, u8 space, Font_Column_Size size)
+//数字显示，带有不足位补零效果(某个迭代版本已把这个函数替代掉)
+void OLED_ShowNum_Supple0 (u8 x, u8 y, int32_t num, u8 space, Font_Column_Size size)
 {
 	u8 i, bitNum;
 	
@@ -287,22 +288,24 @@ void OLED_ShowNum_Supple0 (u8 x, u8 y, u32 num, u8 space, Font_Column_Size size)
 	size:字体大小
 	*p:字符串起始地址
 */
-void OLED_ShowString (u8 x, u8 y, const u8 *p, Font_Column_Size size)
+void OLED_ShowString (u8 x, u8 y, StringCache* p, Font_Column_Size size)
 {
+	u8 half_size = size / 2;
+	
 	while (*p != '\0')
     {
-        if (x > Max_Column - size / 2) 
+        if (x > Max_Column - half_size) 
 		{
             x = 0;
             y += size;
         }
-        if (y > Max_Row - size / 2) 
+        if (y > Max_Row - half_size) 
 		{
-            y = x = 0;
+            y = 0, x = 0;
             OLED_Clear();
         }
         OLED_ShowChar(x, y, *p, size, 1);
-        x += size / 2;
+        x += half_size;
         p++;
     }
 }
@@ -343,7 +346,7 @@ void OLED_CmdSetMode (void)
 
     OLED_WR_Byte(0xdb, wr_cmd);				//set vcomh
     OLED_WR_Byte(0x49, wr_cmd);
-	//OLED_WR_Byte(0x40, wr_cmd);			//set vcom deselect level
+	OLED_WR_Byte(0x40, wr_cmd);				//set vcom deselect level
 	
 	//OLED_WR_Byte(0x20, wr_cmd);			
 	//OLED_WR_Byte(0x02, wr_cmd);			//set page addressing mode (0x00/0x01/0x02)
@@ -361,7 +364,7 @@ void OLED_CmdSetMode (void)
 void OLED_Init (void)
 {
 	ucGPIO_Config_Init (RCC_AxBxPeri_GPIOx,			
-						GPIO_Mode_Out_OD,	//数据传输开漏	
+						GPIO_Mode_Out_PP,	//这里设置成开漏输出也可以
 						GPIO_Speed_50MHz,						
 						GPIORemapSettingNULL,			
 						OLI2C_SCL_PIN | OLI2C_SDA_PIN,					

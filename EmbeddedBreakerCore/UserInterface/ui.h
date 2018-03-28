@@ -21,6 +21,7 @@ extern UI_ScreenAlterCtrl ui_oled;
 //刷屏数常量值
 void OLED_ScreenP0_Const (void);
 void OLED_ScreenP1_Const (void);
+void OLED_ScreenP2_Const (void);
 void OLED_DisplayInitConst (void);		//显示的常量字符
 //#define ScreenPageCount	4u				//页数统计
 
@@ -32,7 +33,7 @@ void OLED_PageAlterCtrl (void);
 void UIScreen_DisplayHandler (void);
 
 //框架内定义默认OLED切屏数
-#define FrameDefault_oledScreen_Count	4u
+#define FrameDefault_oledScreen_Count	5u
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

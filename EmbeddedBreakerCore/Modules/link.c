@@ -43,9 +43,9 @@ void Modules_ProtocolTask (void)
 void OLED_ScreenModules_Const (void)
 {
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, (" Joystick PS2  "));
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
+	OLED_ShowString(strPos(0u), ROW1, (StringCache*)oled_dtbuf, Font_Size);
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("SonyPlaystation"));
-	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);
+	OLED_ShowString(strPos(0u), ROW2, (StringCache*)oled_dtbuf, Font_Size);
     OLED_Refresh_Gram();
 }
 

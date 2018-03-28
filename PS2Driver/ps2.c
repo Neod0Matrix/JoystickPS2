@@ -250,11 +250,11 @@ void OLED_DisplayPS2 (void)
 {
 	//显示键值
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("KeyValueMap: %2d"), globalPS2keyValue);
-	OLED_ShowString(strPos(0u), ROW1, (const u8*)oled_dtbuf, Font_Size);
+	OLED_ShowString(strPos(0u), ROW1, (StringCache*)oled_dtbuf, Font_Size);
 	//显示摇杆模拟值
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("%03d %03d %03d %03d"), 
 		*(KeyValueCache + ps2lx), *(KeyValueCache + ps2ly), *(KeyValueCache + ps2rx), *(KeyValueCache + ps2ry));
-	OLED_ShowString(strPos(0u), ROW2, (const u8*)oled_dtbuf, Font_Size);
+	OLED_ShowString(strPos(0u), ROW2, (StringCache*)oled_dtbuf, Font_Size);
 	OLED_Refresh_Gram();
 }
 
@@ -282,7 +282,7 @@ void PS2_JoyStickResponseHandler (void)
 			Beep_Once;													//蜂鸣器触发，放到后面体验效果会好一点
 		}
 		//指向PS2键码显示屏
-		if (MOE_Switch == MOE_Enable && ui_oled.ui_confirm_alter == 4)	
+		if (MOE_Switch == MOE_Enable && ui_oled.ui_screen_nbr == 5)	
 			OLED_DisplayPS2();
 		
 		//键值任务响应(这是一个Demo)

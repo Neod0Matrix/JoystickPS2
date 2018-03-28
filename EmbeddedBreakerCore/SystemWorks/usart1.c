@@ -28,8 +28,8 @@ typedef int FILEHANDLE;
 
 //定义_sys_exit()以避免使用半主机模式    
 void _sys_exit (int status) 										
-{ 
-	//status = status;
+{
+	status = status;
 	while (True);
 } 
 
@@ -102,8 +102,7 @@ int clock (void)
     return False; 
 }  
 
-//重定义fputc函数 
-//读stdin数据
+//重定义fputc函数，读stdin数据
 int fputc (int ch, FILE *f)
 {      
 	while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
