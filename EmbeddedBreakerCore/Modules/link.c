@@ -54,7 +54,7 @@ void OLED_DisplayModules (u8 page)
 {
 	switch (page)
 	{
-	case 4:
+	case 5:
 		OLED_DisplayPS2();
 		break;
 	}

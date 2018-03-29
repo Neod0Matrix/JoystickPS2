@@ -282,7 +282,7 @@ void PS2_JoyStickResponseHandler (void)
 			Beep_Once;													//蜂鸣器触发，放到后面体验效果会好一点
 		}
 		//指向PS2键码显示屏
-		if (MOE_Switch == MOE_Enable && ui_oled.ui_screen_nbr == 5)	
+		if (MOE_Switch == MOE_Enable && ui_oled.ui_confirm_alter == 5)	
 			OLED_DisplayPS2();
 		
 		//键值任务响应(这是一个Demo)
@@ -321,7 +321,7 @@ void PS2_JoyStickResponseHandler (void)
 				*(KeyValueCache + ps2rx), *(KeyValueCache + ps2ry));
 			usart1WaitForDataTransfer();
 		}
-		if (MOE_Switch == MOE_Enable && ui_oled.ui_confirm_alter == 4)	
+		if (MOE_Switch == MOE_Enable && ui_oled.ui_confirm_alter == 5)	
 			OLED_DisplayPS2();
 		/*
 			红灯模式配对响应，当接收机和手柄完成配对，rx=lx=128，ry=ly=127，和为510

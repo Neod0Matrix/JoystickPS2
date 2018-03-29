@@ -158,17 +158,15 @@ void OLED_PageAlterCtrl (void)
 //UI显示器
 void UIScreen_DisplayHandler (void)
 {	
-	static u8 pageUpdate = 2u;				//默认第二屏开始
-	
 	if (OLED_Switch == OLED_Enable)
 	{
 		//擦除原先的画面，KEY1按下停止切屏
-		if (pageUpdate != ui_oled.ui_screen_nbr)
+		if (ui_oled.ui_confirm_alter != ui_oled.ui_screen_nbr)
 		{				
-			pageUpdate = ui_oled.ui_screen_nbr;
-			OLED_Clear();		
+			ui_oled.ui_confirm_alter = ui_oled.ui_screen_nbr;
+			OLED_Clear();						
 		}
-		switch (pageUpdate)
+		switch (ui_oled.ui_confirm_alter)
 		{
 		case 0: 
 			/*
@@ -186,9 +184,7 @@ void UIScreen_DisplayHandler (void)
 			@EmbeddedBreakerCore Extern API Insert
 		*/
 		if (MOE_Switch == MOE_Enable)
-			OLED_DisplayModules(pageUpdate);	
-		//外部调用API切换
-		ui_oled.ui_confirm_alter = pageUpdate;	
+			OLED_DisplayModules(ui_oled.ui_confirm_alter);	
 	}
 }
 

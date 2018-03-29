@@ -17,19 +17,8 @@
 #define OLI2C_SCL_PIN		GPIO_Pin_13
 #define OLI2C_SDA_PIN		GPIO_Pin_15
 
-/*
-	OLED显存
-	[0]0 1 2 3 ... 127
-	[1]0 1 2 3 ... 127
-	[2]0 1 2 3 ... 127
-	[3]0 1 2 3 ... 127
-	[4]0 1 2 3 ... 127
-	[5]0 1 2 3 ... 127
-	[6]0 1 2 3 ... 127
-	[7]0 1 2 3 ... 127
-*/
-__align(4) u8 OLED_GRAM[Max_Column][8];				//128x8显存数组
-__align(4) char oled_dtbuf[OneRowMaxWord];			//OLED显示打印snprintf缓存
+__align(4) u8 oled_graphic_memory[SCREENROW][GMCOLUMN];	
+__align(4) char oled_dtbuf[OneRowMaxWord];			
 
 //适用于OLED IIC显示的延时
 void oledDelay (void)
@@ -159,58 +148,61 @@ void OLED_Refresh_Gram (void)
 {
     u8 i, j;
 	
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < GMCOLUMN; i++)			//显存列
     {
+		//进入重写模式
         OLED_WR_Byte(0xb0 + i, wr_cmd);  	
 		OLED_WR_Byte(0x04, wr_cmd);      	//设置显示位置列低地址
 		OLED_WR_Byte(0x10, wr_cmd);      	//设置显示位置列高地址
 		
-        for (j = 0; j < Max_Column; j++)
-            OLED_WR_Byte(*(*(OLED_GRAM + j) + i), wr_dat);
+		//更新显存内容
+        for (j = 0; j < SCREENROW; j++)		//显存行
+            OLED_WR_Byte(*(*(oled_graphic_memory + j) + i), wr_dat);
     }
 }
 
 //清除屏幕所有旧显示
 void OLED_Clear (void)
 {
-    u8 i, j;
+    //u8 i, j;
 	
-    for (i = 0; i < 8; i++)
-	{
-        for (j = 0; j < Max_Column; j++)
-			*(*(OLED_GRAM + j) + i) = 0x00;	//清除数据
-	}
-	OLED_Refresh_Gram();					//更新显示
+//	//显存清空
+//    for (i = 0; i < GMCOLUMN; i++)			//显存列
+//	{
+//        for (j = 0; j < SCREENROW; j++)		//显存行
+//			*(*(oled_graphic_memory + j) + i) = 0x00;	
+//	}
+	
+	//使用标准库实现显存数组一次性清零，效率最高
+	memset(oled_graphic_memory, 0x00, sizeof(oled_graphic_memory));
+	OLED_Refresh_Gram();					
 }
 
-/*
-	点阵，画点函数
-	x:0~127,y:0~63
-	t:1 填充 0,清空
-*/
-void OLED_DrawPoint (u8 x, u8 y, u8 t)
+//点阵，画点函数	
+void OLED_DrawPoint (u8 x, u8 y, OLED_ContrastMode mode)
 {
 	short poi, surcol;
 	
-    if (x > Max_Column - 1 || y > Max_Row - 1)
+	//超出显存限定
+    if (x > SCREENROW - 1 || y > SCREENCOLUMN - 1)
 		return;		
 	
-	poi = 1 << (7 - y % 8);
-	surcol = 7 - y / 8;
-    (t)? (*(*(OLED_GRAM + x) + surcol) |= poi):
-		(*(*(OLED_GRAM + x) + surcol) &= ~poi);
+	//转换显示模式
+	poi = 1 << (7 - y % 8), surcol = 7 - y / 8;
+    (mode)? (*(*(oled_graphic_memory + x) + surcol) |= poi):
+		(*(*(oled_graphic_memory + x) + surcol) &= ~poi);
 }
 
 /*
 	在指定位置显示一个字符,包括部分字符
-	x:0~127 (X_MAX-1)
-	y:0~63  (Y_MAX-1)
+	x:		0~127 (X_MAX-1)
+	y:		0~63  (Y_MAX-1)
 	mode:	0,反白显示;1,正常显示
 	size:	选择字号
 */
-void OLED_ShowChar (u8 x, u8 y, u8 chr, Font_Column_Size size, u8 mode)
+void OLED_ShowChar (u8 x, u8 y, u8 chr, Font_Column_Size size, OLED_ContrastMode mode)
 {
-    u8 temp, j, i, y0 = y;
+    u8 getArrayWord, j, i, ty = y, forward_word = chr;
 	FontArray* font_select;
 
 	//字号选型(默认固定字号16号字)
@@ -221,18 +213,19 @@ void OLED_ShowChar (u8 x, u8 y, u8 chr, Font_Column_Size size, u8 mode)
 	case f24: font_select = (FontArray*)ascii_2412; break;
 	}
 	
-	chr -= ' ';										//ascii序列偏移
+	forward_word -= ' ';				//ascii序列偏移一个空格
     for (j = 0; j < size; j++)
     {
-		temp = *(font_select + (chr * size + j));	//通过一阶指针访问二阶数组取字
+		//通过一阶指针访问二阶数组取字
+		getArrayWord = *(font_select + (forward_word * size + j));	
 		//该部分不同于标准库，是修改过显示效果的操作
         for (i = 8; i > 0; i--)						
         {
-			OLED_DrawPoint(x, y, (temp & 0x80)? mode:!mode);
-            temp <<= 1;								
-            if (++y == (size + y0))
+			OLED_DrawPoint(x, ty, (getArrayWord & 0x80)? mode:(OLED_ContrastMode)!mode);
+            getArrayWord <<= 1;								
+            if (++ty == (size + y))
             {
-                y = y0, x++;
+                ty = y, x++;
                 break;
             }
         }
@@ -259,13 +252,13 @@ void OLED_ShowNum (u8 x, u8 y, int32_t num, u8 len, Font_Column_Size size)
 			size_cache = (size / 2) * t;
             if (!temp)
             {
-                OLED_ShowChar(x + size_cache, y, ' ', size, 1);
+                OLED_ShowChar(x + size_cache, y, ' ', size, pos_ctr);
                 continue;
             }
             else
                 enshow = 1;
         }
-        OLED_ShowChar(x + size_cache, y, temp + '0', size, 1);
+        OLED_ShowChar(x + size_cache, y, temp + '0', size, pos_ctr);
     }
 }
 
@@ -290,23 +283,25 @@ void OLED_ShowNum_Supple0 (u8 x, u8 y, int32_t num, u8 space, Font_Column_Size s
 */
 void OLED_ShowString (u8 x, u8 y, StringCache* p, Font_Column_Size size)
 {
-	u8 half_size = size / 2;
+	u8 tx = x, ty = y, half_size = size / 2;
 	
+	//遍历字符串指针所有内容
 	while (*p != '\0')
     {
-        if (x > Max_Column - half_size) 
+        if (tx > SCREENROW - half_size) 
 		{
-            x = 0;
-            y += size;
+            tx = 0;
+			//TODO:20180329pm1326修改size为half_size，TMD居然也能正常显示，但还是有长时间显示错位的bug
+            ty += half_size;					
         }
-        if (y > Max_Row - half_size) 
+        if (ty > SCREENCOLUMN - half_size) 
 		{
-            y = 0, x = 0;
+            ty = 0, tx = 0;
             OLED_Clear();
         }
-        OLED_ShowChar(x, y, *p, size, 1);
-        x += half_size;
-        p++;
+        OLED_ShowChar(tx, ty, *p, size, pos_ctr);
+        tx += half_size;
+        p++;								//下一个字
     }
 }
 

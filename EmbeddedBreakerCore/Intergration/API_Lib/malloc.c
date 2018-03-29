@@ -159,7 +159,7 @@ void myfree (void *ptr)							//为方便适应任何数据类型的数组，使
 	size:内存大小(字节)
 	返回值:分配到的内存首地址
 */
-void *mymalloc (u32 size)  
+void* mymalloc (u32 size)  
 {  					      		
 	u32 offset;
 	
@@ -176,7 +176,7 @@ void *mymalloc (u32 size)
 	size:要分配的内存大小(字节)
 	返回值:新分配到的内存首地址
 */
-void *myrealloc (void *ptr, u32 size)  
+void* myrealloc (void *ptr, u32 size)  
 {  
     if (mem_malloc(size) == 0XFFFFFFFF) 
 		return NULL;     
