@@ -26,11 +26,11 @@ extern PS2_PrintKeyValue 			PS2P_Switch;
 //urc开源链接编号
 typedef enum
 {
-	urc_ps2p	= 15,
+	urc_ps2p	= 17,
 } Modules_SwitchNbr;
 
 //裁去config.h中的定义放到这里来重新定义urc协议长度
-#define Module_Add_urcOption_Count	0u
+#define Module_Add_urcOption_Count	1u
 #define Max_Option_Value		(Module_Add_urcOption_Count + FrameDefault_urcOption_Count)			
 //裁去ui.h中定义的总切屏数到这里来重新定义
 #define Module_Add_oledScreen_Count	1u

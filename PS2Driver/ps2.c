@@ -253,7 +253,8 @@ void OLED_DisplayPS2 (void)
 	OLED_ShowString(strPos(0u), ROW1, (StringCache*)oled_dtbuf, Font_Size);
 	//显示摇杆模拟值
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("%03d %03d %03d %03d"), 
-		*(KeyValueCache + ps2lx), *(KeyValueCache + ps2ly), *(KeyValueCache + ps2rx), *(KeyValueCache + ps2ry));
+		*(KeyValueCache + ps2lx), *(KeyValueCache + ps2ly), 
+		*(KeyValueCache + ps2rx), *(KeyValueCache + ps2ry));
 	OLED_ShowString(strPos(0u), ROW2, (StringCache*)oled_dtbuf, Font_Size);
 	OLED_Refresh_Gram();
 }
@@ -265,6 +266,7 @@ void PS2_JoyStickResponseHandler (void)
 	static StickKeyValueMap localkv = ps2none;
 	static u16 anologSum = 0;
 	static Bool_ClassType stickMatchReceive = False;
+	char* ps2p_dtbuf;
 	
 	globalPS2keyValue = PS2_MatchStickKeyValue();						//全局传参
 	//匹配键值变化
@@ -276,13 +278,17 @@ void PS2_JoyStickResponseHandler (void)
 			if (SendDataCondition && PS2P_Switch == PS2P_Enable)
 			{
 				//这里打印的字符越短越节省时间，用户体验会更流畅
-				printf("\r\n[JoystickPS2] KeyValue: %d\r\n", localkv);
+				ps2p_dtbuf = (char*)mymalloc(sizeof(char) * 200);
+				snprintf(ps2p_dtbuf, 200, "\r\n[JoystickPS2] KeyValue: %d\r\n", localkv);
+				printf("%s", ps2p_dtbuf);
 				usart1WaitForDataTransfer();
+				myfree((void*)ps2p_dtbuf);
 			}
 			Beep_Once;													//蜂鸣器触发，放到后面体验效果会好一点
 		}
 		//指向PS2键码显示屏
-		if (MOE_Switch == MOE_Enable && ui_oled.ui_confirm_alter == 5)	
+		if (MOE_Switch == MOE_Enable 
+			&& ui_oled.ui_confirm_alter == 5 && UIRef_ModeFlag == Quick_Ref)	
 			OLED_DisplayPS2();
 		
 		//键值任务响应(这是一个Demo)
@@ -316,12 +322,16 @@ void PS2_JoyStickResponseHandler (void)
 		if (SendDataCondition && PS2P_Switch == PS2P_Enable)
 		{
 			//这里打印的字符越短越节省时间，用户体验会更流畅
-			printf("\r\n[JoystickPS2] JoyAnologValue(0~255): %5d %5d %5d %5d\r\n", 
+			ps2p_dtbuf = (char*)mymalloc(sizeof(char) * 200);
+			snprintf(ps2p_dtbuf, 200, "\r\n[JoystickPS2] JoyAnologValue(0~255): %5d %5d %5d %5d\r\n", 
 				*(KeyValueCache + ps2lx), *(KeyValueCache + ps2ly),
 				*(KeyValueCache + ps2rx), *(KeyValueCache + ps2ry));
+			printf("%s", ps2p_dtbuf);
 			usart1WaitForDataTransfer();
+			myfree((void*)ps2p_dtbuf);
 		}
-		if (MOE_Switch == MOE_Enable && ui_oled.ui_confirm_alter == 5)	
+		if (MOE_Switch == MOE_Enable 
+			&& ui_oled.ui_confirm_alter == 5 && UIRef_ModeFlag == Quick_Ref)		
 			OLED_DisplayPS2();
 		/*
 			红灯模式配对响应，当接收机和手柄完成配对，rx=lx=128，ry=ly=127，和为510

@@ -64,6 +64,9 @@ extern ModuleOLEDDisplay_Effect 	MOE_Switch;
 //是否启用框架默认的灯效(包括呼吸灯和随机闪烁灯)
 typedef enum {Light_Enable = 1, Light_Disable = !Light_Enable}			FrameDefaultLight_Effect;
 extern FrameDefaultLight_Effect		Light_Switch;
+//是否需要调整UI快速刷新显示(不稳定)
+typedef enum {Quick_Ref = 0, Stable_Ref = !Quick_Ref}					UIRefresh_QuickMode;
+extern UIRefresh_QuickMode			UIRef_ModeFlag;
 
 //总体开关编号
 typedef enum
@@ -84,10 +87,12 @@ typedef enum
 	urc_hedr	= 13,
 	urc_moe		= 14,
 	urc_light	= 15,
+	urc_uifm	= 16,
 }
 Global_Switch_Nbr;
 
-#define FrameDefault_urcOption_Count	15u			//设置框架内选项总数值
+//设置框架内选项总数值
+#define FrameDefault_urcOption_Count	16u			
 
 //统一资源配置器
 extern void Universal_Resource_Config (void);
