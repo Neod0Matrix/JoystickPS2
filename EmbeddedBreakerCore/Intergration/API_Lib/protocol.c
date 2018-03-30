@@ -155,8 +155,8 @@ void OrderResponse_Handler (void)
             displaySystemInfo();									//显示系统信息
             break;													
         case pSOR:
-			U1SD("Software Control MCU Reset\r\n");
-            Sys_Soft_Reset();										//软件复位
+			U1SD("Software Control MCU Reset or Sleep\r\n");
+			Protocol_CtrlResetorSuspend();							//复位or睡眠
             break;		
 		case pNQU:
 			U1SD("N Queen Question MCU Ability Test\r\n");

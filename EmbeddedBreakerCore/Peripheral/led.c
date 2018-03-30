@@ -121,6 +121,7 @@ void LightEffectDisable (void)
 	if (Light_Switch == Light_Disable && StopLightEffect == False)
 	{
 		StopLightEffect = True;
+		LEDGroupCtrl(led_1, Off);
 		LEDGroupCtrl(led_2, Off);
 		LEDGroupCtrl(led_3, Off);
 	}
@@ -146,7 +147,8 @@ void BlinkLED_StatusCtrl (void)
 	}
 	else if (Return_Error_Type == Error_Clear && pwsf != JBoot && globalSleepflag == SysOrdWork) 
 	{
-		if (runledBlinkSem++ == TickDivsIntervalus(BlinkInterval) - 1)
+		if (runledBlinkSem++ == TickDivsIntervalus(BlinkInterval) - 1
+			&& Light_Switch == Light_Enable)
 		{
 			runledBlinkSem = 0u;
 			LEDGroupCtrl(led_1, Blink);															

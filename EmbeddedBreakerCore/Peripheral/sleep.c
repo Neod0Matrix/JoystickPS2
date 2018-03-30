@@ -29,6 +29,9 @@ void Sys_Standby (void)
 //系统进入待机模式
 void Sys_Enter_Standby (void)
 {
+	globalSleepflag = SysIntoSleep;
+	OLED_SleepStaticDisplay();
+	delay_ms(100);									//等待OLED显示完全
     RCC_APB2PeriphResetCmd(0x01fc, DISABLE);		//复位所有IO口
     Sys_Standby();
 }
@@ -52,11 +55,7 @@ Bool_ClassType Check_WKUP (void)
 			delay_ms(30);
 			if (t >= 100)		//按下超过x秒钟
 			{
-				globalSleepflag = SysIntoSleep;
-				LED0_On;
-				OLED_SleepStaticDisplay();
-				delay_ms(100);	//等待OLED显示完全
-				
+				LED0_On;		//辅助查看LED
 				return True; 	//按下3s以上了
 			}
 		}
@@ -93,6 +92,18 @@ void WKUP_Init (void)
 						EXTI0_IRQn, 
 						0x02, 
 						0x02);		
+}
+
+//协议指令控制
+void Protocol_CtrlResetorSuspend (void)
+{
+	SYS_ResetorSleep rs_flag = (SYS_ResetorSleep)*(USART1_RX_BUF + SYS_RESLEEP_Bit);
+	
+	switch (rs_flag)
+	{
+	case sys_reset: Sys_Soft_Reset(); 		break;
+	case sys_sleep: Sys_Enter_Standby();	break;
+	}
 }
 
 //中断,检测到PA0脚的一个上升沿

@@ -107,5 +107,32 @@ void Modules_InterruptTask (void)
 	}
 }
 
+//基于RTC时间的任务计划，链接到local_taskmgr.c，默认添加到第四任务
+void Modules_RTC_TaskScheduler (void)
+{
+	/*
+		RTC API:
+			*(rtcWholeData + 0): 年份
+			*(rtcWholeData + 1): 月份
+			*(rtcWholeData + 2): 日
+			*(rtcWholeData + 3): 星期
+			*(rtcWholeData + 4): 时
+			*(rtcWholeData + 5): 分
+			*(rtcWholeData + 6): 秒
+	*/
+	//example: 设置含有灯光效果的外设休眠
+	if (*(rtcWholeData + 4) >= 1 && *(rtcWholeData + 4) <= 6)
+	{
+		OLED_Clear();
+		OLED_Switch = OLED_Disable;
+		Light_Switch = Light_Disable;
+	}
+	else
+	{
+		OLED_Switch = OLED_Enable;
+		Light_Switch = Light_Enable;
+	}
+}
+
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

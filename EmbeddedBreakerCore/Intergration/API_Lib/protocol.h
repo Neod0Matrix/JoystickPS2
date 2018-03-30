@@ -10,7 +10,7 @@
 #define DT					0xFF						//协议数据尾部
 #define NB					0x00						//空位
 #define SSR					0x0A						//系统状态请求
-#define SOR					0x0B						//软件复位
+#define SOR					0x0B						//软件复位/软件睡眠
 #define NQU					0x0C						//N皇后测试
 //不能写0x0D，那是USART检测末尾字节的检测位
 #define URC					0x0E						//URC的协议配置
@@ -33,6 +33,7 @@
 #define URC_SW_2Bit			3u							//取URC的开关标识2
 #define URC_ED_Bit			4u							//取URC的使能/失能标识
 #define MEW_Read_Bit		2u							//取手动警报控制标识
+#define SYS_RESLEEP_Bit		2u							//取软件复位/软件睡眠标识
 
 //通过协议栈中的数据判断执行指令类型
 //协议缓存数组第二位数据

@@ -47,6 +47,7 @@ void Modules_HardwareInit (void);							//硬件底层初始化任务，链接�
 void Modules_ExternInterruptInit (void);					//硬件底层外部中断初始化，链接到EXTI_Config_Init函数
 void Modules_NonInterruptTask (void);						//模块非中断任务，链接到local_taskmgr.c，默认添加到第二任务
 void Modules_InterruptTask (void);							//模块中断任务，链接到time_base.c TIM2_IRQHandler函数中
+void Modules_RTC_TaskScheduler (void);						//基于RTC时间的任务计划，链接到local_taskmgr.c，默认添加到第四任务
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

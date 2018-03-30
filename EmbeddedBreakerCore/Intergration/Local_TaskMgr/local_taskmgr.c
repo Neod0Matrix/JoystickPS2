@@ -43,6 +43,7 @@ void prio3TaskBus (void)
 
 void prio4TaskBus (void)
 {
+	Modules_RTC_TaskScheduler();					//RTC任务计划
 #ifdef useRTOSinProject
 	MemStack_ReqHandler();							//内存申请处理
 #endif
