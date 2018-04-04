@@ -43,12 +43,8 @@ void PVD_Init_Config (void)
 	
     //设定监控阀值
     PWR_PVDLevelConfig(Check_Voltage_Value);
-	
     //使能开关
-    if (PVD_Switch == PVD_Enable) 
-		PWR_PVDCmd(ENABLE);
-    else 
-		PWR_PVDCmd(DISABLE);
+	PWR_PVDCmd((PVD_Switch == PVD_Enable)? ENABLE:DISABLE);
 }
 
 //PVD中断服务

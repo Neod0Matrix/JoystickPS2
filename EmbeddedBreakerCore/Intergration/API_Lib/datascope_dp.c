@@ -75,15 +75,15 @@ void DataScope_LocalBuild (float dat, u8 ch)
 void DataScope_Test (void)
 {
 	u16 i = 0u;
+	
 #define MaxRand 	200
 #define MinRand		20
-	while (i < 500u)
+	while (i++ < 500u)
 	{
 		DataScope_LocalBuild(RangeRandom(MaxRand, MinRand), 1);
 		DataScope_LocalBuild(RangeRandom(MaxRand, MinRand), 2);
 		DataScope_LocalBuild(RangeRandom(MaxRand, MinRand), 3);
 		DataScope_LocalBuild(RangeRandom(MaxRand, MinRand), 4);
-		i++;
 		delay_ms(50);
 	}
 }

@@ -32,10 +32,16 @@ void USART1_Init (u32 bound);							//初始化USART1
 void u1_printf (char* fmt, ...);						//USART printf
 extern void usart1WaitForDataTransfer (void);			//等待数据发送完毕
 
-//USART1串口打印格式函数体
-//受带参宏限制，只能纯粹的字符串打印
+//USART1普通打印变长参数
 #ifndef U1SD
-#define U1SD(option_str) 	{if (SendDataCondition) {printf(option_str); usart1WaitForDataTransfer();}}
+#define U1SD(format, ...) 	{if (SendDataCondition) {printf(format, ##__VA_ARGS__); \
+							usart1WaitForDataTransfer();}}
+#endif
+//USART1报错打印变长参数，带文件行号
+#ifndef U1SD_E
+#define U1SD_E(format, ...)	{if (SendDataCondition) \
+							{printf("FILE: "__FILE__", LINE: %d: "format"", __LINE__, ##__VA_ARGS__); \
+							usart1WaitForDataTransfer();}}
 #endif
 
 //====================================================================================================

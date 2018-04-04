@@ -102,11 +102,14 @@ pclShell_Status shellTrigger (void)
 				你无法忍受一个嵌入式系统整天给你报错
 			*/
 			if (//1、检查数据头部
-				*(USART1_RX_BUF + Header_Bit) == Protocol_Stack[pcl_match][Header_Bit]
+				*(USART1_RX_BUF + Header_Bit) 
+				== *(*(Protocol_Stack + pcl_match) + Header_Bit)
 				//2、检查数据尾部(固有字节检查，也可以换成检查数据末尾字头)
-				&& *(USART1_RX_BUF + Tail_Bit) == Protocol_Stack[pcl_match][Tail_Bit]
+				&& *(USART1_RX_BUF + Tail_Bit) 
+				== *(*(Protocol_Stack + pcl_match) + Tail_Bit)
 				//3、检查指令类型
-				&& *(USART1_RX_BUF + Order_Type_Bit) == Protocol_Stack[pcl_match][Order_Type_Bit])
+				&& *(USART1_RX_BUF + Order_Type_Bit) 
+				== *(*(Protocol_Stack + pcl_match) + Order_Type_Bit))
 			{
 				//获得有效指令位
 				order_bootflag = pcl_pass;			
@@ -117,13 +120,15 @@ pclShell_Status shellTrigger (void)
 			//数据公共鉴定位不正确
 			else if (
 				//数据头不正确
-				*(USART1_RX_BUF + Header_Bit) != Protocol_Stack[pcl_match][Header_Bit]
+				*(USART1_RX_BUF + Header_Bit) 
+				!= *(*(Protocol_Stack + pcl_match) + Header_Bit)
 				//数据尾不正确
-				|| *(USART1_RX_BUF + Tail_Bit) != Protocol_Stack[pcl_match][Tail_Bit])												
+				|| *(USART1_RX_BUF + Tail_Bit) 
+				!= *(*(Protocol_Stack + pcl_match) + Tail_Bit))												
 			{
 				order_bootflag = pcl_error;		
 				PO_Judge = (Protocol_Order)Stack_Member_Num;		//限定位外值
-				__ShellHeadSymbol__; U1SD("User Sent Data Header or Tail Error\r\n");	
+				__ShellHeadSymbol__; U1SD_E("User Sent Data Header or Tail Error\r\n");	
 				SERIALDATAERROR;	
 			}
         }
@@ -136,7 +141,7 @@ pclShell_Status shellTrigger (void)
     {
         order_bootflag = pcl_error;
 		PO_Judge = (Protocol_Order)Stack_Member_Num;				//限定位外值
-		__ShellHeadSymbol__; U1SD("Sorry, Developer Close Protocol Interface\r\n");
+		__ShellHeadSymbol__; U1SD_E("Sorry, Developer Close Protocol Interface\r\n");
     }
 	
     return order_bootflag;											//最后返回执行与否					
@@ -180,7 +185,7 @@ void OrderResponse_Handler (void)
         }
 		
 		RTC_ReqOrderHandler();
-		Beep_Once;													
+		Beep_Once;													//指令执行完毕哔一声								
     }
 }
 

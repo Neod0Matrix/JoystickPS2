@@ -63,26 +63,13 @@ void OLED_ScreenP2_Const (void)
 //OLED常量第三屏RTC时间
 void OLED_Display_RTC (void)
 {
-	char* week;					
-	
 	//时间
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("    %02d:%02d:%02d    "), 
-		*(rtcWholeData + 4), *(rtcWholeData + 5), *(rtcWholeData + 6));
+		*(rtcTotalData + 4), *(rtcTotalData + 5), *(rtcTotalData + 6));
 	OLED_ShowString(strPos(0u), ROW1, (StringCache*)oled_dtbuf, Font_Size);
-	
 	//年月日，当前星期							
-	switch (*(rtcWholeData + 3))
-	{
-	case 0: week = "Sun"; break;
-	case 1: week = "Mon"; break;
-	case 2: week = "Tue"; break;
-	case 3: week = "Wed"; break;
-	case 4: week = "Thu"; break;
-	case 5: week = "Fri"; break;
-	case 6: week = "Sat"; break;
-	}
 	snprintf((char*)oled_dtbuf, OneRowMaxWord, ("%4d/%02d/%02d  %s"), 
-		*(rtcWholeData + 0), *(rtcWholeData + 1), *(rtcWholeData + 2), week);
+		*(rtcTotalData + 0), *(rtcTotalData + 1), *(rtcTotalData + 2), week_str[*(rtcTotalData + 3)]);
 	OLED_ShowString(strPos(0u), ROW2, (StringCache*)oled_dtbuf, Font_Size);
 	OLED_Refresh_Gram();
 }
@@ -120,6 +107,7 @@ void OLED_DisplayInitConst (void)
 		OLED_ScreenP2_Const();
 		delay_ms(300);						//logo延迟
 		OLED_Clear();						//擦除原先的画面
+		
 		UISAC_StructureInit();				//初始化切屏结构体
 	}		
 }

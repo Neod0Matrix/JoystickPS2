@@ -112,16 +112,17 @@ void Modules_RTC_TaskScheduler (void)
 {
 	/*
 		RTC API:
-			*(rtcWholeData + 0): 年份
-			*(rtcWholeData + 1): 月份
-			*(rtcWholeData + 2): 日
-			*(rtcWholeData + 3): 星期
-			*(rtcWholeData + 4): 时
-			*(rtcWholeData + 5): 分
-			*(rtcWholeData + 6): 秒
+			*(rtcTotalData + 0): 年份
+			*(rtcTotalData + 1): 月份
+			*(rtcTotalData + 2): 日
+			*(rtcTotalData + 3): 星期
+			*(rtcTotalData + 4): 时
+			*(rtcTotalData + 5): 分
+			*(rtcTotalData + 6): 秒
 	*/
 	//example: 设置含有灯光效果的外设休眠
-	if (*(rtcWholeData + 4) >= 1 && *(rtcWholeData + 4) <= 6)
+	if ((*(rtcTotalData + 4) >= 1 
+		&& *(rtcTotalData + 4) <= 6) || *(rtcTotalData + 4) == 0)
 	{
 		OLED_Clear();
 		OLED_Switch = OLED_Disable;

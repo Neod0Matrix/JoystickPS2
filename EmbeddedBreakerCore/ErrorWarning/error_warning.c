@@ -35,44 +35,43 @@ void EW_TriggerHandler (globalSystem_EW sys_ew)										//函数调用传参，
 			switch (sys_ew)														
 			{
 				//手动报警
-			case Test_Occur: 	U1SD("Test Manual Warning\r\n");break;
+			case Test_Occur: 		U1SD_E("Test Manual Warning\r\n");break;
 				//紧急停止
-			case Emergency_Stop: U1SD("Emergency Stop Press\r\n"); 					break;
+			case Emergency_Stop: 	U1SD_E("Emergency Stop Press\r\n"); 				break;
 				//发送串口数据错误
-			case SendData_Error: U1SD("Receive Data Error With Protocol\r\n");		break;					
+			case SendData_Error: 	U1SD_E("Receive Data Error With Protocol\r\n");		break;					
 				//PVD检测STM32电源接口电压低额
-			case PVD_Excess: 	U1SD("Controller Interface Voltage Error\r\n"); 	break;
+			case PVD_Excess: 		U1SD_E("Controller Interface Voltage Error\r\n"); 	break;
 				//温度超过阈值报警
-			case Temp_Excess: 	U1SD("MCU Inner Temperature Excess\r\n"); 			break;			
-				//硬件错误
+			case Temp_Excess: 		U1SD_E("MCU Inner Temperature Excess\r\n"); 		break;			
+				//以下皆为Coretx-M3内核内定义错误种类
+				/*
+					硬错误
+					引发原因：
+						内存泄漏、耗尽
+						非法操作数组、指针等存储单位(未初始化分配空间、越界等)
+						...
+					强烈建议引发此错误后休眠，等待开发者查找错误
+				*/
 			case Hard_Fault:
-				if (SendDataCondition)
-				{
-					//fault状态寄存器(@0XE000ED28)包括:MMSR,BFSR,UFSR
-					printf("@0XE000ED28 Status-Register Hardware Fault\r\n");
-					usart1WaitForDataTransfer();
-					//显示错误值
-					printf("CFSR: 	%#8x\r\n", SCB -> CFSR);								
-					usart1WaitForDataTransfer();		
-					printf("HFSR: 	%#8x\r\n", SCB -> HFSR);									
-					usart1WaitForDataTransfer();		
-					printf("DFSR: 	%#8x\r\n", SCB -> DFSR);									
-					usart1WaitForDataTransfer();		
-					printf("AFSR: 	%#8x\r\n", SCB -> AFSR);									
-					usart1WaitForDataTransfer();		
-				} 																	break;
+				U1SD_E("@0XE000ED28 Status-Register Hard-Fault\r\n");
+				//显示硬错误寄存器各错误值
+				U1SD("CFSR: 	%#8x\r\n\
+					HFSR: 	%#8x\r\n\
+					DFSR: 	%#8x\r\n\
+					AFSR: 	%#8x\r\n", 
+					SCB -> CFSR, SCB -> HFSR, SCB -> DFSR, SCB -> AFSR);			
+				//Sys_Enter_Standby();
+				break;
 				//24V工业总线用电输入欠压报警
-			case LVD_Warn: 		U1SD("Input Voltage Lower than 18V\r\n"); 			break;
+			case LVD_Warn: 			U1SD_E("Input Voltage Lower than 18V\r\n"); 		break;
 				//系统用量错误
-			case Usage_Fault: 	U1SD("MCU Usage Fault\r\n"); 						break;
+			case Usage_Fault: 		U1SD_E("MCU Usage Fault\r\n"); 						break;
 				//总线错误
-			case Bus_Fault: 	U1SD("MCU Bus Fault\r\n"); 							break;
-				
+			case Bus_Fault: 		U1SD_E("MCU Bus Fault\r\n"); 						break;
+
 				//故障清除，这里不做设置，只是应付switch-case的语法
-			case Error_Clear: 														break;	
-				
-				//延时10ms切换任务
-			default: delay_ms(10);	 												break;											
+			case Error_Clear: 															break;											
 			}
 		}
 		//故障清除或者无错误
@@ -93,17 +92,13 @@ void EW_TriggerHandler (globalSystem_EW sys_ew)										//函数调用传参，
 //手动控制警报系统
 void ManualCtrlEW (void)
 {
-	EWManCtrl cmdType = (EWManCtrl)(USART1_RX_BUF[MEW_Read_Bit]);					//取标识数据
+	EWManCtrl cmdType = (EWManCtrl)(*(USART1_RX_BUF + MEW_Read_Bit));				//取标识数据
 	
 	//接收数据处理
 	__ShellHeadSymbol__;
 	if (cmdType < ManualCtrlLimit)	
 	{
-		if (SendDataCondition)
-		{
-			printf("Receive EW Command: [%d]\r\n", cmdType);
-			usart1WaitForDataTransfer();
-		}
+		U1SD("Receive EW Command: [%d]\r\n", cmdType);		
 		
 		switch (cmdType)
 		{
@@ -114,7 +109,7 @@ void ManualCtrlEW (void)
 	//选项超值报错
 	else 				
 	{
-		U1SD("Option Value Excess Error\r\n");			
+		U1SD_E("Option Value Excess Error\r\n");			
 		SERIALDATAERROR;		
 	}
 }

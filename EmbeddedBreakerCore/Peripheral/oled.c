@@ -164,14 +164,16 @@ void OLED_Refresh_Gram (void)
 //清除屏幕所有旧显示
 void OLED_Clear (void)
 {
-    //u8 i, j;
+	/*
+    u8 i, j;
 	
-//	//显存清空
-//    for (i = 0; i < GMCOLUMN; i++)			//显存列
-//	{
-//        for (j = 0; j < SCREENROW; j++)		//显存行
-//			*(*(oled_graphic_memory + j) + i) = 0x00;	
-//	}
+	//显存清空
+    for (i = 0; i < GMCOLUMN; i++)			//显存列
+	{
+        for (j = 0; j < SCREENROW; j++)		//显存行
+			*(*(oled_graphic_memory + j) + i) = 0x00;	
+	}
+	*/
 	
 	//使用标准库实现显存数组一次性清零，效率最高
 	memset(oled_graphic_memory, 0x00, sizeof(oled_graphic_memory));
@@ -202,7 +204,7 @@ void OLED_DrawPoint (u8 x, u8 y, OLED_ContrastMode mode)
 */
 void OLED_ShowChar (u8 x, u8 y, u8 chr, Font_Column_Size size, OLED_ContrastMode mode)
 {
-    u8 getArrayWord, j, i, ty = y, forward_word = chr;
+    u8 getArrayWord, j, i, ty = y, forward_word;
 	FontArray* font_select;
 
 	//字号选型(默认固定字号16号字)
@@ -213,7 +215,7 @@ void OLED_ShowChar (u8 x, u8 y, u8 chr, Font_Column_Size size, OLED_ContrastMode
 	case f24: font_select = (FontArray*)ascii_2412; break;
 	}
 	
-	forward_word -= ' ';				//ascii序列偏移一个空格
+	forward_word = chr - ' ';				//ascii序列偏移一个空格
     for (j = 0; j < size; j++)
     {
 		//通过一阶指针访问二阶数组取字

@@ -76,7 +76,7 @@ void delay_ostimedly (u32 ticks)
 //systick中断服务函数，使用uCOS时用到
 void SysTick_Handler (void)
 {
-    if (delay_osrunning == 1)					//OS开始跑了，才执行正常的调度处理
+    if (delay_osrunning)						//OS开始跑了，才执行正常的调度处理
     {
         OSIntEnter();							//进入中断
         OSTimeTick();       					//调用ucos的时钟服务程序
@@ -96,6 +96,7 @@ void Delay_Init (void)
 #if SYSTEM_SUPPORT_OS  							//如果需要支持OS.
     u32 reload;
 #endif
+	
     SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);//选择外部时钟  HCLK/8
     fac_us = SystemCoreClock / 8000000;			//为系统时钟的1/8
 #if SYSTEM_SUPPORT_OS  							//如果需要支持OS.
@@ -125,19 +126,18 @@ void delay_us (u32 nus)
     u32 ticks;
     u32 told, tnow, tcnt = 0;
     u32 reload = SysTick -> LOAD;				//LOAD的值
+	
     ticks = nus * fac_us; 						//需要的节拍数
     tcnt = 0;
     delay_osschedlock();						//阻止OS调度，防止打断us延时
     told = SysTick -> VAL;        				//刚进入时的计数器值
-    while (1)
+    while (True)
     {
         tnow = SysTick -> VAL;
         if (tnow != told)
         {
-            if (tnow < told)
-                tcnt += told - tnow;			//这里注意一下SYSTICK是一个递减的计数器就可以了.
-            else
-                tcnt += reload - tnow + told;
+            //这里注意一下SYSTICK是一个递减的计数器就可以了
+			tcnt += (tnow < told)? (told - tnow):(reload - tnow + told);
             told = tnow;
             if (tcnt >= ticks)
                 break;							//时间超过/等于要延迟的时间,则退出.
@@ -153,12 +153,10 @@ void delay_us (u32 nus)
 */
 void delay_ms (u16 nms)
 {
-    if (delay_osrunning && delay_osintnesting == 0)//如果OS已经在跑了,并且不是在中断里面(中断里面不能任务调度)
+    if (delay_osrunning && !delay_osintnesting)//如果OS已经在跑了,并且不是在中断里面(中断里面不能任务调度)
     {
         if (nms >= fac_ms)						//延时的时间大于OS的最少时间周期
-        {
             delay_ostimedly(nms / fac_ms);		//OS延时
-        }
         nms %= fac_ms;							//OS已经无法提供这么小的延时了,采用普通方式延时
     }
     delay_us((u32)(nms * 1000));				//普通方式延时

@@ -275,13 +275,12 @@ void PS2_JoyStickResponseHandler (void)
 		localkv = globalPS2keyValue;
 		if (localkv)													//复位到ps2none不打印
 		{
-			if (SendDataCondition && PS2P_Switch == PS2P_Enable)
+			if (PS2P_Switch == PS2P_Enable)
 			{
 				//这里打印的字符越短越节省时间，用户体验会更流畅
 				ps2p_dtbuf = (char*)mymalloc(sizeof(char) * 200);
 				snprintf(ps2p_dtbuf, 200, "\r\n[JoystickPS2] KeyValue: %d\r\n", localkv);
-				printf("%s", ps2p_dtbuf);
-				usart1WaitForDataTransfer();
+				U1SD("%s", ps2p_dtbuf);
 				myfree((void*)ps2p_dtbuf);
 			}
 			Beep_Once;													//蜂鸣器触发，放到后面体验效果会好一点
@@ -319,15 +318,14 @@ void PS2_JoyStickResponseHandler (void)
 	{
 		//模拟量变化较快需要实时匹配，不适合加入蜂鸣器
 		anologSum = AnologSumValue;
-		if (SendDataCondition && PS2P_Switch == PS2P_Enable)
+		if (PS2P_Switch == PS2P_Enable)
 		{
 			//这里打印的字符越短越节省时间，用户体验会更流畅
 			ps2p_dtbuf = (char*)mymalloc(sizeof(char) * 200);
 			snprintf(ps2p_dtbuf, 200, "\r\n[JoystickPS2] JoyAnologValue(0~255): %5d %5d %5d %5d\r\n", 
 				*(KeyValueCache + ps2lx), *(KeyValueCache + ps2ly),
 				*(KeyValueCache + ps2rx), *(KeyValueCache + ps2ry));
-			printf("%s", ps2p_dtbuf);
-			usart1WaitForDataTransfer();
+			U1SD("%s", ps2p_dtbuf);
 			myfree((void*)ps2p_dtbuf);
 		}
 		if (MOE_Switch == MOE_Enable 

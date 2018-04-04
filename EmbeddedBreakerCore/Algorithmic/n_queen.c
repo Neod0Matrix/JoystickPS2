@@ -22,12 +22,13 @@ void nQueen_CalculusHandler (void)
 {
     int i = 1, k, flag, not_finish = 1, count = 0;					//正在处理的元素下标，表示前i-1个元素已符合要求，正在处理第i个元素
 	
-	u8 queenMatrixWidth = USART1_RX_BUF[2] * 10u + USART1_RX_BUF[3];//协议获得皇后数
+	u8 queenMatrixWidth = *(USART1_RX_BUF + NQueen_1Bit) * 10u 
+		+ *(USART1_RX_BUF + NQueen_2Bit);//协议获得皇后数
 	if (queenMatrixWidth > QueenMatrixMax)
 	{
 		queenMatrixWidth = 0u;
 		
-		__ShellHeadSymbol__; U1SD("Queen Matrix Width Error\r\n");	//皇后数报错
+		__ShellHeadSymbol__; U1SD_E("Queen Matrix Width Error\r\n");//皇后数报错
 		SERIALDATAERROR;
 	}
 	//若不传参则默认为8
@@ -38,11 +39,7 @@ void nQueen_CalculusHandler (void)
 
 	//打印皇后数
 	__ShellHeadSymbol__; 
-	if (SendDataCondition && Return_Error_Type == Error_Clear)		
-	{
-		printf("Calculus Queen Number: %2d\r\n", queenMatrixWidth);
-		usart1WaitForDataTransfer();		
-	}
+	U1SD("Calculus Queen Number: %2d\r\n", queenMatrixWidth);		
 	
 	//演算
 	*(a + 1) = 1;  													//为皇后的第一个元素赋初值
@@ -96,18 +93,11 @@ void nQueen_CalculusHandler (void)
         if (not_finish) 
 		{
             ++count;
-			
-			//输出结果
-			if (SendDataCondition)
-			{
-				printf((count - 1) % 3 ? "\r\n[%03d]----> " : "\r\n[%03d]----> ", count);
-				usart1WaitForDataTransfer();		
-				
-				for (k = 1; k <= queenMatrixWidth; k++) 
-				{				
-					printf(" %02d ", *(a + k));						//打印序列
-					usart1WaitForDataTransfer();		
-				}
+			//输出结果	
+			U1SD((count - 1) % 3 ? "\r\n[%03d]----> " : "\r\n[%03d]----> ", count);		
+			for (k = 1; k <= queenMatrixWidth; k++) 
+			{				
+				U1SD(" %02d ", *(a + k));							//打印序列
 			}
 			
             if (*(a + (queenMatrixWidth - 1)) < queenMatrixWidth) 

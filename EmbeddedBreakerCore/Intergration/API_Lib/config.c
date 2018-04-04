@@ -95,7 +95,7 @@ void Universal_Resource_Config (void)
 		最快速的方法当然在中断函数中更新，但中断函数中若包含延时函数
 		则会引起意想不到的神奇现象，故不建议
 	*/
-	UIRef_ModeFlag		= Stable_Ref;					//Quick_Ref			Stable_Ref
+	UIRef_ModeFlag		= Quick_Ref;					//Quick_Ref			Stable_Ref
 
 /*$PAGE*/
 /*->> 开关类*/
@@ -160,71 +160,49 @@ void Universal_Resource_Config (void)
 //打印URC映射表
 void urcMapTable_Print (void)
 {
-	if (SendDataCondition)
-	{
-		printf("Universal Resource Config Map Table");
-		usart1WaitForDataTransfer();
-		//长了吧唧映射表
-		printf("\r\n%02d	Print URC Map Table", urc_map);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d	Error Warning", urc_ew);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	Print Debug", urc_pd);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	OLED", urc_oled);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	PVD", urc_pvd);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	Temperature", urc_temp);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	Protocol COM Interface", urc_pc);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	TaskManager", urc_task);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	LowVoltage Detector", urc_lvd);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	Hex Print Debug", urc_hex);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	PID", urc_pid);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	ps -aux", urc_psaux);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	DataScope Detect Data Curve", urc_dsd);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	Hardware Error Direct Reset", urc_hedr);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	Module OLED Display Effect", urc_moe);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	Frame Default Light Effect", urc_light);
-		usart1WaitForDataTransfer();
-		printf("\r\n%02d 	Module UI Refresh Mode", urc_uifm);
-		usart1WaitForDataTransfer();
-		
-		/*
-			@EmbeddedBreakerCore Extern API Insert
-		*/
-		Modules_URCMap();
-		printf("\r\n");
-		usart1WaitForDataTransfer();
-	}
+	U1SD("Universal Resource Config Map Table");
+	//长了吧唧映射表
+	U1SD("\r\n%02d	Print URC Map Table", urc_map);
+	U1SD("\r\n%02d	Error Warning", urc_ew);
+	U1SD("\r\n%02d 	Print Debug", urc_pd);
+	U1SD("\r\n%02d 	OLED", urc_oled);
+	U1SD("\r\n%02d 	PVD", urc_pvd);
+	U1SD("\r\n%02d 	Temperature", urc_temp);
+	U1SD("\r\n%02d 	Protocol COM Interface", urc_pc);
+	U1SD("\r\n%02d 	TaskManager", urc_task);
+	U1SD("\r\n%02d 	LowVoltage Detector", urc_lvd);
+	U1SD("\r\n%02d 	Hex Print Debug", urc_hex);
+	U1SD("\r\n%02d 	PID", urc_pid);
+	U1SD("\r\n%02d 	ps -aux", urc_psaux);
+	U1SD("\r\n%02d 	DataScope Detect Data Curve", urc_dsd);
+	U1SD("\r\n%02d 	Hardware Error Direct Reset", urc_hedr);
+	U1SD("\r\n%02d 	Module OLED Display Effect", urc_moe);
+	U1SD("\r\n%02d 	Frame Default Light Effect", urc_light);
+	U1SD("\r\n%02d 	Module UI Refresh Mode", urc_uifm);
+	
+	/*
+		@EmbeddedBreakerCore Extern API Insert
+	*/
+	Modules_URCMap();
+	U1SD("\r\n");
 }
 
 //基于协议控制的URC调试处理
 void pclURC_DebugHandler (void)
 {
 	//取开关编号和状态位数据
-	Global_Switch_Nbr sw_type = (Global_Switch_Nbr)(	USART1_RX_BUF[URC_SW_1Bit] * 10u 
-													+ 	USART1_RX_BUF[URC_SW_2Bit]);//和值运算
-	u8 ed_status = USART1_RX_BUF[URC_ED_Bit];
+	Global_Switch_Nbr sw_type = (Global_Switch_Nbr)(*(USART1_RX_BUF + URC_SW_1Bit) * 10u 
+												+ 	*(USART1_RX_BUF + URC_SW_2Bit));
+	u8 ed_status = *(USART1_RX_BUF + URC_ED_Bit);
 	
 	//接收数据处理
 	__ShellHeadSymbol__;
 	if (sw_type <= Max_Option_Value)		
 	{
-		if (SendDataCondition && sw_type > 0)			//打印映射表则不需要打印这段
+		//打印映射表则不需要打印这段
+		if (sw_type > 0)								
 		{
-			printf("Setting Switch Number: [%d] Set to Status: [%d]\r\n", sw_type, ed_status);
-			usart1WaitForDataTransfer();
+			U1SD("Setting Switch Number: [%d] Set to Status: [%d]\r\n", sw_type, ed_status);
 		}
 		
 		//编号选取

@@ -6,22 +6,10 @@
 
 Is_SystemSleep globalSleepflag = SysOrdWork;
 
-//简单的延时函数
-void Delay (__IO uint32_t nCount)
-{
-    for (; nCount != 0; nCount--);
-}
-
 //系统待命
 void Sys_Standby (void)
 {
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);//使能PWR外设时钟
-	/**
-    * @brief  Enables or disables the WakeUp Pin functionality
-    * @param  NewState: new state of the WakeUp Pin functionality
-    *   This parameter can be: ENABLE or DISABLE
-    * @retval None
-    */
     PWR_WakeUpPinCmd(ENABLE);  						//使能唤醒管脚功能
     PWR_EnterSTANDBYMode();	  						//进入待命(STANDBY)模式
 }
@@ -29,40 +17,44 @@ void Sys_Standby (void)
 //系统进入待机模式
 void Sys_Enter_Standby (void)
 {
+	LEDGroupCtrl(led_0, On);						//辅助查看LED
 	globalSleepflag = SysIntoSleep;
 	OLED_SleepStaticDisplay();
-	delay_ms(100);									//等待OLED显示完全
-    RCC_APB2PeriphResetCmd(0x01fc, DISABLE);		//复位所有IO口
+	Beep_Once;	
+	delay_ms(50);
+	Beep_Once;	
+    RCC_APB2PeriphResetCmd(ALLIORESETORDER, DISABLE);//复位所有IO口
     Sys_Standby();
 }
 
 /*
 	检测WKUP脚的信号，
-	返回True: 连续按下xs以上
+	返回True: 连续按下3s以上
 		False: 错误的触发	
 */
 Bool_ClassType Check_WKUP (void) 
 {
 	u8 t = 0;					//记录按下的时间
 
-	globalSleepflag = SysOrdWork;
-	LED0_On;
 	while (True)
 	{
 		if (WKUP_KD)
 		{
 			t++;				//已经按下了 
+			LEDGroupCtrl(led_0, On);//辅助查看LED
 			delay_ms(30);
-			if (t >= 100)		//按下超过x秒钟
+			if (t >= 100)		
 			{
-				LED0_On;		//辅助查看LED
+				globalSleepflag = SysIntoSleep;
+				//其他的任务在Sys_Enter_Standby()函数中完成
+				
 				return True; 	//按下3s以上了
 			}
 		}
 		else 
 		{
 			globalSleepflag = SysOrdWork;
-			LED0_Off;
+			LEDGroupCtrl(led_0, Off);
 			
 			return False; 		//按下不足3秒
 		}
@@ -99,10 +91,11 @@ void Protocol_CtrlResetorSuspend (void)
 {
 	SYS_ResetorSleep rs_flag = (SYS_ResetorSleep)*(USART1_RX_BUF + SYS_RESLEEP_Bit);
 	
+	__ShellHeadSymbol__;
 	switch (rs_flag)
 	{
-	case sys_reset: Sys_Soft_Reset(); 		break;
-	case sys_sleep: Sys_Enter_Standby();	break;
+	case sys_reset: U1SD("Receive Option [0], System Reset");Sys_Soft_Reset(); 		break;
+	case sys_sleep: U1SD("Receive Option [1], System Sleep");Sys_Enter_Standby();	break;
 	}
 }
 

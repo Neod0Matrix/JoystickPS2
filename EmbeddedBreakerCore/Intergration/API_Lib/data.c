@@ -112,7 +112,7 @@ u16 Nbr10BitCalcus (int nbr)
 char* strData_Catenate (char* Array, char result[])				
 {
 	u8 i;
-	char *pointer = &Array[0];						
+	char *pointer = (Array + 0);						//&Array[0]			
 	
 	while (*pointer != '\0')							//遇到数组结尾
 	{	
@@ -122,11 +122,7 @@ char* strData_Catenate (char* Array, char result[])
 				result = indStr_Catenate(result, (pointer + i));//将临时数组内的字符全部拼接成字符串
 	}
 	__ShellHeadSymbol__;
-	if (SendDataCondition)
-	{
-		printf("String Catenate Result: %s\r\n", result);		
-		while ((USART1 -> SR & 0X40) == 0){};			//等待发送结束
-	}	
+	U1SD("String Catenate Result: %s\r\n", result);		
 	
 	return result;							
 }

@@ -6,17 +6,19 @@
 	RTC实时时钟 驱动代码
 	STM32自带的RTC时钟并不准确，而且诟病繁多，建议使用外部时钟做RTC
 	必须保证外部低速晶振32.768khz处于正常状态，否则RTC就不正常
-	如果32.768khz晶振异常，上电初始化RTC初始化时会占用很长时间
+	如果32.768khz晶振电路异常，上电RTC初始化时会占用很长时间
 */
 
 _calendar_obj calendar, _start;
 
 //月份数据表
-const u8 table_week[12] = {0u, 3u, 3u, 6u, 1u, 4u, 6u, 2u, 5u, 0u, 3u, 5u};
+const u8 month_data_list[12] = {0u, 3u, 3u, 6u, 1u, 4u, 6u, 2u, 5u, 0u, 3u, 5u};
 //平年的月份日期表
-const u8 mon_table[12] = {31u, 28u, 31u, 30u, 31u, 30u, 31u, 31u, 30u, 31u, 30u, 31u};
-//全局缓存数组
-u16 rtcWholeData[7];
+const u8 leap_month_list[12] = {31u, 28u, 31u, 30u, 31u, 30u, 31u, 31u, 30u, 31u, 30u, 31u};
+//星期字符，限定3个字
+const char* week_str[7] = {"Sun", "Mon", "Tue", "Wen", "Thu", "Fri", "Sat"};
+//RTC全局缓存数组
+u16 rtcTotalData[7];
 
 //RTC中断初始化
 static void RTC_NVIC_Config (void)
@@ -30,24 +32,23 @@ static void RTC_NVIC_Config (void)
 }
 
 //时间初值设定
-void RTC_TimeInitSetting (void)
+void RTC_TimeInitSetting (_calendar_obj *st)
 {
 	//初设定，RTC寄存器断电更新
-	_start.w_year 	= 2018u;										//年
-	_start.w_month 	= 1u;											//月	
-	_start.w_date 	= 27u;											//日
-	_start.hour 	= 18u;											//时
-	_start.min 		= 33u;											//分
-	_start.sec 		= 34u;											//秒
+	st -> w_year 	= 2018u;										//年
+	st -> w_month 	= 1u;											//月	
+	st -> w_date 	= 27u;											//日
+	st -> hour 		= 18u;											//时
+	st -> min 		= 33u;											//分
+	st -> sec 		= 34u;											//秒
 	
 	//设置时间
-	RTC_Set(	_start.w_year, 
-				_start.w_month, 
-				_start.w_date, 
-				_start.hour, 
-				_start.min, 
-				_start.sec
-				);  										
+	RTC_Set(	st -> w_year, 
+				st -> w_month, 
+				st -> w_date, 
+				st -> hour, 
+				st -> min, 
+				st -> sec);  										
 }
 
 /*
@@ -58,12 +59,12 @@ void RTC_TimeInitSetting (void)
 */
 Bool_ClassType RTC_Init (void)
 {
-    u8 temp = 0u;													//检查是不是第一次配置时钟
+    u8 temp = 0u;													
 	
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);//使能PWR和BKP外设时钟
     PWR_BackupAccessCmd(ENABLE);									//使能后备寄存器访问
 	
-	LED0_On;														//红灯异常预警
+	LEDGroupCtrl(led_0, On);										//红灯异常预警，如果RTC初始化卡死那么红灯会一直亮
 	
     if (BKP_ReadBackupRegister(BKP_DR1) != 0x5050)					//从指定的后备寄存器中读出数据:读出了与写入的指定数据不相乎
     {	
@@ -72,11 +73,10 @@ Bool_ClassType RTC_Init (void)
 		
         while (RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)			//检查指定的RCC标志位设置与否,等待低速晶振就绪
         {
-            temp++;
-            delay_ms(10);											//等待初始化检测
-        }
-        if (temp >= 250) 											//2500ms初始化时钟失败，晶振有问题
-			return True;																			
+			if (++temp >= 250) 										//2500ms初始化时钟失败，晶振有问题
+				return True;	
+			delay_ms(10);											//等待初始化检测
+        }																		
 
         RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);						//设置RTC时钟(RTCCLK)，选择LSE作为RTC时钟
         RCC_RTCCLKCmd(ENABLE);										//使能RTC时钟
@@ -88,7 +88,7 @@ Bool_ClassType RTC_Init (void)
         RTC_SetPrescaler(Ext_Lowspeed_psc); 						//设置RTC预分频的值
         RTC_WaitForLastTask();										//等待最近一次对RTC寄存器的写操作完成
 		
-        RTC_TimeInitSetting();										//初设时间
+        RTC_TimeInitSetting(&_start);								//初设时间
 		
         RTC_ExitConfigMode();		 								//退出配置模式
         BKP_WriteBackupRegister(BKP_DR1, 0X5050);					//向指定的后备寄存器中写入用户程序数据
@@ -103,17 +103,26 @@ Bool_ClassType RTC_Init (void)
         RTC_WaitForLastTask();										//等待最近一次对RTC寄存器的写操作完成
     }
 	
-	LED0_Off;														//关闭预警
+	LEDGroupCtrl(led_0, Off);										//关闭预警，证实RTC初始化已完成
     RTC_NVIC_Config();												//RCT中断分组设置
-    RTC_Get();														//更新时间
+    RTC_TimeUpdate(&calendar);										//更新时间
 	
     return False;													//初始化成功										
 }
 
-/*
-	RTC时钟中断
-	每秒触发一次
-*/
+//RTC全局数据寄存
+void RTC_DataStorage (_calendar_obj* rtc)
+{
+	*(rtcTotalData + 0) = rtc -> w_year;
+	*(rtcTotalData + 1) = rtc -> w_month;
+	*(rtcTotalData + 2) = rtc -> w_date;
+	*(rtcTotalData + 3) = rtc -> week;
+	*(rtcTotalData + 4) = rtc -> hour;
+	*(rtcTotalData + 5) = rtc -> min;
+	*(rtcTotalData + 6) = rtc -> sec;
+}
+
+//RTC时钟中断，每秒触发一次
 void RTC_IRQHandler (void)
 {
 #if SYSTEM_SUPPORT_OS 												//如果SYSTEM_SUPPORT_OS为真，则需要支持OS
@@ -122,8 +131,8 @@ void RTC_IRQHandler (void)
 
     if (RTC_GetITStatus(RTC_IT_SEC) != RESET) 
 	{
-		RTC_Get();													//秒钟中断，更新时间
-		RTC_DataStorage(calendar);									//RTC时间寄存
+		RTC_TimeUpdate(&calendar);									//秒钟中断，更新时间
+		RTC_DataStorage(&calendar);									//RTC时间寄存
 	}
 
     if (RTC_GetITStatus(RTC_IT_ALR) != RESET)						//闹钟中断
@@ -179,12 +188,12 @@ Bool_ClassType RTC_Set (u16 syear, u8 smon, u8 sday, u8 hour, u8 min, u8 sec)
 		return True;
     for (t = 1970u; t < syear; t++)									//把所有年份的秒钟相加
 		seccount += (Is_Leap_Year(t) == True)? 31622400u:31536000u;	//闰平年秒钟数转换
-    smon -= 1u;
-
+	
+    smon--;
     for (t = 0u; t < smon; t++)	 									//把前面月份的秒钟数相加
     {
-        seccount += (u32)mon_table[t] * 86400u;						//月份秒钟数相加
-        if (Is_Leap_Year(syear) && t == 1) 
+        seccount += (u32)(*leap_month_list + t) * 86400u;			//月份秒钟数相加
+        if (Is_Leap_Year(syear) && t) 
 			seccount += 86400u; 									//闰年2月份增加一天的秒钟数
     }
 
@@ -197,7 +206,7 @@ Bool_ClassType RTC_Set (u16 syear, u8 smon, u8 sday, u8 hour, u8 min, u8 sec)
     PWR_BackupAccessCmd(ENABLE);									//使能RTC和后备寄存器访问
     RTC_SetCounter(seccount);										//设置RTC计数器的值
     RTC_WaitForLastTask();											//等待最近一次对RTC寄存器的写操作完成
-    RTC_Get();														//更新时间
+    RTC_TimeUpdate(&calendar);										//更新时间
 	
     return False;
 }
@@ -206,14 +215,13 @@ Bool_ClassType RTC_Set (u16 syear, u8 smon, u8 sday, u8 hour, u8 min, u8 sec)
 	得到当前的时间
 	返回值:0,成功;其他:错误代码
 */
-Bool_ClassType RTC_Get (void)
+Bool_ClassType RTC_TimeUpdate (_calendar_obj* cal)
 {
     static u16 daycnt = 0u;
-    u32 timecount = 0u;
-    u32 temp = 0u;
+    u32 timecount = 0u, temp = 0u;
     u16 temp1 = 0u;
-    timecount = RTC_GetCounter();
 	
+    timecount = RTC_GetCounter();									//直接从库函数获得计数值
     temp = timecount / 86400u;   									//得到天数(秒钟数对应的)
     if (daycnt != temp)												//超过一天了
     {
@@ -236,12 +244,12 @@ Bool_ClassType RTC_Get (void)
             temp1++;
         }
 
-        calendar.w_year = temp1;									//得到年份
+        cal -> w_year = temp1;										//得到年份
         temp1 = 0u;
 
         while (temp >= 28u)											//超过了一个月
         {
-            if (Is_Leap_Year(calendar.w_year) && temp1 == 1u)		//当年是不是闰年/2月份
+            if (Is_Leap_Year(cal -> w_year) && temp1)				//当年是不是闰年/2月份
             {
                 if (temp >= 29u) 
 					temp -= 29u;									
@@ -250,22 +258,22 @@ Bool_ClassType RTC_Get (void)
             }
             else
             {
-                if (temp >= mon_table[temp1]) 
-					temp -= mon_table[temp1];
+                if (temp >= *(leap_month_list + temp1)) 
+					temp -= *(leap_month_list + temp1);
                 else 
 					break;
             }
             temp1++;
         }
-        calendar.w_month = temp1 + 1u;								//得到月份
-        calendar.w_date = temp + 1u;  								//得到日期
+        cal -> w_month = temp1 + 1u;								//得到月份
+        cal -> w_date = temp + 1u;  								//得到日期
     }
 
     temp = timecount % 86400u;							     		//得到秒钟数
-    calendar.hour = temp / 3600u;							     	//小时
-    calendar.min = (temp % 3600u) / 60u; 							//分钟
-    calendar.sec = (temp % 3600u) % 60u; 							//秒钟
-    calendar.week = RTC_Get_Week(calendar.w_year, calendar.w_month, calendar.w_date);//获取星期
+    cal -> hour = temp / 3600u;							     		//小时
+    cal -> min = (temp % 3600u) / 60u; 								//分钟
+    cal -> sec = (temp % 3600u) % 60u; 								//秒钟
+    cal -> week = RTC_Get_Week(cal -> w_year, cal -> w_month, cal -> w_date);//获取星期
 	
     return False;
 }
@@ -285,13 +293,14 @@ u8 RTC_Get_Week (u16 year, u8 month, u8 day)
     yearL = year % 100u;
 
     //如果为21世纪,年份数加100
-    if (yearH > 19u) yearL += 100u;
-
+    if (yearH > 19u) 
+		yearL += 100u;
     //所过闰年数只算1900年之后的
     temp2 = yearL + yearL / 4u;
     temp2 %= 7u;
-    temp2 += (day + table_week[month - 1u]);
-    if (yearL % 4u == 0u && month < 3u) temp2--;
+    temp2 += (day + *(month_data_list + (month - 1u)));
+    if (yearL % 4u == 0u && month < 3u) 
+		temp2--;
 	
     return (temp2 % 7u);
 }
@@ -309,57 +318,15 @@ void RTC_Init_Check (void)
     }
 }
 
-//RTC全局数据寄存
-void RTC_DataStorage (_calendar_obj rtc)
-{
-	static vu8 temp_sec;
-	
-	//时间更新
-	if (temp_sec != rtc.sec)
-	{
-		temp_sec = rtc.sec;	
-		
-		*(rtcWholeData + 0) = rtc.w_year;
-		*(rtcWholeData + 1) = rtc.w_month;
-		*(rtcWholeData + 2) = rtc.w_date;
-		*(rtcWholeData + 3) = rtc.week;
-		*(rtcWholeData + 4) = rtc.hour;
-		*(rtcWholeData + 5) = rtc.min;
-		*(rtcWholeData + 6) = rtc.sec;
-	}
-}
-
-//RTC指令请求处理
+//RTC打印时间指令请求处理
 void RTC_ReqOrderHandler (void)
-{
-	char* week;
-	
+{	
 	__ShellHeadSymbol__;	
-	if (SendDataCondition)
-	{
-		//显示年月日
-		printf("System Built-in RTC Clock Log: %04d/%02d/%02d ", 
-			*(rtcWholeData + 0), *(rtcWholeData + 1), *(rtcWholeData + 2));
-		usart1WaitForDataTransfer();
-	
-		//显示当前时间
-		printf("%02d:%02d:%02d ", *(rtcWholeData + 4), *(rtcWholeData + 5), *(rtcWholeData + 6));
-		usart1WaitForDataTransfer();
-		
-		//显示当前星期							
-		switch (*(rtcWholeData + 3))
-		{
-		case 0: week = "Sun"; break;
-		case 1: week = "Mon"; break;
-		case 2: week = "Tue"; break;
-		case 3: week = "Wed"; break;
-		case 4: week = "Thu"; break;
-		case 5: week = "Fri"; break;
-		case 6: week = "Sat"; break;
-		}
-		printf("%s\r\n", week);
-		usart1WaitForDataTransfer();
-	}
+	//显示年月日、时间、星期	
+	U1SD("System Built-in RTC Clock Log: %04d/%02d/%02d %02d:%02d:%02d %s\r\n", 
+		*(rtcTotalData + 0), *(rtcTotalData + 1), *(rtcTotalData + 2), 
+		*(rtcTotalData + 4), *(rtcTotalData + 5), *(rtcTotalData + 6), 
+		week_str[*(rtcTotalData + 3)]);
 }
 
 //====================================================================================================

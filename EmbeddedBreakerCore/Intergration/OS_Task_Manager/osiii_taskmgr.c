@@ -175,11 +175,7 @@ void ShareResources_Handler (u8 *resource, const void *task_str, u16 delay_time)
 	if (psaux_Switch == psaux_Enable)				//调试任务切换
 	{
 		__ShellHeadSymbol__; 
-		if (SendDataCondition)
-		{
-			printf("Share Resource: %s\r\n", resource);//串口输出共享资源区数据
-			usart1WaitForDataTransfer();		
-		}
+		U1SD("Share Resource: %s\r\n", resource);	//串口输出共享资源区数据
 	}
 	
 	delay_ms(delay_time);
@@ -198,20 +194,12 @@ void MemStack_ReqHandler (void)
 		if (err == OS_ERR_NONE) 					//内存申请成功
 		{
 			__ShellHeadSymbol__; 
-			if (SendDataCondition)
-			{
-				printf("Internal_buf Memory address is: %#x\r\n", (u32)(internal_buf));//%#x可以输出0x
-				usart1WaitForDataTransfer();		
-			}
-			
+			U1SD("Internal_buf Memory address is: %#x\r\n", (u32)(internal_buf));//%#x可以输出0x
+
 			internal_memget_num++;
 			
-			__ShellHeadSymbol__; 
-			if (SendDataCondition)
-			{
-				snprintf((char*)internal_buf, snprintfStackSpace, "INTERNAL_MEM Use %d times\r\n", internal_memget_num);
-				usart1WaitForDataTransfer();		
-			}
+			__ShellHeadSymbol__; 	
+			U1SD("INTERNAL_MEM Use %d times\r\n", internal_memget_num);
 		}
 		if (err == OS_ERR_MEM_NO_FREE_BLKS) 		//内存块不足
 		{
@@ -224,20 +212,13 @@ void MemStack_ReqHandler (void)
 			OSMemPut((OS_MEM *)&osMemStorageArea, (void *)internal_buf, (OS_ERR *)&err);//释放内存
 			
 			__ShellHeadSymbol__; 
-			if (SendDataCondition)
-			{
-				printf("Internal_buf release Memory address is: %#x\r\n", (u32)(internal_buf));
-				usart1WaitForDataTransfer();		
-			}
+			U1SD("Internal_buf release Memory address is: %#x\r\n", (u32)(internal_buf));
 		}
 	}
 	if (psaux_Switch == psaux_Enable)
 	{
-		if (SendDataCondition)
-		{
-			printf("Totol Remain: Max: %d | Free: %d \r\n", osMemStorageArea.NbrMax, osMemStorageArea.NbrFree);
-			usart1WaitForDataTransfer();		
-		}
+		__ShellHeadSymbol__; 
+		U1SD("Totol Remain: Max: %d | Free: %d \r\n", osMemStorageArea.NbrMax, osMemStorageArea.NbrFree);		
 	}
 }
 

@@ -148,13 +148,8 @@ void PID_Test (void)
 	while (test_count < Standy_Range)						//测试结果：当误差累积到300次左右，实际值与测量值十分接近
 	{
 		__ShellHeadSymbol__; 
-		if (SendDataCondition)
-		{
-			//每打印一次即调用一次
-			printf("PID Test: No.%04d Output: %04.3f\r\n", test_count, pidFma_IncreCalcu(input_value, test_sptr, normal));
-			usart1WaitForDataTransfer();
-		}
-		
+		U1SD("PID Test: No.%04d Output: %04.3f\r\n", 
+			test_count, pidFma_IncreCalcu(input_value, test_sptr, normal));
 		test_count++;										//重复操作					
 	}
 }
