@@ -90,6 +90,13 @@ void displaySystemInfo (void)
 	PreTesFuncAlgInterface();						//预调功能测试
 	
 	__ShellHeadSymbol__; 
+	U1SD("Modules Inner Status: \r\n");
+	/*
+		@EmbeddedBreakerCore Extern API Insert
+	*/
+	Modules_StatusReqHandler();						//模块内容打印
+	
+	__ShellHeadSymbol__; 
 	U1SD("All Init Process Run Finished, You Can Start Your Work\r\n");
 }
 

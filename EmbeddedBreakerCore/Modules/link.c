@@ -135,5 +135,11 @@ void Modules_RTC_TaskScheduler (void)
 	}
 }
 
+//模块状态内容打印请求，链接到sta_req.c displaySystemInfo函数中
+void Modules_StatusReqHandler (void)
+{
+	//此项设计可以减少模块指令的多余添加
+}
+
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon
