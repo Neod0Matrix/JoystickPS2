@@ -57,7 +57,8 @@ void bspPeriSysCalls (void)
 //只对main.c有效 初始化底层硬件 
 static void preSetUpHardware (void)
 {
-	RCC_Configuration(RCCMultipConst);					//@72MHz时钟主频(默认)
+	RCC_Configuration(RCCMultipConst128M);				//RCC预设
+	Get_BSP_CPU_ClkFreq();								//获取当前时钟主频，寄放到一个全局变量内
 	pwsf = JBoot;										//系统刚启动
 	
 	NVIC_Configuration();								//设置中断优先级分组

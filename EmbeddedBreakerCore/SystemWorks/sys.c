@@ -4,6 +4,8 @@
 //====================================================================================================
 //系统底层功能配置
 
+uint32_t rcc_main_freq;
+
 //THUMB指令不支持汇编内联
 //采用如下方法实现执行汇编指令WFI  
 void WFI_SET (void)
@@ -114,6 +116,14 @@ void RCC_Configuration (uint32_t pll)
         }
     }
 	//之后跟进RCC外设时钟的使能
+}
+
+//获取CPU主频
+void Get_BSP_CPU_ClkFreq (void)            
+{
+    RCC_ClocksTypeDef rcc_clocks;
+    RCC_GetClocksFreq(&rcc_clocks);               	//获取芯片的各种时钟频率
+	rcc_main_freq = (uint32_t)rcc_clocks.HCLK_Frequency;//HCLK时钟频率
 }
 
 //====================================================================================================

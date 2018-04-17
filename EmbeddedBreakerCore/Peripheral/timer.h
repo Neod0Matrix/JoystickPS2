@@ -7,12 +7,12 @@
 
 /*
 	定时器普通应用计算：定时
-	time(s) = (1 + Timerx_TogglePeriod) * (1 + Timerx_Prescaler) / 72M
+	time(s) = (1 + Timerx_TogglePeriod) * (1 + Timerx_Prescaler) / rcc_main_freq
 	Timerx_TogglePeriod上限short
 	Timerx_Prescaler上限short
 */
 #ifndef TimeCalcusofucTimer
-#define TimeCalcusofucTimer(a, p)		(((1 + a) * (1 + p))/ (Get_BSP_CPU_ClkFreq() / 1000000u))//单位us
+#define TimeCalcusofucTimer(a, p)		(((1 + a) * (1 + p))/ (rcc_main_freq / 1000000u))//单位us
 #endif
 
 #define TimerInitCounterValue			0u								//定时器计数初值

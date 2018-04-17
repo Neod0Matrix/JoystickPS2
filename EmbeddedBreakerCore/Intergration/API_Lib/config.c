@@ -95,7 +95,7 @@ void Universal_Resource_Config (void)
 		最快速的方法当然在中断函数中更新，但中断函数中若包含延时函数
 		则会引起意想不到的神奇现象，故不建议
 	*/
-	UIRef_ModeFlag		= Quick_Ref;					//Quick_Ref			Stable_Ref
+	UIRef_ModeFlag		= Stable_Ref;					//Quick_Ref			Stable_Ref
 
 /*$PAGE*/
 /*->> 开关类*/
@@ -140,14 +140,6 @@ void Universal_Resource_Config (void)
 		装逼专用
 	*/
 	DSD_Switch			= DSD_Disable;					//DSD_Enable		DSD_Disable
-	
-	/*
-		对框架而言，不显示模块的OLED部分
-		对应用的模块而言，不显示框架的常量字符
-		且需要使自己本身的显示生效
-		框架设置为失能，模块设置为使能
-	*/
-	MOE_Switch			= MOE_Enable;					//MOE_Enable		MOE_Disable
 	
 	/*
 		@EmbeddedBreakerCore Extern API Insert

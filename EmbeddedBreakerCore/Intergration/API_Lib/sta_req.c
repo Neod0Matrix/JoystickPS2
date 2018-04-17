@@ -17,14 +17,6 @@ void Get_MCU_SerialNumID (void)
 	U1SD("\r\nChip SerialNum-ID: %#08X-%08X-%08X\r\n", devID[0], devID[1], devID[2]);	
 } 
 
-//获取CPU主频
-uint32_t Get_BSP_CPU_ClkFreq (void)            
-{
-    RCC_ClocksTypeDef rcc_clocks;
-    RCC_GetClocksFreq(&rcc_clocks);               	//获取芯片的各种时钟频率
-    return ((uint32_t)rcc_clocks.HCLK_Frequency); 	//返回HCLK时钟频率
-}
-
 //预调功能算法测试接口(PTFAI)
 void PreTesFuncAlgInterface (void)
 {
@@ -62,7 +54,7 @@ void displaySystemInfo (void)
 		\r\nCPU HCLK:		%dHz\r\n\
 		\r\nCPU Flash: 		%sk\r\n\
 		\r\nCPU SRAM: 		%sk\r\n", 
-		__MCU_Model__, Get_BSP_CPU_ClkFreq(), 
+		__MCU_Model__, rcc_main_freq, 
 		__MCU_Flash_Size__, __MCU_SRAM_Size__);						
 	
 	//系统状态信息

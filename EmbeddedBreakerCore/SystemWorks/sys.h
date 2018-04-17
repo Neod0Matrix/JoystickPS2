@@ -69,6 +69,8 @@ typedef enum
 	PLLclk = (uint8_t)0x08,
 } SystemClock_Setting;
 
+extern uint32_t rcc_main_freq;
+
 //以下为汇编函数
 void WFI_SET (void);										//执行WFI指令
 void INTX_DISABLE (void);									//关闭所有中断
@@ -79,6 +81,7 @@ void MSR_MSP (u32 addr);									//设置堆栈地址
 void Sys_Soft_Reset (void);									//系统软件复位
 void NVIC_Configuration (void);								//NVIC配置
 void RCC_Configuration (uint32_t pll);						//RCC配置
+extern void Get_BSP_CPU_ClkFreq (void);						//获取CPU主频
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

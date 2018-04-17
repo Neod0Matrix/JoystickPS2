@@ -13,6 +13,18 @@ PS2_PrintKeyValue 			PS2P_Switch;
 void Modules_UniResConfig (void)
 {
 	//该函数设置内容可以更新Universal_Resource_Config函数原设置
+	/*
+		对框架而言，不显示模块的OLED部分
+		对应用的模块而言，不显示框架的常量字符
+		且需要使自己本身的显示生效
+		框架设置为失能，模块设置为使能
+	*/
+	MOE_Switch			= MOE_Enable;					//MOE_Enable		MOE_Disable
+	
+	/*
+		是否使能PS2键盘的打印调试，测试时建议开启
+		实际使用在保证正确率的情况下可以关闭
+	*/
 	PS2P_Switch 		= PS2P_Enable;					//PS2P_Enable		PS2P_Disable
 }
 

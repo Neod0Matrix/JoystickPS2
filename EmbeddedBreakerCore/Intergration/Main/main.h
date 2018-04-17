@@ -29,7 +29,8 @@
 
 //时钟设置
 #define InputOSCFreq			8						//输入晶振频率
-#define RCCMultipConst			(72 / InputOSCFreq)		//倍频系数
+#define RCCMultipConst72M		9						//72MHz倍频系数9，标准倍频
+#define RCCMultipConst128M		16						//128MHz倍频系数16，最大倍频
 
 /*
 	常用数据类型宏定义本质：
