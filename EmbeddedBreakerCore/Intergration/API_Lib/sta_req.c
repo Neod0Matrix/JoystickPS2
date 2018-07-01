@@ -38,14 +38,11 @@ void displaySystemInfo (void)
 	
 	//任务管理模式
 	__ShellHeadSymbol__; U1SD("TaskManager Type: ");
-	if (TMMS == Streak) 
-	{
-		U1SD("Ordinary Streak TaskRun\r\n");	
-	}
-	else if (TMMS == RTOS)					
-	{
-		U1SD("RTOS %s Support\r\n", __OS_Version__); 
-	}
+#ifdef useRTOSinProject
+	U1SD("RTOS %s Support\r\n", __OS_Version__); 
+#else
+	U1SD("Ordinary Streak TaskRun\r\n");	
+#endif
 	
 	//CPU信息
 	__ShellHeadSymbol__; 
@@ -68,10 +65,9 @@ void displaySystemInfo (void)
 	{
 		U1SD("\r\nMCU Temperature: 	%02.02f C\r\n", globalMCU_Temperature);//内部温度检测		
 	}
-	if (TMMS == RTOS)
-	{
-		U1SD("\r\nRTOS CPU Usage: 	%.2f%%\r\n", (float)RTOSCPUUsage / 100);//CPU占用率		
-	}
+#ifdef useRTOSinProject
+	U1SD("\r\nRTOS CPU Usage: 	%.2f%%\r\n", (float)RTOSCPUUsage / 100);//CPU占用率		
+#endif
 	U1SD("\r\nMemory Usage: 		%d%%\r\n", mem_perused());			//显示内存使用率	
 	
 	if (pwsf == JBoot)

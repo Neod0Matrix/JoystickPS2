@@ -37,9 +37,6 @@ extern Temperature_Warning_Switch 	Temp_Switch;
 //是否启用协议通信机制
 typedef enum {PC_Enable = 1, PC_Disable = !PC_Enable} 					Protocol_Com_Switch;
 extern Protocol_Com_Switch 			PC_Switch;
-//选择任务管理模式
-typedef enum {RTOS = 0, Streak = 1}										TaskManage_Mode_Select;
-extern TaskManage_Mode_Select 		TMMS;
 //是否开启24V输入电压欠压报警
 typedef enum {LVD_Enable = 1, LVD_Disable = !LVD_Enable}				Low_Voltage_Detect_Warning;
 extern Low_Voltage_Detect_Warning	LVD_Switch;
@@ -78,21 +75,20 @@ typedef enum
 	urc_pvd 	= 4,
 	urc_temp 	= 5,
 	urc_pc		= 6,
-	urc_task	= 7,
-	urc_lvd		= 8,
-	urc_hex		= 9,
-	urc_pid		= 10,
-	urc_psaux	= 11,
-	urc_dsd		= 12,
-	urc_hedr	= 13,
-	urc_moe		= 14,
-	urc_light	= 15,
-	urc_uifm	= 16,
+	urc_lvd		= 7,
+	urc_hex		= 8,
+	urc_pid		= 9,
+	urc_psaux	= 10,
+	urc_dsd		= 11,
+	urc_hedr	= 12,
+	urc_moe		= 13,
+	urc_light	= 14,
+	urc_uifm	= 15,
 }
 Global_Switch_Nbr;
 
 //设置框架内选项总数值
-#define FrameDefault_urcOption_Count	16u			
+#define FrameDefault_urcOption_Count	15u			
 
 //统一资源配置器
 extern void Universal_Resource_Config (void);

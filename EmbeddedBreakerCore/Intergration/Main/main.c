@@ -77,12 +77,11 @@ static void stackTaskManager (void)
 	pwsf = StartW;										
 	__ShellHeadSymbol__; U1SD("Step into Task Stack\r\n");
 	
-	//选择任务管理调度方式
-	switch (TMMS)										
-	{
-	case RTOS: 		RTOS_TaskMgr(); 	break;			//实时任务操作系统
-	case Streak:	Streak_TaskRun(); 	break;			//普通顺序调度任务	
-	}	
+#ifdef useRTOSinProject
+	RTOS_TaskMgr(); 									//实时任务操作系统
+#else
+	Streak_TaskRun(); 									//普通顺序调度任务	
+#endif
 }
 
 /*

@@ -11,7 +11,6 @@ OLED_Use_Switch 			OLED_Switch;				//是否启用OLED
 PVD_Check_Switch 			PVD_Switch;					//是否启用PVD电源电压低额监测
 Temperature_Warning_Switch 	Temp_Switch;				//是否启用内部温度监测报警
 Protocol_Com_Switch 		PC_Switch;					//是否启用协议通信机制
-TaskManage_Mode_Select 		TMMS;						//选择任务管理模式
 Low_Voltage_Detect_Warning	LVD_Switch;					//是否开启24V欠压报警
 hex_ErrorWarning_Switch		hexEW_Switch;				//是否开启16进制报警
 pidDebugSpeed_Switch		pidDS_Switch;				//是否启用PID算法调速
@@ -67,7 +66,7 @@ void Universal_Resource_Config (void)
 		STM32内部温度管理器
 		虽然精确度不高，但还是很有必要的预警
 	*/
-    Temp_Switch 		= Temp_Enable;					//Temp_Enable		Temp_Disable
+    Temp_Switch 		= Temp_Disable;					//Temp_Enable		Temp_Disable
 	
 	/*
 		使用工业现场用电24V供电时才开启	
@@ -80,7 +79,7 @@ void Universal_Resource_Config (void)
 		如果该框架用于工控设备
 		则需要设置为使能，使错误发生后直接复位
 	*/
-	HEDR_Switch			= HEDR_Disable;					//HEDR_Enable		HEDR_Disable
+	HEDR_Switch			= HEDR_Enable;					//HEDR_Enable		HEDR_Disable
 	
 	/*
 		框架自带娱乐使用的LED特效
@@ -122,11 +121,6 @@ void Universal_Resource_Config (void)
 		如果不开启MCU几乎不受外界控制
 	*/
     PC_Switch			= PC_Enable;					//PC_Enable			PC_Disable
-
-    /*
-		本工程属于可剪裁嵌入式项目，可以选择是否使用μCOS
-	*/
-	TMMS				= Streak;						//RTOS				Streak
 	
 	/*
 		ps -aux
@@ -161,7 +155,6 @@ void urcMapTable_Print (void)
 	U1SD("\r\n%02d 	PVD", urc_pvd);
 	U1SD("\r\n%02d 	Temperature", urc_temp);
 	U1SD("\r\n%02d 	Protocol COM Interface", urc_pc);
-	U1SD("\r\n%02d 	TaskManager", urc_task);
 	U1SD("\r\n%02d 	LowVoltage Detector", urc_lvd);
 	U1SD("\r\n%02d 	Hex Print Debug", urc_hex);
 	U1SD("\r\n%02d 	PID", urc_pid);
@@ -183,8 +176,7 @@ void urcMapTable_Print (void)
 void pclURC_DebugHandler (void)
 {
 	//取开关编号和状态位数据
-	Global_Switch_Nbr sw_type = (Global_Switch_Nbr)(*(USART1_RX_BUF + URC_SW_1Bit) * 10u 
-												+ 	*(USART1_RX_BUF + URC_SW_2Bit));
+	u8 sw_type = (*(USART1_RX_BUF + URC_SW_1Bit) * 10u + *(USART1_RX_BUF + URC_SW_2Bit));
 	u8 ed_status = *(USART1_RX_BUF + URC_ED_Bit);
 	
 	//接收数据处理
@@ -207,7 +199,6 @@ void pclURC_DebugHandler (void)
 		case urc_pvd: 		PVD_Switch 		= (PVD_Check_Switch)ed_status; 				break;
 		case urc_temp: 		Temp_Switch 	= (Temperature_Warning_Switch)ed_status; 	break;
 		case urc_pc: 		PC_Switch		= (Protocol_Com_Switch)ed_status;			break;	
-		case urc_task: 		TMMS			= (TaskManage_Mode_Select)ed_status;		break;	
 		case urc_lvd: 		LVD_Switch		= (Low_Voltage_Detect_Warning)ed_status;	break;	
 		case urc_hex: 		hexEW_Switch	= (hex_ErrorWarning_Switch)ed_status;		break;
 		case urc_pid: 		pidDS_Switch	= (pidDebugSpeed_Switch)ed_status;			break;

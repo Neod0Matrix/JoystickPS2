@@ -49,6 +49,7 @@ void Modules_NonInterruptTask (void);						//模块非中断任务，链接到lo
 void Modules_InterruptTask (void);							//模块中断任务，链接到time_base.c TIM2_IRQHandler函数中
 void Modules_RTC_TaskScheduler (void);						//基于RTC时间的任务计划，链接到local_taskmgr.c，默认添加到第四任务
 void Modules_StatusReqHandler (void);						//模块状态内容打印请求，链接到sta_req.c displaySystemInfo函数中
+void Modules_EXTI8_IRQHandler (void);						//模块插入到exti.c的PB8外部中断函数EXTI9_5_IRQHandler内，触发外部中断打断
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon

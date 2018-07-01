@@ -73,12 +73,6 @@ u8 HexCode_ToASCII (u8 hexcode)
 	return ascii; 
 } 
 
-//通信测试
-void CommunicationTest (void)
-{
-	__ShellHeadSymbol__; U1SD("Communication Successful\r\n");
-}
-
 /*
 	协议检查指令匹配
 	返回协议检查结果
@@ -152,7 +146,6 @@ void OrderResponse_Handler (void)
 {
     if (shellTrigger() == pcl_pass)									
     {
-		__ShellHeadSymbol__;
         switch (PO_Judge)											//后区分协议指令类型
         {
 		//-------------------------系统状态调试类指令-----------------------//
@@ -160,19 +153,19 @@ void OrderResponse_Handler (void)
             displaySystemInfo();									//显示系统信息
             break;													
         case pSOR:
-			U1SD("Software Control MCU Reset or Sleep\r\n");
+			__ShellHeadSymbol__; U1SD("Software Control MCU Reset or Sleep\r\n");
 			Protocol_CtrlResetorSuspend();							//复位or睡眠
             break;		
 		case pNQU:
-			U1SD("N Queen Question MCU Ability Test\r\n");
+			__ShellHeadSymbol__; U1SD("N Queen Question MCU Ability Test\r\n");
             nQueen_CalculusHandler();								//N皇后测试
             break;
 		case pURC:
-			U1SD("Protocol Setting URC\r\n");
+			__ShellHeadSymbol__; U1SD("Protocol Setting URC\r\n");
 			pclURC_DebugHandler();									//协议配置资源									
 			break;
 		case pMEW:
-			U1SD("Protocol Control Error-Warning\r\n");
+			__ShellHeadSymbol__; U1SD("Protocol Control Error-Warning\r\n");
 			ManualCtrlEW();											//手动控制报警
 			break;
 		
@@ -184,8 +177,12 @@ void OrderResponse_Handler (void)
 			break;
         }
 		
-		RTC_ReqOrderHandler();
-		Beep_Once;													//指令执行完毕哔一声								
+		//错误处理机制排除重复记录
+		if (PO_Judge != pMEW)
+		{
+			RTC_ReqOrderHandler();
+			Beep_Once;												//指令执行完毕哔一声	
+		}			
     }
 }
 

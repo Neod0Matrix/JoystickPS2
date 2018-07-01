@@ -67,15 +67,15 @@ void EXTI_Config_Init (void)
 //STEW--PB8
 void EXTI9_5_IRQHandler (void)
 {
+	
 #if SYSTEM_SUPPORT_OS 												//如果SYSTEM_SUPPORT_OS为真，则需要支持OS
 	OSIntEnter();    
 #endif
 	
 	if (EXTI_GetITStatus(Stew_EXTI_Line) != RESET)
 	{
-		EMERGENCYSTOP;												
+		Modules_EXTI8_IRQHandler();																
 		while (STEW_LTrigger);										//等待急停释放，允许长期检测
-		ERROR_CLEAR;												//急停复位后自动清除警报	
 	}	
 	EXTI_ClearITPendingBit(Stew_EXTI_Line);  						//清除EXTI线路挂起位
 	
@@ -86,4 +86,3 @@ void EXTI9_5_IRQHandler (void)
 
 //====================================================================================================
 //code by </MATRIX>@Neod Anderjon
-

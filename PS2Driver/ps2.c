@@ -306,7 +306,7 @@ void PS2_JoyStickResponseHandler (void)
 			case ps2r2: 		VibrateRightMotor; 				break;	//电机驱动
 			case ps2l1:			Sys_Soft_Reset(); 				break;	//软重启
 			case ps2r1:			nQueen_CalculusHandler();		break;	//8皇后
-			case ps2triangle:	CommunicationTest(); 			break;	//通信测试
+			case ps2triangle:						 			break;	
 			case ps2circle:		displaySystemInfo(); 			break;	//系统信息显示
 			case ps2cross:		ERROR_CLEAR;					break;	//清除错误报警
 			case ps2square:		ManualCtrlEW();					break;	//强制报警

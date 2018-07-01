@@ -51,6 +51,7 @@ typedef enum
 		@EmbeddedBreakerCore Extern API Insert
 	*/
 	pMDLS	= 5,
+	pOLCP	= 6,
 } Protocol_Order;
 extern Protocol_Order PO_Judge;							//判断标识
 
@@ -65,7 +66,6 @@ pclShell_Status shellTrigger (void);					//协议栈检查、shell触发器
 u8 ASCII_ToHexCode (u8 ascii);							//ASCII码转16进制码
 u8 HexCode_ToASCII (u8 hexcode);						//16进制码转ascii
 extern void NewCoor_ReqOrder (void);					//请求坐标
-void CommunicationTest (void);							//通信测试
 extern void Response_Strings (void);					//通信起始标志
 extern void OrderResponse_Handler (void);				//指令响应器
 

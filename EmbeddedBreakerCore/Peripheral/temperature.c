@@ -30,17 +30,8 @@ void adcInnerTemperature_Init (void)
 					ADC_DataAlign_Right,											//ADC数据右对齐
 					NumberOfADCChannel);	
 
-	//温度ADC通道使能开关
-	if (Temp_Switch == Temp_Enable)
-	{
-		ADC_TempSensorVrefintCmd(ENABLE); 											//开启内部温度传感器
-		ADC_Cmd(ADCx_Number, ENABLE);												//使能指定的ADCx
-	}
-	else
-	{
-		ADC_TempSensorVrefintCmd(DISABLE); 											//关闭内部温度传感器
-		ADC_Cmd(ADCx_Number, DISABLE);												//失能指定的ADCx
-	}
+	ADC_TempSensorVrefintCmd(ENABLE); 												//开启内部温度传感器
+	ADC_Cmd(ADCx_Number, ENABLE);													//使能指定的ADCx
 	KF_1DerivFactor_Init(&itd_kf);													//温度滤波因子初始化
 }
 
@@ -55,10 +46,11 @@ void MCU_Temperature_Detector (void)
 	if (act_temp != globalMCU_Temperature)	
 		act_temp = globalMCU_Temperature;			
 	//内部温度检测主要工作：温度预警	
-	if (act_temp >= Warning_Temperature && pwsf != JBoot)
+	//温度ADC通道使能开关
+	if (act_temp >= Warning_Temperature && pwsf != JBoot && Temp_Switch == Temp_Enable)
 	{
 		delay_ms(200);
-		if (act_temp >= Warning_Temperature && pwsf != JBoot)
+		if (act_temp >= Warning_Temperature)
 			TEMPERATUREEXCESS;														
 	}
 }

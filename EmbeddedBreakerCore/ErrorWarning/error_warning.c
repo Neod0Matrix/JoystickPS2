@@ -72,20 +72,18 @@ void EW_TriggerHandler (globalSystem_EW sys_ew)										//函数调用传参，
 
 				//故障清除，这里不做设置，只是应付switch-case的语法
 			case Error_Clear: 															break;											
-			}
+			}										
 		}
 		//故障清除或者无错误
 		else
 		{
 			LEDGroupCtrl(led_0, Off);												//关闭故障提示灯
-			Beep_Once;	
 			U1SD("[!CLEAR!!CLEAR!] No Error or Error Clear\r\n");
 		}
 		Beep_Once;																	//蜂鸣器最后哔一声
-		
 		//打印报错机制的激活时间，用于日志记录
 		__ShellHeadSymbol__; U1SD("Log EW-Ruler Active Time\r\n");	
-		RTC_ReqOrderHandler();														
+		RTC_ReqOrderHandler();				
     }
 }
 
@@ -98,7 +96,7 @@ void ManualCtrlEW (void)
 	__ShellHeadSymbol__;
 	if (cmdType < ManualCtrlLimit)	
 	{
-		U1SD("Receive EW Command: [%d]\r\n", cmdType);		
+		U1SD("Receive EW Command Number: %d\r\n", cmdType);		
 		
 		switch (cmdType)
 		{
