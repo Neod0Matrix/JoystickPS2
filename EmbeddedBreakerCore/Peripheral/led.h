@@ -9,6 +9,7 @@
 #define LED1 		PDout(2)			//PD2 	绿灯 系统运行状态指示灯(初始化过程常亮，正常状态闪烁，报警时关闭)
 #define LED2 		PCout(11)			//PC11 	蓝灯 呼吸灯(初始化过程关闭，正常状态呼吸，报警时关闭)
 #define LED3		PCout(12)			//PC12 	蓝灯 随机灯(初始化过程关闭，正常状态随机闪烁，报警时关闭)
+#define LED_PWM		PAout(12)			//PA12 	固定PWM输出
 
 //LED共阳设计，低电平有效
 typedef enum {LED_On = 0, LED_Off = !LED_On} LED_Status;
@@ -27,6 +28,15 @@ typedef enum {LED_On = 0, LED_Off = !LED_On} LED_Status;
 #define LED3_Off	(LED3 = LED_Off)
 #define LED3_Blink	(LED3 = !LED3)
 
+//该PWM从端口输出，经过ULN2003A
+#ifdef use_ULN2003A
+#define LED_PWM_On	(LED_PWM = LED_Off)
+#define LED_PWM_Off	(LED_PWM = LED_On)
+#else
+#define LED_PWM_On	(LED_PWM = LED_On)
+#define LED_PWM_Off	(LED_PWM = LED_Off)
+#endif
+
 //LED集群编号
 typedef enum
 {
@@ -34,6 +44,7 @@ typedef enum
 	led_1 = 1,
 	led_2 = 2,
 	led_3 = 3,
+	led_pwm = 4,
 } LEDGroupNbr;
 
 //LED动作列表
@@ -55,12 +66,16 @@ typedef __packed struct
 extern BreathPWMGroup led2;
 extern Bool_ClassType StopLightEffect;
 
+extern u8 gloablPWM_dutyCycle;
+
 void LED_Init (void);					//初始化
 extern void LEDGroupCtrl (LEDGroupNbr nbr, LEDMoveList mv);
 extern void Aft_PeriInit_Blink (void);	//系统外设初始化完成标志
 extern void BlinkLED_StatusCtrl (void);	
 void LightEffectDisable (void);
 void BreathPara_Init (BreathPWMGroup *led_nbr, u32 iv);
+void StablePWMProduce (u8 duty_cycle);
+void Get_pwmDutyCycle (void);
 void BreathPWMProduce (LEDGroupNbr nbr, BreathPWMGroup *led_nbr);
 extern void BreathLEDGroupCall (void);
 

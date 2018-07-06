@@ -13,6 +13,7 @@
 //结构体声明
 BreathPWMGroup led2;								
 Bool_ClassType StopLightEffect = False;						//停止LED特效标志
+u8 gloablPWM_dutyCycle = 0u;								//全局PWM占空比
 
 //LED IO初始化
 void LED_Init (void)
@@ -44,6 +45,16 @@ void LED_Init (void)
 						GPIOC,					
 						IHL,				
 						EBO_Disable);
+	
+	//PA12 固定PWM发生测试IO
+	ucGPIO_Config_Init (RCC_APB2Periph_GPIOA,										
+						GPIO_Mode_Out_PP,					
+						GPIO_Speed_50MHz,						
+						GPIORemapSettingNULL,			
+						GPIO_Pin_12,							
+						GPIOA,					
+						IHL,				
+						EBO_Enable);	
 	
 	//呼吸灯参数初始化
 	BreathPara_Init(&led2, LED2BreathInterval);
@@ -88,6 +99,14 @@ void LEDGroupCtrl (LEDGroupNbr nbr, LEDMoveList mv)
 		case On: 	LED3_On; 	break;
 		case Off: 	LED3_Off;	break;
 		case Blink: LED3_Blink;	break;
+		}
+		break;
+	case led_pwm:
+		switch (mv)
+		{
+		case On: 	LED_PWM_On; break;
+		case Off: 	LED_PWM_Off;break;
+		case Blink:				break;						//PWM输出没有Blink选项意义	
 		}
 		break;
 	}
@@ -147,20 +166,26 @@ void BlinkLED_StatusCtrl (void)
 	}
 	else if (Return_Error_Type == Error_Clear && pwsf != JBoot && globalSleepflag == SysOrdWork) 
 	{
-		if (runledBlinkSem++ == TickDivsIntervalus(BlinkInterval) - 1
-			&& Light_Switch == Light_Enable)
+		//外设运行指示绿灯
+		if (runledBlinkSem++ == TickDivsIntervalus(BlinkInterval) - 1)
 		{
 			runledBlinkSem = 0u;
 			LEDGroupCtrl(led_1, Blink);															
 		}
-		//可以关闭随机灯
+		//随机灯
 		if (randledBlinkSem++ == TickDivsIntervalus(randledinterval) - 1 
 			&& Light_Switch == Light_Enable)
 		{
 			randledBlinkSem = 0u;
 			LEDGroupCtrl(led_3, Blink);	
+			
 			//更新随机闪烁间隔
 			randledinterval = RangeRandom(InvalMinLimit, InvalMaxLimit);
+		}
+		//关闭随机灯
+		else if (Light_Switch == Light_Disable)
+		{
+			//这里不作处理
 		}
 	}
 }
@@ -178,6 +203,47 @@ void BreathPara_Init (BreathPWMGroup *led_nbr, u32 iv)
 }
 
 /*
+	算法固定占空比发生器
+	该算法经过测试在dutyRange设置为100，dutyRange每次递减1的情况下得到177.78Hz左右的频率
+	若修改val(dutyRange)/delta(dutyRange)的比值就能对PWM波频率进行倍频或者分频
+	但随之duty_cycle也要倍乘该系数才能符合协议设定值
+	但PWM占空比的分辨率就变成了delta(dutyRange)
+	总而言之不是个好方法
+*/
+void StablePWMProduce (u8 duty_cycle)
+{
+	static u16 dutyRange = 100u;
+	
+	//初始化过程关闭
+	if (pwsf == JBoot || Return_Error_Type != Error_Clear)
+		LEDGroupCtrl(led_pwm, Off);							//IO置高
+	else if (Return_Error_Type == Error_Clear && pwsf != JBoot 
+		&& globalSleepflag == SysOrdWork) 
+	{
+		//产生固定占空比的PWM波
+		if (duty_cycle == dutyRange)
+			LEDGroupCtrl(led_pwm, Off);						//IO置高
+		if (dutyRange == 0u)
+		{
+			LEDGroupCtrl(led_pwm, On);						//IO置低
+			dutyRange = 100u;
+		}
+		dutyRange -= 1u;
+	}
+}
+
+//协议取得PWM占空比
+void Get_pwmDutyCycle (void)
+{
+	u8 duty_cycle = (*(USART1_RX_BUF + PWM_DutyCycle_1Bit) * 10u 
+		+ *(USART1_RX_BUF + PWM_DutyCycle_1Bit + 1));
+	
+	__ShellHeadSymbol__; U1SD("Get PWM Duty Cycle Value: %d\r\n", duty_cycle);
+	
+	gloablPWM_dutyCycle = duty_cycle;						//全局传参
+}
+
+/*
 	呼吸灯效果生成
 	传参：LED灯组编号，呼吸灯结构体
 */
@@ -190,8 +256,8 @@ void BreathPWMProduce (LEDGroupNbr nbr, BreathPWMGroup *led_nbr)
 		&& globalSleepflag == SysOrdWork && Light_Switch == Light_Enable) 
 	{
 		//初始状态
-		(led_nbr -> breathCtrlSem <= led_nbr -> dutyCycle)? \
-			LEDGroupCtrl(nbr, On) : LEDGroupCtrl(nbr, Off);
+		LEDGroupCtrl(nbr, 
+			(led_nbr -> breathCtrlSem <= led_nbr -> dutyCycle)? On:Off);
 		
 		if (led_nbr -> breathCtrlSem++ == TickDivsIntervalus(led_nbr -> breathInterval) - 1)
 		{
@@ -222,6 +288,7 @@ void BreathPWMProduce (LEDGroupNbr nbr, BreathPWMGroup *led_nbr)
 void BreathLEDGroupCall (void)
 {		
 	BreathPWMProduce(led_2, &led2);
+	StablePWMProduce(gloablPWM_dutyCycle);
 	LightEffectDisable();
 }
 
